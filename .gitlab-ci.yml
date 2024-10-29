@@ -1,12 +1,14 @@
 image: docker:latest
 
 services:
-  - docker:dind
+  - name: docker:dind
+    command: ["--tls=false"]  # TLS 비활성화
 
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_IMAGE: "veronica2550/ormee-server"
   TAG: "latest"
+  DOCKER_TLS_CERTDIR: ""  # TLS 인증서 비활성화
 
 stages:
   - build
@@ -18,3 +20,5 @@ build:
     - docker build -t $DOCKER_IMAGE:$TAG .
   only:
     - main  # 빌드할 브랜치
+  tags:
+    - docker  # 사용 중인 Runner의 태그
