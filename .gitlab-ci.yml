@@ -1,23 +1,44 @@
-build-job:
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_IMAGE: "ormee-server"
+  TAG: "latest"
+
+stages:
+  - build
+  - deploy
+
+# Build Stage
+build:
   stage: build
   script:
-    - echo "Hello, $GITLAB_USER_LOGIN!"
+    - echo "Starting build stage..."
+    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHA .
+    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHA $DOCKER_IMAGE:$TAG
+  only:
+    - main  # main 브랜치에 push할 때만 빌드
 
-test-job1:
-  stage: test
-  script:
-    - echo "This job tests something"
-
-test-job2:
-  stage: test
-  script:
-    - echo "This job tests something, but takes more time than test-job1."
-    - echo "After the echo commands complete, it runs the sleep command for 20 seconds"
-    - echo "which simulates a test that runs 20 seconds longer than test-job1"
-    - sleep 20
-
-deploy-prod:
+# Deploy Stage
+deploy:
   stage: deploy
   script:
-    - echo "This job deploys something from the $CI_COMMIT_BRANCH branch."
-  environment: production
+    - echo "Deploying to server..."
+    # Docker Registry에 로그인하고 이미지 푸시
+    - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" "$DOCKER_REGISTRY"
+    - docker push $DOCKER_IMAGE:$TAG
+    # SSH를 이용해 EC2 서버에 접속, 기존 컨테이너 중지 후 새로운 이미지로 재실행
+    - ssh -o StrictHostKeyChecking=no ec2-user@3.38.96.157 "..."
+        docker pull $DOCKER_IMAGE:$TAG &&
+        docker stop current_container || true &&
+        docker rm current_container || true &&
+        docker run -d --name current_container -p 80:8080 $DOCKER_IMAGE:$TAG
+      "
+  only:
+    - main
+  environment:
+    name: production
+    url: http://3.38.96.157  # 배포할 서버의 URL
