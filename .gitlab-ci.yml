@@ -5,40 +5,16 @@ services:
 
 variables:
   DOCKER_DRIVER: overlay2
-  DOCKER_IMAGE: "ormee-server"
+  DOCKER_IMAGE: "veronica2550/ormee-server"
   TAG: "latest"
 
 stages:
   - build
-  - deploy
 
-# Build Stage
 build:
   stage: build
   script:
-    - echo "Starting build stage..."
-    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHA .
-    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHA $DOCKER_IMAGE:$TAG
+    - echo "Building the Docker image..."
+    - docker build -t $DOCKER_IMAGE:$TAG .
   only:
-    - main  # main 브랜치에 push할 때만 빌드
-
-# Deploy Stage
-deploy:
-  stage: deploy
-  script:
-    - echo "Deploying to server..."
-    # Docker Registry에 로그인하고 이미지 푸시
-    - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" "$DOCKER_REGISTRY"
-    - docker push $DOCKER_IMAGE:$TAG
-    # SSH를 이용해 EC2 서버에 접속, 기존 컨테이너 중지 후 새로운 이미지로 재실행
-    - ssh -o StrictHostKeyChecking=no ec2-user@3.38.96.157 "..."
-        docker pull $DOCKER_IMAGE:$TAG &&
-        docker stop current_container || true &&
-        docker rm current_container || true &&
-        docker run -d --name current_container -p 80:8080 $DOCKER_IMAGE:$TAG
-      "
-  only:
-    - main
-  environment:
-    name: production
-    url: http://3.38.96.157  # 배포할 서버의 URL
+    - main  # 빌드할 브랜치
