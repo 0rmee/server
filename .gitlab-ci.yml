@@ -4,9 +4,9 @@ stages:
 
 build:
   stage: build
-  image: gradle:7.6-jdk17 # Gradle과 JDK 17이 포함된 이미지
+  image: gradle:8.10.2-jdk17
   script:
-    - gradle clean build # Gradle 빌드 수행
+    - ./gradlew clean build
   artifacts:
     paths:
       - build/libs/*.jar # 빌드 후 .jar 파일을 아티팩트로 저장
