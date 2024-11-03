@@ -19,7 +19,7 @@ docker_build:
   variables:
     DOCKER_DRIVER: overlay2
   before_script:
-    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD # Docker Hub 로그인
+    - echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin # Docker Hub 로그인
   script:
     - echo "Building the Docker image..."
     - docker build -t $DOCKER_IMAGE:$TAG .
