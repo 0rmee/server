@@ -12,8 +12,6 @@ stages:
 variables:
   IMAGE_TAG: $CI_COMMIT_SHA
   DOCKER_IMAGE: ${DOCKER_USERNAME}/ormee-server
-  DOCKER_TLS_CERTDIR: ""  # TLS 비활성화
-  DOCKER_HOST: tcp://docker:2375  # Docker 데몬 연결
 
 build:
   stage: build
@@ -29,10 +27,9 @@ docker_build:
   stage: docker
   image: docker:latest
   services:
-    - name: docker:dind
-      command: ["--tls=false"]
+    - docker:dind
   variables:
-    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
   script:
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     - docker build -t $DOCKER_IMAGE:$IMAGE_TAG .
