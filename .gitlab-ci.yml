@@ -31,7 +31,7 @@ docker_build:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   script:
-    - echo "$DOCKER_PASSWORD" | docker login docker.io -u "$DOCKER_USERNAME" --password-stdin
+    - echo "$DOCKER_PASSWORD" | docker login docker.io -u $DOCKER_USERNAME --password-stdin
     - docker build -t $DOCKER_IMAGE:$IMAGE_TAG .
     - docker push $DOCKER_IMAGE:$IMAGE_TAG
     - docker tag $DOCKER_IMAGE:$IMAGE_TAG $DOCKER_IMAGE:latest
