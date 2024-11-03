@@ -52,4 +52,5 @@ deploy_to_ec2:
         docker rmi $DOCKER_IMAGE:$IMAGE_TAG || true &&
         docker pull $DOCKER_IMAGE:$IMAGE_TAG &&
         docker run -d --name app_container -p 8080:8080 $DOCKER_IMAGE:$IMAGE_TAG"
+        
       
