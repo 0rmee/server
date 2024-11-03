@@ -1,6 +1,17 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - when: never
+
 stages:
   - build
   - docker
+  - deploy
+
+variables:
+  IMAGE_TAG: $CI_COMMIT_SHA
+  DOCKER_IMAGE: ${DOCKER_USERNAME}/ormee-server
 
 build:
   stage: build
@@ -9,7 +20,8 @@ build:
     - ./gradlew clean build
   artifacts:
     paths:
-      - build/libs/*.jar # 빌드 후 .jar 파일을 아티팩트로 저장
+      - build/libs/*.jar
+    expire_in: 1 day
 
 docker_build:
   stage: docker
@@ -17,10 +29,27 @@ docker_build:
   services:
     - docker:dind
   variables:
-    DOCKER_DRIVER: overlay2
-  before_script:
-    - echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin # Docker Hub 로그인
+    DOCKER_TLS_CERTDIR: "/certs"
   script:
-    - echo "Building the Docker image..."
-    - docker build -t $DOCKER_IMAGE:$TAG .
-    - docker push $DOCKER_IMAGE:$TAG # 빌드한 이미지를 Docker Hub에 푸시
+    - echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+    - docker build -t $DOCKER_IMAGE:$IMAGE_TAG .
+    - docker push $DOCKER_IMAGE:$IMAGE_TAG
+    - docker tag $DOCKER_IMAGE:$IMAGE_TAG $DOCKER_IMAGE:latest
+    - docker push $DOCKER_IMAGE:latest
+
+deploy_to_ec2:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
+        docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD &&
+        docker stop app_container || true &&
+        docker rm app_container || true &&
+        docker rmi $DOCKER_IMAGE:$IMAGE_TAG || true &&
+        docker pull $DOCKER_IMAGE:$IMAGE_TAG &&
+        docker run -d --name app_container -p 8080:8080 $DOCKER_IMAGE:$IMAGE_TAG"
+      
