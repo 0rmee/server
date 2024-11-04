@@ -33,9 +33,18 @@ docker_build:
   stage: docker
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      alias: docker
   variables:
+    # Docker TLS 인증서 설정
     DOCKER_TLS_CERTDIR: "/certs"
+    # Docker 호스트 설정
+    DOCKER_HOST: tcp://docker:2376
+    # TLS 사용
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  before_script:
+    - docker info  # Docker 데몬 연결 테스트
   script:
     # GitLab Registry 로그인 (CI_REGISTRY_USER와 CI_REGISTRY_PASSWORD는 GitLab이 자동으로 제공)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
