@@ -59,7 +59,7 @@ deploy_to_ec2:
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - |
-      ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
+      ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "
         # GitLab Registry 로그인
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         
@@ -78,4 +78,3 @@ deploy_to_ec2:
         
         # 미사용 이미지 정리
         docker image prune -f"
-        
