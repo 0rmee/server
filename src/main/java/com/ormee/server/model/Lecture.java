@@ -1,6 +1,5 @@
 package com.ormee.server.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,15 +30,15 @@ public class Lecture extends EntityTime {
     @Column(nullable = false)
     private String description;
 
-    @ElementCollection(targetClass = LectureDay.class)
-    @CollectionTable(name = "lecture_day", joinColumns = @JoinColumn(name = "lecture_id"))
+    @ElementCollection(targetClass = LectureDays.class)
+    @CollectionTable(name = "lectureDay", joinColumns = @JoinColumn(name = "lecture_id"))
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private List<LectureDay> lecture_day;
+    private List<LectureDays> lectureDay;
 
     @Column(nullable = false)
-    private LocalTime lecture_time;
+    private LocalTime lectureTime;
 
     @Column(nullable = false)
-    private LocalDateTime due_time;
+    private LocalDateTime dueTime;
 }

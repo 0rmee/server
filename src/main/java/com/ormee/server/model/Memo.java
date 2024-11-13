@@ -27,5 +27,5 @@ public class Memo extends EntityTime{
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime due_time;
+    private LocalDateTime dueTime;
 }
