@@ -34,10 +34,13 @@ docker_build:
   image: docker:latest
   services:
     - name: docker:dind
+      command: ["--tls=false"]
   variables:
     # TLS 비활성화
     DOCKER_TLS_CERTDIR: ""   
-    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: tcp://docker:2375
+  before_script:
+    - until docker info; do sleep 1; done
   script:
     # GitLab Registry 로그인 (CI_REGISTRY_USER와 CI_REGISTRY_PASSWORD는 GitLab이 자동으로 제공)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
