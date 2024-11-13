@@ -37,7 +37,7 @@ docker_build:
   variables:
     # TLS 비활성화
     DOCKER_TLS_CERTDIR: ""   
-    DOCKER_HOST: tcp://docker:2375
+    DOCKER_HOST: tcp://localhost:2375
   script:
     # GitLab Registry 로그인 (CI_REGISTRY_USER와 CI_REGISTRY_PASSWORD는 GitLab이 자동으로 제공)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
