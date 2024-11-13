@@ -39,6 +39,7 @@ docker_build:
     # TLS 비활성화
     DOCKER_TLS_CERTDIR: ""   
     DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
   before_script:
     - until docker info; do sleep 1; done
   script:
