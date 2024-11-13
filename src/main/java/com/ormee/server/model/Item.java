@@ -1,4 +1,22 @@
 package com.ormee.server.model;
 
-public class Item {
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+public class Item extends EntityTime {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "problem_id")
+    private Problem problem;
+
+    @Column
+    private String content;
 }

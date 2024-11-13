@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Teacher extends EntityTime{
 
     @Id
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
