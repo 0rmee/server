@@ -1,6 +1,6 @@
 package com.ormee.server.model;
 
-public enum LectureDays {
+public enum LectureDay {
     MON,
     TUE,
     WED,
