@@ -1,5 +1,6 @@
 package com.ormee.server.service;
 
+import com.ormee.server.dto.SignInDto;
 import com.ormee.server.dto.TeacherDto;
 import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.TeacherRepository;
@@ -27,4 +28,13 @@ public class TeacherService {
                 .image(teacher != null ? teacher.getImage() : null)
                 .build();
     }
+
+    public Boolean checkTeacherPassword(SignInDto signInDto) {
+        Teacher teacher = teacherRepository.findById(signInDto.getId()).orElse(null);
+        if (teacher == null) {
+            return false;
+        }
+        return teacher.getPassword().equals(signInDto.getPassword());
+    }
+
 }

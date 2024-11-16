@@ -1,5 +1,6 @@
 package com.ormee.server.controller;
 
+import com.ormee.server.dto.SignInDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ public class TeacherController {
         return ResponseDto.success(teacherService.getTeacherById(id));
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseDto<TeacherDto> teacherInfo(@PathVariable UUID id) {
-//        return ResponseDto.success(teacherService.getTeacherById(id));
-//    }
+    @PostMapping("/check")
+    public ResponseDto teacherCheck(@RequestBody SignInDto signInDto) {
+        return ResponseDto.success(teacherService.checkTeacherPassword(signInDto));
+    }
 }
