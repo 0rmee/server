@@ -24,6 +24,7 @@ public class TeacherService {
                 .name(teacher != null ? teacher.getName() : null)
                 .email(teacher != null ? teacher.getEmail() : null)
                 .phoneNumber(teacher != null ? teacher.getPhoneNumber() : null)
+                .image(teacher != null ? teacher.getImage() : null)
                 .build();
     }
 }
