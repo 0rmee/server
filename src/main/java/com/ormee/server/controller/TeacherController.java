@@ -1,7 +1,27 @@
 package com.ormee.server.controller;
 
-import org.springframework.stereotype.Controller;
+import com.ormee.server.dto.SignInDto;
+import com.ormee.server.dto.response.ResponseDto;
+import com.ormee.server.service.TeacherService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/teacher/users")
 public class TeacherController {
+
+    @Autowired
+    private TeacherService teacherService;
+
+    @GetMapping("/{id}")
+    public ResponseDto teacherInfo(@PathVariable UUID id) {
+        return ResponseDto.success(teacherService.getTeacherById(id));
+    }
+
+    @PostMapping("/check")
+    public ResponseDto teacherCheck(@RequestBody SignInDto signInDto) {
+        return ResponseDto.success(teacherService.checkTeacherPassword(signInDto));
+    }
 }

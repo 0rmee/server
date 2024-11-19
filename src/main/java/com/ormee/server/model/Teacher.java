@@ -26,4 +26,7 @@ public class Teacher extends EntityTime{
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = true)
+    private String image;
 }
