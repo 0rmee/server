@@ -1,5 +1,6 @@
 package com.ormee.server.service;
 
+import com.ormee.server.config.CodeGenerator;
 import com.ormee.server.dto.SignInDto;
 import com.ormee.server.dto.SignUpDto;
 import com.ormee.server.dto.TeacherDto;
@@ -7,16 +8,17 @@ import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class TeacherService {
 
     private final TeacherRepository teacherRepository;
+    private final CodeGenerator codeGenerator;
 
-    public TeacherService(TeacherRepository teacherRepository) {
+    public TeacherService(TeacherRepository teacherRepository, CodeGenerator codeGenerator) {
         this.teacherRepository = teacherRepository;
+        this.codeGenerator = codeGenerator;
     }
 
     public TeacherDto getTeacherById(UUID id) {
@@ -31,11 +33,11 @@ public class TeacherService {
     }
 
     public void signUp(SignUpDto signUpDto) {
-        teacherRepository.save(SignUpDto.toEntity(signUpDto));
+        teacherRepository.save(SignUpDto.toEntity(signUpDto, codeGenerator.generateCode()));
     }
 
     public Boolean checkTeacherPassword(SignInDto signInDto) {
-        Teacher teacher = teacherRepository.findById(signInDto.getId()).orElse(null);
+        Teacher teacher = teacherRepository.findByCode(signInDto.getCode()).orElse(null);
         if (teacher == null) {
             return false;
         }

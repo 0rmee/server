@@ -13,8 +13,9 @@ public class SignUpDto {
     private String password;
     private String image;
 
-    public static Teacher toEntity(SignUpDto signUpDto) {
+    public static Teacher toEntity(SignUpDto signUpDto, Integer code) {
         return Teacher.builder()
+                .code(code)
                 .name(signUpDto.name)
                 .email(signUpDto.email)
                 .phoneNumber(signUpDto.phoneNumber)

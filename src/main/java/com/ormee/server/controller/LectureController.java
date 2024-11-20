@@ -1,6 +1,6 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.LectureDto;
+import com.ormee.server.dto.LectureRequestDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.LectureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,8 @@ public class LectureController {
     private LectureService lectureService;
 
     @PostMapping("/{teacherCode}")
-    public ResponseDto createLecture(@RequestBody LectureDto lectureDto, @PathVariable Integer teacherCode) {
-        return ResponseDto.success(lectureService.saveLecture(lectureDto, teacherCode));
+    public ResponseDto createLecture(@RequestBody LectureRequestDto lectureRequestDto, @PathVariable Integer teacherCode) {
+        return ResponseDto.success(lectureService.saveLecture(lectureRequestDto, teacherCode));
     }
 
     @GetMapping("/{code}")

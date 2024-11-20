@@ -42,7 +42,10 @@ public class Lecture extends EntityTime {
     private List<LectureDay> lectureDays;
 
     @Column(nullable = false)
-    private LocalTime lectureTime;
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
 
     @Column(nullable = false)
     private LocalDateTime dueTime;
