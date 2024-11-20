@@ -26,7 +26,7 @@ public class LectureService {
         Teacher teacher = teacherRepository.findByCode(teacherCode).orElse(null);
         Integer lectureCode = codeGenerator.generateCode();
 
-        while(!lectureRepository.existsByCode(lectureCode)) {
+        while(lectureRepository.existsByCode(lectureCode)) {
             lectureCode = codeGenerator.generateCode();
         }
 
