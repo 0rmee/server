@@ -1,8 +1,7 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -14,6 +13,9 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Lecture extends EntityTime {
 
     @Id
@@ -23,6 +25,9 @@ public class Lecture extends EntityTime {
     @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
+
+    @Column(nullable = false, unique = true)
+    private Integer code;
 
     @Column(nullable = false)
     private String title;

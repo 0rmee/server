@@ -15,6 +15,9 @@ public class Teacher extends EntityTime{
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false, unique = true)
+    private Integer code;
+
     @Column(nullable = false)
     private String name;
 
