@@ -1,6 +1,7 @@
 package com.ormee.server.service;
 
 import com.ormee.server.dto.SignInDto;
+import com.ormee.server.dto.SignUpDto;
 import com.ormee.server.dto.TeacherDto;
 import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.TeacherRepository;
@@ -27,6 +28,10 @@ public class TeacherService {
                 .phoneNumber(teacher != null ? teacher.getPhoneNumber() : null)
                 .image(teacher != null ? teacher.getImage() : null)
                 .build();
+    }
+
+    public void signUp(SignUpDto signUpDto) {
+        teacherRepository.save(SignUpDto.toEntity(signUpDto));
     }
 
     public Boolean checkTeacherPassword(SignInDto signInDto) {
