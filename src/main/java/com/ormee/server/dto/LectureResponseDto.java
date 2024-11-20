@@ -10,10 +10,17 @@ import java.util.List;
 
 @Data
 @Builder
-public class LectureDto {
+public class LectureResponseDto {
+    private String id;
+    private String profileImage;
+    private String name;
     private String title;
     private String description;
     private List<LectureDay> lectureDays;
-    private LocalTime lectureTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private LocalDateTime dueTime;
+    private List<QuizDto> quizList;
+    private Integer activeQuizCount;
+    private boolean messageAvailable;
 }

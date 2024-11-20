@@ -6,6 +6,6 @@ import java.util.UUID;
 
 @Data
 public class SignInDto {
-    private UUID id;
+    private Integer code;
     private String password;
 }
