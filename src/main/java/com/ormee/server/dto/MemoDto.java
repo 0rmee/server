@@ -9,4 +9,5 @@ public class MemoDto {
     private String title;
     private String description;
     private LocalDateTime dueTime;
+    private Boolean isOpen;
 }

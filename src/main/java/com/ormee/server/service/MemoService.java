@@ -28,6 +28,7 @@ public class MemoService {
                         .title(memo.getTitle())
                         .description(memo.getDescription())
                         .dueTime(memo.getDueTime())
+                        .isOpen(memo.getIsOpen())
                         .submit(getSubmitCount(memo.getId()))
                         .build())
                 .collect(Collectors.toList());
@@ -43,6 +44,7 @@ public class MemoService {
         memo.setTitle(memoDto.getTitle());
         memo.setDescription(memoDto.getDescription());
         memo.setDueTime(memoDto.getDueTime());
+        memo.setIsOpen(memoDto.getIsOpen());
 
         return memoRepository.save(memo);
     }

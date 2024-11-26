@@ -11,5 +11,6 @@ public class MemoListDto {
     private String title;
     private String description;
     private LocalDateTime dueTime;
+    private Boolean isOpen;
     private Integer submit;
 }
