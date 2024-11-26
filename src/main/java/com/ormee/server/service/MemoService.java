@@ -35,7 +35,6 @@ public class MemoService {
     }
 
     private Integer getSubmitCount(Long memoId) {
-
         return messageRepository.countByMemoId(memoId);
     }
 
