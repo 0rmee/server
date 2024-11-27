@@ -18,21 +18,19 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping("/student/{lectureId}/{memoId}/messages")
+    @PostMapping("/student/{memoId}/messages")
     public ResponseDto submitMessage(
-            @PathVariable UUID lectureId,
             @PathVariable long memoId,
             @RequestBody MessageSubmitDto messageSubmitDto
     ){
-        messageService.submitMessage(lectureId, memoId, messageSubmitDto);
+        messageService.submitMessage(memoId, messageSubmitDto);
         return ResponseDto.success();
     }
 
-    @GetMapping("/teacher/{lectureId}/{memoId}/messages")
+    @GetMapping("/teacher/{memoId}/messages")
     public ResponseDto getMessages(
-            @PathVariable UUID lectureId,
             @PathVariable Long memoId
     ){
-        return ResponseDto.success(messageService.getMessages(lectureId, memoId));
+        return ResponseDto.success(messageService.getMessages(memoId));
     }
 }
