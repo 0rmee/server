@@ -1,11 +1,14 @@
 package com.ormee.server.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class QuizDto {
+@Builder
+public class QuizListDto {
     private String id;
     private String quizName;
     private String quizDate;
+    private Long timeLimit;
     private Boolean quizAvailable;
 }

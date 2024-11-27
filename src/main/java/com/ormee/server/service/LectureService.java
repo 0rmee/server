@@ -3,7 +3,7 @@ package com.ormee.server.service;
 import com.ormee.server.config.CodeGenerator;
 import com.ormee.server.dto.LectureRequestDto;
 import com.ormee.server.dto.LectureResponseDto;
-import com.ormee.server.dto.QuizDto;
+import com.ormee.server.dto.QuizListDto;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.LectureRepository;
@@ -65,7 +65,7 @@ public class LectureService {
                     .startTime(lecture.getStartTime())
                     .endTime(lecture.getEndTime())
                     .dueTime(lecture.getDueTime())
-                    .quizList(new ArrayList<QuizDto>())
+                    .quizList(new ArrayList<QuizListDto>())
                     .activeQuizCount(0)
                     .messageAvailable(false)
                     .build();
