@@ -29,7 +29,7 @@ public class MemoService {
                         .description(memo.getDescription())
                         .dueTime(memo.getDueTime())
                         .isOpen(memo.getIsOpen())
-                        .submit(getSubmitCount(memo.getId()))
+                        .submitCount(getSubmitCount(memo.getId()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -47,4 +47,13 @@ public class MemoService {
 
         return memoRepository.save(memo);
     }
+
+    public Memo toggleIsOpen(Long memoId, Boolean isOpen) {
+        Memo memo = memoRepository.findById(memoId)
+                .orElseThrow(()-> new IllegalArgumentException("Memo not found: " + memoId));
+
+        memo.setIsOpen(isOpen);
+        return memoRepository.save(memo);
+    }
+
 }

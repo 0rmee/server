@@ -23,4 +23,9 @@ public class MemoController {
     public ResponseDto createMemo(@RequestBody MemoDto memoDto) {
         return ResponseDto.success(memoService.createMemo(memoDto));
     }
+
+    @PutMapping("{memoId}/toggleIsOpen")
+    public ResponseDto toggleIsOpen(@PathVariable long memoId, @RequestParam boolean isOpen) {
+        return ResponseDto.success(memoService.toggleIsOpen(memoId, isOpen));
+    }
 }
