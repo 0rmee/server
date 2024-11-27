@@ -24,7 +24,7 @@ public class MessageService {
         this.memoRepository = memoRepository;
     }
 
-    public void submitMessage(UUID lectureId, Long memoId, MessageSubmitDto messageSubmitDto) {
+    public void submitMessage(Long memoId, MessageSubmitDto messageSubmitDto) {
         Memo memo = memoRepository.findById(memoId).orElse(null);
 
         Message message = new Message();
@@ -36,7 +36,7 @@ public class MessageService {
         messageRepository.save(message);
     }
 
-    public List<MessageListDto> getMessages(UUID lectureId, Long memoId) {
+    public List<MessageListDto> getMessages(Long memoId) {
         List<Message> messages = messageRepository.findAllByMemo_Id(memoId);
 
         int totalMessages = messages.stream()
@@ -59,7 +59,7 @@ public class MessageService {
                 .map(entry->{
                     Integer contentDetail = entry.getKey();
                     Long count = entry.getValue();
-                    Float submitRate = totalMessages == 0 ? 0f : (float) count / totalMessages;
+                    float submitRate = (totalMessages == 0 ? 0f : (float) count / totalMessages)*100 ;
 
                     return MessageListDto.builder()
                             .contentDetail(contentDetail)
