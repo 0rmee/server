@@ -64,29 +64,23 @@ public class QuizService {
         saveQuiz(quiz.getLecture().getId(), quizSaveDto);
     }
 
-    public List<QuizListDto> findAllByLecture(UUID lectureId) {
+    public List<QuizListDto> findAllByLecture(UUID lectureId, Boolean isDraft) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
-        List<Quiz> quizList = quizRepository.findAllByLecture(lecture);
-
-        return quizListToDtoList(quizList);
-    }
-
-    public List<QuizListDto> findAllDrafts(UUID lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
-        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraft(lecture, true);
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
 
         return quizListToDtoList(quizList);
     }
 
     public List<QuizListDto> findOpenQuizList(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
-        List<Quiz> quizList = quizRepository.findAllByLectureAndAndIsOpenedAndOpenTimeBeforeOrderByOpenTimeDesc(lecture, true, LocalDateTime.now());
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByDueTimeDesc(lecture, false);
 
         return quizListToDtoList(quizList);
     }
 
     private List<QuizListDto> quizListToDtoList(List<Quiz> quizList) {
         List<QuizListDto> quizListDtos = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
 
         for(Quiz quiz : quizList) {
             QuizListDto quizListDto = QuizListDto.builder()
@@ -94,7 +88,7 @@ public class QuizService {
                     .quizName(quiz.getTitle())
                     .timeLimit(quiz.getTimeLimit())
                     .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd (E)", Locale.KOREAN)))
-                    .quizAvailable(quiz.getIsOpened() && quiz.getDueTime().isBefore(LocalDateTime.now()))
+                    .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .build();
             quizListDtos.add(quizListDto);
         }
@@ -176,4 +170,9 @@ public class QuizService {
                 .build();
     }
 
+    public void openQuiz(UUID quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        quiz.setIsOpened(!quiz.getIsOpened());
+        quizRepository.save(quiz);
+    }
 }

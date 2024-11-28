@@ -38,12 +38,18 @@ public class QuizController {
 
     @GetMapping("/teacher/{lectureId}")
     public ResponseDto readQuizList(@PathVariable UUID lectureId) {
-        return ResponseDto.success(quizService.findAllByLecture(lectureId));
+        return ResponseDto.success(quizService.findAllByLecture(lectureId, false));
     }
 
     @GetMapping("/teacher/{lectureId}/draft")
     public ResponseDto readDraftQuizList(@PathVariable UUID lectureId) {
-        return ResponseDto.success(quizService.findAllDrafts(lectureId));
+        return ResponseDto.success(quizService.findAllByLecture(lectureId, true));
+    }
+
+    @PutMapping("/teacher/{quizId}/open")
+    public ResponseDto openQuiz(@PathVariable UUID quizId) {
+        quizService.openQuiz(quizId);
+        return ResponseDto.success();
     }
 
     @GetMapping("/{quizId}")
