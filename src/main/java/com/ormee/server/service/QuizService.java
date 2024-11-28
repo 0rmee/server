@@ -155,6 +155,7 @@ public class QuizService {
                     .id(problem.getId())
                     .content(problem.getContent())
                     .type(problem.getType().toString())
+                    .items(problem.getItems())
                     .answer(problem.getAnswer())
                     .submission(submit.getContent())
                     .isCorrect(problem.getAnswer().equals(submit.getContent()))
