@@ -1,12 +1,16 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Problem extends EntityTime {
 
     @Id
@@ -18,9 +22,17 @@ public class Problem extends EntityTime {
     private Quiz quiz;
 
     @Column
+    @Enumerated(EnumType.STRING)
+    private ProblemType type;
+
+    @Column
     private String content;
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private ProblemType type;
+    private String answer;
+
+    @ElementCollection
+    @CollectionTable(name = "problem_items", joinColumns = @JoinColumn(name = "problem_id"))
+    @Column(name = "item")
+    private List<String> items;
 }

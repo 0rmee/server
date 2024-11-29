@@ -1,8 +1,7 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,6 +9,9 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Quiz extends EntityTime {
 
     @Id
@@ -20,15 +22,24 @@ public class Quiz extends EntityTime {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     @Column
     private String description;
 
     @Column
-    private Boolean isCompleted;
+    private Boolean isDraft;
+
+    @Column
+    private Boolean isOpened;
+
+    @Column
+    private LocalDateTime openTime;
 
     @Column
     private LocalDateTime dueTime;
+
+    @Column
+    private Long timeLimit;
 }
