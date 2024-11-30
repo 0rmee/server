@@ -7,10 +7,12 @@ import com.ormee.server.dto.QuizListDto;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.LectureRepository;
+import com.ormee.server.repository.MemoRepository;
 import com.ormee.server.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 
@@ -19,11 +21,15 @@ public class LectureService {
     private final LectureRepository lectureRepository;
     private final TeacherRepository teacherRepository;
     private final CodeGenerator codeGenerator;
+    private final QuizService quizService;
+    private final MemoRepository memoRepository;
 
-    public LectureService(LectureRepository lectureRepository, TeacherRepository teacherRepository, CodeGenerator codeGenerator) {
+    public LectureService(LectureRepository lectureRepository, TeacherRepository teacherRepository, CodeGenerator codeGenerator, QuizService quizService, MemoRepository memoRepository) {
         this.lectureRepository = lectureRepository;
         this.teacherRepository = teacherRepository;
         this.codeGenerator = codeGenerator;
+        this.quizService = quizService;
+        this.memoRepository = memoRepository;
     }
 
     public Lecture saveLecture(LectureRequestDto lectureRequestDto, Integer teacherCode) {
@@ -49,13 +55,14 @@ public class LectureService {
     }
 
     public LectureResponseDto findLectureByCode(Integer code) {
-        Lecture lecture = lectureRepository.findByCode(code).orElse(null);
+        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new IllegalArgumentException("Lecture not found: " + code));
         Teacher teacher = lecture.getTeacher();
+        List<QuizListDto> quizListDtos = quizService.findOpenQuizList(lecture.getId());
+        long count = quizListDtos.stream()
+                .filter(QuizListDto::getQuizAvailable)
+                .count();
 
-        if(lecture == null) {
-            return null;
-        } else {
-            return LectureResponseDto.builder()
+        return LectureResponseDto.builder()
                     .id(lecture.getId().toString())
                     .profileImage(teacher.getImage())
                     .name(teacher.getName())
@@ -65,10 +72,9 @@ public class LectureService {
                     .startTime(lecture.getStartTime())
                     .endTime(lecture.getEndTime())
                     .dueTime(lecture.getDueTime())
-                    .quizList(new ArrayList<QuizListDto>())
-                    .activeQuizCount(0)
-                    .messageAvailable(false)
+                    .quizList(quizListDtos)
+                    .activeQuizCount(count)
+                    .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
                     .build();
-        }
     }
 }
