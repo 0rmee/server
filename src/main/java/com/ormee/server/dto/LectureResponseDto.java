@@ -21,6 +21,6 @@ public class LectureResponseDto {
     private LocalTime endTime;
     private LocalDateTime dueTime;
     private List<QuizListDto> quizList;
-    private Integer activeQuizCount;
+    private Long activeQuizCount;
     private boolean messageAvailable;
 }

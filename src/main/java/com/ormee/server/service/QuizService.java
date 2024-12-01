@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizService {
@@ -175,5 +173,46 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow();
         quiz.setIsOpened(!quiz.getIsOpened());
         quizRepository.save(quiz);
+    }
+
+    public List<QuizStatsDto> getStatistics(UUID quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        List<Problem> problems = problemRepository.findAllByQuiz(quiz);
+        long firstNum = problems.get(0).getId() - 1;
+
+        List<QuizStatsDto> quizStatsDtos = problems.stream()
+                .map(problem -> {
+                    List<Submit> submits = submitRepository.findAllByProblem(problem);
+
+                    if(submits.isEmpty()) {
+                        return QuizStatsDto.builder()
+                                .problemNum(problem.getId() - firstNum)
+                                .incorrectRate(0)
+                                .incorrectCount(0)
+                                .build();
+                    }
+
+                    long incorrectCount = submits.stream()
+                            .filter(submit -> !submit.getContent().equals(problem.getAnswer()))
+                            .count();
+
+                    long incorrectRate = (incorrectCount * 100) / submits.size();
+
+                    return QuizStatsDto.builder()
+                            .problemNum(problem.getId() - firstNum)
+                            .incorrectRate(incorrectRate)
+                            .incorrectCount(incorrectCount)
+                            .build();
+                })
+                .sorted(Comparator
+                .comparingLong(QuizStatsDto::getIncorrectRate).reversed()
+                .thenComparingLong(QuizStatsDto::getIncorrectCount))
+                .collect(Collectors.toList());
+
+        for(int i = 0; i < quizStatsDtos.size(); i++) {
+            quizStatsDtos.get(i).setRank(i + 1);
+        }
+
+        return quizStatsDtos;
     }
 }
