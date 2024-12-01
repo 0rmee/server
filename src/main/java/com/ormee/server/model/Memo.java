@@ -28,4 +28,7 @@ public class Memo extends EntityTime{
 
     @Column(nullable = false)
     private LocalDateTime dueTime;
+
+    @Column(nullable = false)
+    private Boolean isOpen;
 }

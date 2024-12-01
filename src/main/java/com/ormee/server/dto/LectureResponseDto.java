@@ -20,7 +20,7 @@ public class LectureResponseDto {
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalDateTime dueTime;
-    private List<QuizDto> quizList;
-    private Integer activeQuizCount;
+    private List<QuizListDto> quizList;
+    private Long activeQuizCount;
     private boolean messageAvailable;
 }
