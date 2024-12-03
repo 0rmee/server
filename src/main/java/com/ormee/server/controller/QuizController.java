@@ -52,6 +52,12 @@ public class QuizController {
         return ResponseDto.success();
     }
 
+    @PutMapping("/teacher/{quizId}/close")
+    public ResponseDto closeQuiz(@PathVariable UUID quizId) {
+        quizService.closeQuiz(quizId);
+        return ResponseDto.success();
+    }
+
     @GetMapping("/{quizId}")
     public ResponseDto readQuiz(@PathVariable UUID quizId) {
         return ResponseDto.success(quizService.findQuiz(quizId));

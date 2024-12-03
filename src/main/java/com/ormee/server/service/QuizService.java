@@ -171,7 +171,16 @@ public class QuizService {
 
     public void openQuiz(UUID quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow();
-        quiz.setIsOpened(!quiz.getIsOpened());
+        LocalDateTime now = LocalDateTime.now();
+        quiz.setIsOpened(true);
+        quiz.setOpenTime(now);
+        quizRepository.save(quiz);
+    }
+
+    public void closeQuiz(UUID quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        LocalDateTime now = LocalDateTime.now();
+        quiz.setDueTime(now);
         quizRepository.save(quiz);
     }
 
