@@ -22,4 +22,9 @@ public class LectureController {
     public ResponseDto getLecture(@PathVariable Integer code) {
         return ResponseDto.success(lectureService.findLectureByCode(code));
     }
+
+    @GetMapping("teacher/{teacherCode}")
+    public ResponseDto getLectureList(@PathVariable Integer teacherCode) {
+        return ResponseDto.success(lectureService.findAllLectures(teacherCode));
+    }
 }

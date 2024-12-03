@@ -56,6 +56,22 @@ public class LectureService {
 
     public LectureResponseDto findLectureByCode(Integer code) {
         Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new IllegalArgumentException("Lecture not found: " + code));
+        return lectureToDto(lecture);
+    }
+
+    public List<LectureResponseDto> findAllLectures(Integer teacherCode) {
+        Teacher teacher = teacherRepository.findByCode(teacherCode).orElseThrow();
+        List<Lecture> lectures = lectureRepository.findAllByTeacher(teacher);
+        List<LectureResponseDto> lectureResponseDtos = new ArrayList<>();
+
+        for(Lecture lecture : lectures) {
+            lectureResponseDtos.add(lectureToDto(lecture));
+        }
+
+        return lectureResponseDtos;
+    }
+
+    private LectureResponseDto lectureToDto(Lecture lecture) {
         Teacher teacher = lecture.getTeacher();
         List<QuizListDto> quizListDtos = quizService.findOpenQuizList(lecture.getId());
         long count = quizListDtos.stream()
@@ -63,18 +79,18 @@ public class LectureService {
                 .count();
 
         return LectureResponseDto.builder()
-                    .id(lecture.getId().toString())
-                    .profileImage(teacher.getImage())
-                    .name(teacher.getName())
-                    .title(lecture.getTitle())
-                    .description(lecture.getDescription())
-                    .lectureDays(lecture.getLectureDays())
-                    .startTime(lecture.getStartTime())
-                    .endTime(lecture.getEndTime())
-                    .dueTime(lecture.getDueTime())
-                    .quizList(quizListDtos)
-                    .activeQuizCount(count)
-                    .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
-                    .build();
+                .id(lecture.getId().toString())
+                .profileImage(teacher.getImage())
+                .name(teacher.getName())
+                .title(lecture.getTitle())
+                .description(lecture.getDescription())
+                .lectureDays(lecture.getLectureDays())
+                .startTime(lecture.getStartTime())
+                .endTime(lecture.getEndTime())
+                .dueTime(lecture.getDueTime())
+                .quizList(quizListDtos)
+                .activeQuizCount(count)
+                .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
+                .build();
     }
 }
