@@ -69,6 +69,28 @@ public class QuizService {
         return quizListToDtoList(quizList);
     }
 
+    public TeacherQuizListDto teacherQuizList(UUID lectureId, Boolean isDraft) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
+        List<Quiz> openQuizzes = new ArrayList<>();
+        List<Quiz> closedQuizzes = new ArrayList<>();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        for(Quiz quiz : quizList) {
+            if(quiz.getDueTime().isBefore(now)) {
+                closedQuizzes.add(quiz);
+            } else {
+                openQuizzes.add(quiz);
+            }
+        }
+
+        return TeacherQuizListDto.builder()
+                .openQuizzes(quizListToDtoList(openQuizzes))
+                .closedQuizzes(quizListToDtoList(closedQuizzes))
+                .build();
+    }
+
     public List<QuizListDto> findOpenQuizList(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByOpenTimeDesc(lecture, false, true);

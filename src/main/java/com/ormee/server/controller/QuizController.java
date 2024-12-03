@@ -38,7 +38,7 @@ public class QuizController {
 
     @GetMapping("/teacher/{lectureId}")
     public ResponseDto readQuizList(@PathVariable UUID lectureId) {
-        return ResponseDto.success(quizService.findAllByLecture(lectureId, false));
+        return ResponseDto.success(quizService.teacherQuizList(lectureId, false));
     }
 
     @GetMapping("/teacher/{lectureId}/draft")
