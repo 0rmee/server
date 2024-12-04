@@ -1,4 +1,4 @@
-package com.ormee.server.dto;
+package com.ormee.server.dto.member;
 
 import com.ormee.server.model.Teacher;
 import lombok.AllArgsConstructor;

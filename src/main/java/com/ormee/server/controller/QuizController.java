@@ -1,7 +1,7 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.QuizSaveDto;
-import com.ormee.server.dto.SubmitRequestDto;
+import com.ormee.server.dto.quiz.QuizSaveDto;
+import com.ormee.server.dto.quiz.SubmitRequestDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.QuizService;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +38,7 @@ public class QuizController {
 
     @GetMapping("/teacher/{lectureId}")
     public ResponseDto readQuizList(@PathVariable UUID lectureId) {
-        return ResponseDto.success(quizService.findAllByLecture(lectureId, false));
+        return ResponseDto.success(quizService.teacherQuizList(lectureId, false));
     }
 
     @GetMapping("/teacher/{lectureId}/draft")
@@ -49,6 +49,12 @@ public class QuizController {
     @PutMapping("/teacher/{quizId}/open")
     public ResponseDto openQuiz(@PathVariable UUID quizId) {
         quizService.openQuiz(quizId);
+        return ResponseDto.success();
+    }
+
+    @PutMapping("/teacher/{quizId}/close")
+    public ResponseDto closeQuiz(@PathVariable UUID quizId) {
+        quizService.closeQuiz(quizId);
         return ResponseDto.success();
     }
 

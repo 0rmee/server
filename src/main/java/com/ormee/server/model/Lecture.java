@@ -32,21 +32,24 @@ public class Lecture extends EntityTime {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String description;
 
     @ElementCollection(targetClass = LectureDay.class)
     @CollectionTable(name = "lecture_day", joinColumns = @JoinColumn(name = "lecture_id"))
-    @Column(nullable = false)
+    @Column
     @Enumerated(EnumType.STRING)
     private List<LectureDay> lectureDays;
 
-    @Column(nullable = false)
+    @Column
     private LocalTime startTime;
 
-    @Column(nullable = false)
+    @Column
     private LocalTime endTime;
 
-    @Column(nullable = false)
+    @Column
+    private LocalDateTime openTime;
+
+    @Column
     private LocalDateTime dueTime;
 }

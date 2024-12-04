@@ -1,7 +1,7 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.SignInDto;
-import com.ormee.server.dto.SignUpDto;
+import com.ormee.server.dto.member.SignInDto;
+import com.ormee.server.dto.member.SignUpDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;

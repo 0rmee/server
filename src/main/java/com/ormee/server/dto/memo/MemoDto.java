@@ -1,4 +1,4 @@
-package com.ormee.server.dto;
+package com.ormee.server.dto.memo;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class MemoListDto {
+public class MemoDto {
     private String title;
     private String description;
     private LocalDateTime dueTime;

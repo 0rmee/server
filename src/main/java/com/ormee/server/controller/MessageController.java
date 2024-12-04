@@ -1,13 +1,10 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.MessageSubmitDto;
+import com.ormee.server.dto.memo.MessageSubmitDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 public class MessageController {
