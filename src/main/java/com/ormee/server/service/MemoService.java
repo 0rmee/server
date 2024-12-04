@@ -7,6 +7,8 @@ import com.ormee.server.repository.MemoRepository;
 import com.ormee.server.repository.MessageRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,18 +22,31 @@ public class MemoService {
         this.messageRepository = messageRepository;
     }
 
-    public List<MemoListDto> getAllMemos() {
+    public MemoListDto getAllMemos() {
         List<Memo> memoList = memoRepository.findAll();
+        List<MemoDto> openMemos = new ArrayList<>();
+        List<MemoDto> closeMemos = new ArrayList<>();
 
-        return memoList.stream()
-                .map(memo -> MemoListDto.builder()
+        memoList.stream()
+                .map(memo -> MemoDto.builder()
                         .title(memo.getTitle())
                         .description(memo.getDescription())
                         .dueTime(memo.getDueTime())
                         .isOpen(memo.getIsOpen())
                         .submitCount(getSubmitCount(memo.getId()))
                         .build())
-                .collect(Collectors.toList());
+                .forEach(memoDto -> {
+                    if (memoDto.getDueTime().isBefore(LocalDateTime.now())) {
+                        closeMemos.add(memoDto);
+                    } else {
+                        openMemos.add(memoDto);
+                    }
+                });
+
+        return MemoListDto.builder()
+                .openMemos(openMemos)
+                .closeMemos(closeMemos)
+                .build();
     }
 
     private Integer getSubmitCount(Long memoId) {

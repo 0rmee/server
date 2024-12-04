@@ -73,10 +73,10 @@ public class LectureService {
 
         LocalDateTime now = LocalDateTime.now();
         for(Lecture lecture : lectures) {
-            if(lecture.getDueTime().isAfter(now)) {
-                openLectures.add(lectureToDto(lecture));
-            } else {
+            if(lecture.getDueTime().isBefore(now)) {
                 closedLectures.add(lectureToDto(lecture));
+            } else {
+                openLectures.add(lectureToDto(lecture));
             }
         }
 
