@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface MemoRepository extends JpaRepository<Memo, Long> {
     Optional<Memo> findById(Long id);
     List<Memo> findAll();
+    List<Memo> findAllByLecture(Lecture lecture);
     com.ormee.server.model.Memo save(com.ormee.server.model.Memo memo);
     boolean existsByLectureAndIsOpen(Lecture lecture, Boolean IsOpen);
 }

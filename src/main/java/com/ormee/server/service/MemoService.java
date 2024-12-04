@@ -2,7 +2,9 @@ package com.ormee.server.service;
 
 import com.ormee.server.dto.memo.MemoDto;
 import com.ormee.server.dto.memo.MemoListDto;
+import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Memo;
+import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemoRepository;
 import com.ormee.server.repository.MessageRepository;
 import org.springframework.stereotype.Service;
@@ -10,20 +12,24 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class MemoService {
     private final MemoRepository memoRepository;
     private final MessageRepository messageRepository;
+    private final LectureRepository lectureRepository;
 
-    public MemoService(MemoRepository memoRepository, MessageRepository messageRepository) {
+    public MemoService(MemoRepository memoRepository, MessageRepository messageRepository, LectureRepository lectureRepository) {
         this.memoRepository = memoRepository;
         this.messageRepository = messageRepository;
+        this.lectureRepository = lectureRepository;
     }
 
-    public MemoListDto getAllMemos() {
-        List<Memo> memoList = memoRepository.findAll();
+    public MemoListDto getAllMemos(UUID lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+
+        List<Memo> memoList = memoRepository.findAllByLecture(lecture);
         List<MemoDto> openMemos = new ArrayList<>();
         List<MemoDto> closeMemos = new ArrayList<>();
 
@@ -53,8 +59,11 @@ public class MemoService {
         return messageRepository.countByMemoId(memoId);
     }
 
-    public Memo createMemo(MemoDto memoDto) {
+    public Memo createMemo(UUID lectureId, MemoDto memoDto) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+
         Memo memo = new Memo();
+        memo.setLecture(lecture);
         memo.setTitle(memoDto.getTitle());
         memo.setDescription(memoDto.getDescription());
         memo.setDueTime(memoDto.getDueTime());
