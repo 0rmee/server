@@ -1,6 +1,6 @@
 package com.ormee.server.service;
 
-import com.ormee.server.dto.*;
+import com.ormee.server.dto.quiz.*;
 import com.ormee.server.model.*;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.ProblemRepository;
@@ -69,9 +69,31 @@ public class QuizService {
         return quizListToDtoList(quizList);
     }
 
+    public TeacherQuizListDto teacherQuizList(UUID lectureId, Boolean isDraft) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
+        List<Quiz> openQuizzes = new ArrayList<>();
+        List<Quiz> closedQuizzes = new ArrayList<>();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        for(Quiz quiz : quizList) {
+            if(quiz.getDueTime().isBefore(now)) {
+                closedQuizzes.add(quiz);
+            } else {
+                openQuizzes.add(quiz);
+            }
+        }
+
+        return TeacherQuizListDto.builder()
+                .openQuizzes(quizListToDtoList(openQuizzes))
+                .closedQuizzes(quizListToDtoList(closedQuizzes))
+                .build();
+    }
+
     public List<QuizListDto> findOpenQuizList(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
-        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByDueTimeDesc(lecture, false);
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByOpenTimeDesc(lecture, false, true);
 
         return quizListToDtoList(quizList);
     }
@@ -171,7 +193,16 @@ public class QuizService {
 
     public void openQuiz(UUID quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow();
-        quiz.setIsOpened(!quiz.getIsOpened());
+        LocalDateTime now = LocalDateTime.now();
+        quiz.setIsOpened(true);
+        quiz.setOpenTime(now);
+        quizRepository.save(quiz);
+    }
+
+    public void closeQuiz(UUID quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        LocalDateTime now = LocalDateTime.now();
+        quiz.setDueTime(now);
         quizRepository.save(quiz);
     }
 
