@@ -1,6 +1,7 @@
 package com.ormee.server.service;
 
 import com.ormee.server.config.CodeGenerator;
+import com.ormee.server.dto.LectureListDto;
 import com.ormee.server.dto.LectureRequestDto;
 import com.ormee.server.dto.LectureResponseDto;
 import com.ormee.server.dto.QuizListDto;
@@ -64,16 +65,25 @@ public class LectureService {
         return lectureToDto(lecture);
     }
 
-    public List<LectureResponseDto> findAllLectures(Integer teacherCode) {
+    public LectureListDto findAllLectures(Integer teacherCode) {
         Teacher teacher = teacherRepository.findByCode(teacherCode).orElseThrow();
         List<Lecture> lectures = lectureRepository.findAllByTeacher(teacher);
-        List<LectureResponseDto> lectureResponseDtos = new ArrayList<>();
+        List<LectureResponseDto> openLectures = new ArrayList<>();
+        List<LectureResponseDto> closedLectures = new ArrayList<>();
 
+        LocalDateTime now = LocalDateTime.now();
         for(Lecture lecture : lectures) {
-            lectureResponseDtos.add(lectureToDto(lecture));
+            if(lecture.getDueTime().isAfter(now)) {
+                openLectures.add(lectureToDto(lecture));
+            } else {
+                closedLectures.add(lectureToDto(lecture));
+            }
         }
 
-        return lectureResponseDtos;
+        return LectureListDto.builder()
+                .openLectures(openLectures)
+                .closedLectures(closedLectures)
+                .build();
     }
 
     private LectureResponseDto lectureToDto(Lecture lecture) {
@@ -92,6 +102,7 @@ public class LectureService {
                 .lectureDays(lecture.getLectureDays())
                 .startTime(lecture.getStartTime())
                 .endTime(lecture.getEndTime())
+                .openTime(lecture.getOpenTime())
                 .dueTime(lecture.getDueTime())
                 .quizList(quizListDtos)
                 .activeQuizCount(count)
