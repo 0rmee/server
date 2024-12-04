@@ -27,4 +27,16 @@ public class LectureController {
     public ResponseDto getLectureList(@PathVariable Integer teacherCode) {
         return ResponseDto.success(lectureService.findAllLectures(teacherCode));
     }
+
+    @PutMapping("/{code}")
+    public ResponseDto closeLecture(@PathVariable Integer code) {
+        lectureService.close(code);
+        return ResponseDto.success();
+    }
+
+    @DeleteMapping("/{code}")
+    public ResponseDto deleteLecture(@PathVariable Integer code) {
+        lectureService.delete(code);
+        return ResponseDto.success();
+    }
 }
