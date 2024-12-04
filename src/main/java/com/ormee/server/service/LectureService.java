@@ -1,10 +1,10 @@
 package com.ormee.server.service;
 
 import com.ormee.server.config.CodeGenerator;
-import com.ormee.server.dto.LectureListDto;
-import com.ormee.server.dto.LectureRequestDto;
-import com.ormee.server.dto.LectureResponseDto;
-import com.ormee.server.dto.QuizListDto;
+import com.ormee.server.dto.lecture.LectureListDto;
+import com.ormee.server.dto.lecture.LectureRequestDto;
+import com.ormee.server.dto.lecture.LectureResponseDto;
+import com.ormee.server.dto.quiz.QuizListDto;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Quiz;
 import com.ormee.server.model.Teacher;

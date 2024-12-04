@@ -1,6 +1,6 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.MemoDto;
+import com.ormee.server.dto.memo.MemoDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.MemoService;
 import org.springframework.web.bind.annotation.*;

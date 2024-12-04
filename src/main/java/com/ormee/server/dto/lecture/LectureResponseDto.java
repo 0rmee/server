@@ -1,5 +1,6 @@
-package com.ormee.server.dto;
+package com.ormee.server.dto.lecture;
 
+import com.ormee.server.dto.quiz.QuizListDto;
 import com.ormee.server.model.LectureDay;
 import lombok.Builder;
 import lombok.Data;

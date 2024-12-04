@@ -1,4 +1,4 @@
-package com.ormee.server.dto;
+package com.ormee.server.dto.memo;
 
 import lombok.Data;
 

@@ -1,7 +1,7 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.QuizSaveDto;
-import com.ormee.server.dto.SubmitRequestDto;
+import com.ormee.server.dto.quiz.QuizSaveDto;
+import com.ormee.server.dto.quiz.SubmitRequestDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.QuizService;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.ormee.server.dto;
+package com.ormee.server.dto.lecture;
 
 import com.ormee.server.model.LectureDay;
 import lombok.Data;

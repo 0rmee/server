@@ -1,6 +1,6 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.LectureRequestDto;
+import com.ormee.server.dto.lecture.LectureRequestDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.LectureService;
 import org.springframework.beans.factory.annotation.Autowired;

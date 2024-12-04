@@ -1,7 +1,7 @@
 package com.ormee.server.service;
 
-import com.ormee.server.dto.MessageListDto;
-import com.ormee.server.dto.MessageSubmitDto;
+import com.ormee.server.dto.memo.MessageListDto;
+import com.ormee.server.dto.memo.MessageSubmitDto;
 import com.ormee.server.model.Memo;
 import com.ormee.server.model.Message;
 import com.ormee.server.repository.MemoRepository;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service

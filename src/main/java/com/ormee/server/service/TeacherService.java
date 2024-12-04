@@ -1,9 +1,9 @@
 package com.ormee.server.service;
 
 import com.ormee.server.config.CodeGenerator;
-import com.ormee.server.dto.SignInDto;
-import com.ormee.server.dto.SignUpDto;
-import com.ormee.server.dto.TeacherDto;
+import com.ormee.server.dto.member.SignInDto;
+import com.ormee.server.dto.member.SignUpDto;
+import com.ormee.server.dto.member.TeacherDto;
 import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.TeacherRepository;
 import org.springframework.stereotype.Service;

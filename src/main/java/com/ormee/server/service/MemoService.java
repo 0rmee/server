@@ -1,7 +1,7 @@
 package com.ormee.server.service;
 
-import com.ormee.server.dto.MemoDto;
-import com.ormee.server.dto.MemoListDto;
+import com.ormee.server.dto.memo.MemoDto;
+import com.ormee.server.dto.memo.MemoListDto;
 import com.ormee.server.model.Memo;
 import com.ormee.server.repository.MemoRepository;
 import com.ormee.server.repository.MessageRepository;

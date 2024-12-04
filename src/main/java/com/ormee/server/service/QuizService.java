@@ -1,6 +1,6 @@
 package com.ormee.server.service;
 
-import com.ormee.server.dto.*;
+import com.ormee.server.dto.quiz.*;
 import com.ormee.server.model.*;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.ProblemRepository;
