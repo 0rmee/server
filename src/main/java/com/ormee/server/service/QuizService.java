@@ -127,7 +127,7 @@ public class QuizService {
         quizRepository.delete(quiz);
     }
 
-    public List<ProblemDto> findQuiz(UUID quizId) {
+    public QuizDetailDto findQuiz(UUID quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow();
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
@@ -144,7 +144,11 @@ public class QuizService {
             problemDtos.add(problemDto);
         }
 
-        return problemDtos;
+        return QuizDetailDto.builder()
+                .dueTime(quiz.getDueTime())
+                .timeLimit(quiz.getTimeLimit())
+                .problems(problemDtos)
+                .build();
     }
 
     public void submit(SubmitRequestDto submitRequestDto) {
