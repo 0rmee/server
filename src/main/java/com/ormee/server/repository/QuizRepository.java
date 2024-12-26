@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface QuizRepository extends JpaRepository<Quiz, UUID> {
     List<Quiz> findAllByLecture(Lecture lecture);
     List<Quiz> findAllByLectureAndIsDraftOrderByCreatedAtDesc(Lecture lecture, Boolean isDraft);
-    List<Quiz> findAllByLectureAndIsDraftAndIsOpenedOrderByOpenTimeDesc(Lecture lecture, Boolean isDraft, Boolean isOpened);
+    List<Quiz> findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(Lecture lecture, Boolean isDraft, Boolean isOpened);
 }

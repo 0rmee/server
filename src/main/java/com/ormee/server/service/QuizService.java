@@ -93,7 +93,7 @@ public class QuizService {
 
     public List<QuizListDto> findOpenQuizList(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
-        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByOpenTimeDesc(lecture, false, true);
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true);
 
         return quizListToDtoList(quizList);
     }
