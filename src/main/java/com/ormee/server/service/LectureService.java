@@ -96,6 +96,7 @@ public class LectureService {
 
         return LectureResponseDto.builder()
                 .id(lecture.getId().toString())
+                .code(lecture.getCode())
                 .profileImage(teacher.getImage())
                 .name(teacher.getName())
                 .title(lecture.getTitle())

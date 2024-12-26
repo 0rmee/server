@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class LectureResponseDto {
     private String id;
+    private Integer code;
     private String profileImage;
     private String name;
     private String title;
