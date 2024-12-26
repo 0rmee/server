@@ -39,4 +39,9 @@ public class LectureController {
         lectureService.delete(code);
         return ResponseDto.success();
     }
+
+    @GetMapping("/{code}/validate")
+    public ResponseDto validateLecture(@PathVariable Integer code) {
+        return ResponseDto.success(lectureService.validate(code));
+    }
 }

@@ -128,4 +128,8 @@ public class LectureService {
 
         lectureRepository.delete(lecture);
     }
+
+    public boolean validate(Integer code) {
+        return lectureRepository.existsByCode(code);
+    }
 }
