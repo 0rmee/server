@@ -50,10 +50,11 @@ public class LectureService {
                 .teacher(teacher)
                 .code(lectureCode)
                 .title(lectureRequestDto.getTitle())
-                .description(lectureRequestDto.getDescription())
-                .lectureDays(lectureRequestDto.getLectureDays())
-                .startTime(lectureRequestDto.getStartTime())
-                .endTime(lectureRequestDto.getEndTime())
+//                .description(lectureRequestDto.getDescription())
+//                .lectureDays(lectureRequestDto.getLectureDays())
+//                .startTime(lectureRequestDto.getStartTime())
+//                .endTime(lectureRequestDto.getEndTime())
+                .openTime(lectureRequestDto.getOpenTime())
                 .dueTime(lectureRequestDto.getDueTime())
                 .build();
 

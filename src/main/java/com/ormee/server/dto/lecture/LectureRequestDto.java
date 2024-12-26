@@ -10,10 +10,10 @@ import java.util.List;
 @Data
 public class LectureRequestDto {
     private String title;
-    private String description;
-    private List<LectureDay> lectureDays;
-    private LocalTime startTime;
-    private LocalTime endTime;
+//    private String description;
+//    private List<LectureDay> lectureDays;
+//    private LocalTime startTime;
+//    private LocalTime endTime;
     private LocalDateTime openTime;
     private LocalDateTime dueTime;
 }
