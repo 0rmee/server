@@ -79,6 +79,11 @@ public class QuizController {
         return ResponseDto.success(quizService.getStudentResult(quizId, author, password));
     }
 
+    @GetMapping("/{quizId}/student/check")
+    public ResponseDto checkStudent(@RequestParam(name = "author") String author, @RequestParam(name = "password") String password, @PathVariable UUID quizId) {
+        return ResponseDto.success(quizService.checkStudent(quizId, author, password));
+    }
+
     @GetMapping("/{quizId}/teacher/statistics")
     public ResponseDto readQuizStatistics(@PathVariable UUID quizId) {
         return ResponseDto.success(quizService.getStatistics(quizId));

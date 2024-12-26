@@ -250,4 +250,17 @@ public class QuizService {
 
         return quizStatsDtos;
     }
+
+    public boolean checkStudent(UUID quizId, String author, String password) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        List<Problem> problems = problemRepository.findAllByQuiz(quiz);
+
+        for(Problem problem : problems) {
+            if(!submitRepository.existsByProblemAndAuthorAndPassword(problem, author, password)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

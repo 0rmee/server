@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface SubmitRepository extends JpaRepository<Submit, Long> {
     Optional<Submit> findByProblemAndAuthorAndPassword(Problem problem, String author, String password);
     List<Submit> findAllByProblem(Problem problem);
+    boolean existsByProblemAndAuthorAndPassword(Problem problem, String author, String password);
 }
