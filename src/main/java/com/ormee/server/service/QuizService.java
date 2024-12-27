@@ -244,9 +244,21 @@ public class QuizService {
                 .thenComparingLong(QuizStatsDto::getIncorrectCount))
                 .collect(Collectors.toList());
 
-        for(int i = 0; i < quizStatsDtos.size(); i++) {
-            quizStatsDtos.get(i).setRank(i + 1);
+        for (int i = 0; i < quizStatsDtos.size(); i++) {
+            if (i == 0) {
+                quizStatsDtos.get(i).setRank(1);
+            } else {
+                QuizStatsDto current = quizStatsDtos.get(i);
+                QuizStatsDto previous = quizStatsDtos.get(i - 1);
+
+                if (current.getIncorrectRate() == previous.getIncorrectRate()) {
+                    current.setRank(previous.getRank());
+                } else {
+                    current.setRank(i + 1);
+                }
+            }
         }
+
 
         return quizStatsDtos;
     }
