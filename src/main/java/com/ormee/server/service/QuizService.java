@@ -57,9 +57,8 @@ public class QuizService {
 
     public void modifyQuiz(UUID quizId, QuizSaveDto quizSaveDto) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow();
-        deleteQuiz(quizId);
-
         saveQuiz(quiz.getLecture().getId(), quizSaveDto);
+        deleteQuiz(quizId);
     }
 
     public List<QuizListDto> findAllByLecture(UUID lectureId, Boolean isDraft) {
