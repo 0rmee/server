@@ -65,9 +65,10 @@ public class MemoService {
         Memo memo = new Memo();
         memo.setLecture(lecture);
         memo.setTitle(memoDto.getTitle());
-        memo.setDescription(memoDto.getDescription());
-        memo.setDueTime(memoDto.getDueTime());
-        memo.setIsOpen(memoDto.getIsOpen());
+//        memo.setDescription(memoDto.getDescription());
+//        memo.setDueTime(memoDto.getDueTime());
+        memo.setDueTime(LocalDateTime.now().plusYears(1));
+        memo.setIsOpen(false);
 
         return memoRepository.save(memo);
     }
@@ -77,7 +78,20 @@ public class MemoService {
                 .orElseThrow(()-> new IllegalArgumentException("Memo not found: " + memoId));
 
         memo.setIsOpen(isOpen);
+        if(!isOpen) {
+            memo.setDueTime(LocalDateTime.now());
+        }
         return memoRepository.save(memo);
     }
 
+    public MemoDto getOpenMemo(UUID lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+        Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(null);
+
+        return MemoDto.builder()
+                .title(memo.getTitle())
+                .dueTime(memo.getDueTime())
+                .isOpen(memo.getIsOpen())
+                .build();
+    }
 }

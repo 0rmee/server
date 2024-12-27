@@ -15,4 +15,5 @@ public interface MemoRepository extends JpaRepository<Memo, Long> {
     List<Memo> findAllByLecture(Lecture lecture);
     com.ormee.server.model.Memo save(com.ormee.server.model.Memo memo);
     boolean existsByLectureAndIsOpen(Lecture lecture, Boolean IsOpen);
+    Optional<Memo> findFirstByLectureAndIsOpenOrderByCreatedAtDesc(Lecture lecture, boolean IsOpen);
 }

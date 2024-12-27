@@ -30,4 +30,9 @@ public class MemoController {
     public ResponseDto toggleIsOpen(@PathVariable long memoId, @RequestParam boolean isOpen) {
         return ResponseDto.success(memoService.toggleIsOpen(memoId, isOpen));
     }
+
+    @GetMapping("/open")
+    public ResponseDto getOpenMemo(@PathVariable UUID lectureId) {
+        return ResponseDto.success(memoService.getOpenMemo(lectureId));
+    }
 }
