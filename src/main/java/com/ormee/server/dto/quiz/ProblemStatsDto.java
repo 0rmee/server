@@ -11,5 +11,6 @@ import java.util.Map;
 public class ProblemStatsDto {
     private String content;
     private String type;
+    private String answer;
     private List<Map<String, Object>> results;
 }

@@ -294,6 +294,7 @@ public class QuizService {
             List<String> submissions = submitRepository.findAllByProblem(problem)
                     .stream()
                     .map(Submit::getContent)
+                    .filter(content -> !content.equals(problem.getAnswer()))
                     .collect(Collectors.toList());
 
             Map<String, Long> contentCounts = submissions.stream()
@@ -327,6 +328,7 @@ public class QuizService {
         return ProblemStatsDto.builder()
                 .content(problem.getContent())
                 .type(problem.getType().toString())
+                .answer(problem.getAnswer())
                 .results(results)
                 .build();
     }
