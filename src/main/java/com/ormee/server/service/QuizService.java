@@ -29,7 +29,7 @@ public class QuizService {
     }
 
     public void saveQuiz(UUID lectureId, QuizSaveDto quizSaveDto) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
 
         Quiz quiz = Quiz.builder()
                 .lecture(lecture)
