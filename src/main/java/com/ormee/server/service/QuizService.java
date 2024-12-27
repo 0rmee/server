@@ -276,4 +276,58 @@ public class QuizService {
 
         return true;
     }
+
+    public ProblemStatsDto getProblemstats(Long problemId) {
+        Problem problem = problemRepository.findById(problemId).orElseThrow();
+        List<Map<String, Object>> results = new ArrayList<>();
+
+
+        if(problem.getType().equals(ProblemType.CHOICE)) {
+            for(String option : problem.getItems()) {
+                long count = submitRepository.countAllByProblemAndContentLike(problem, option);
+                Map<String, Object> result = new HashMap<>();
+                result.put("option", option);
+                result.put("count", count);
+                results.add(result);
+            }
+        } else {
+            List<String> submissions = submitRepository.findAllByProblem(problem)
+                    .stream()
+                    .map(Submit::getContent)
+                    .collect(Collectors.toList());
+
+            Map<String, Long> contentCounts = submissions.stream()
+                    .collect(Collectors.groupingBy(content -> content, Collectors.counting()));
+
+            List<Map.Entry<String, Long>> sortedEntries = contentCounts.entrySet().stream()
+                    .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                    .collect(Collectors.toList());
+
+            int rank = 1;
+            int previousRank = 1;
+            long previousCount = -1;
+
+            for (int i = 0; i < sortedEntries.size(); i++) {
+                Map.Entry<String, Long> entry = sortedEntries.get(i);
+
+                if (previousCount != -1 && !entry.getValue().equals(previousCount)) {
+                    rank = previousRank + 1;
+                }
+                previousRank = rank;
+                previousCount = entry.getValue();
+
+                Map<String, Object> result = new HashMap<>();
+                result.put("rank", rank);
+                result.put("content", entry.getKey());
+                result.put("count", entry.getValue());
+                results.add(result);
+            }
+        }
+
+        return ProblemStatsDto.builder()
+                .content(problem.getContent())
+                .type(problem.getType().toString())
+                .results(results)
+                .build();
+    }
 }

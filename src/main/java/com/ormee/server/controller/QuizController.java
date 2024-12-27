@@ -88,4 +88,9 @@ public class QuizController {
     public ResponseDto readQuizStatistics(@PathVariable UUID quizId) {
         return ResponseDto.success(quizService.getStatistics(quizId));
     }
+
+    @GetMapping("/teacher/statistics/{problemId}")
+    public ResponseDto readProblemStatistics(@PathVariable Long problemId) {
+        return ResponseDto.success(quizService.getProblemstats(problemId));
+    }
 }
