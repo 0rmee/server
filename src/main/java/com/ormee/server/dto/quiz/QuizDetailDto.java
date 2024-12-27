@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class QuizDetailDto {
+    private String title;
     private LocalDateTime dueTime;
     private Long timeLimit;
     private List<ProblemDto> problems;
