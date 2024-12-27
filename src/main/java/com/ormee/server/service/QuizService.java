@@ -221,6 +221,7 @@ public class QuizService {
 
                     if(submits.isEmpty()) {
                         return QuizStatsDto.builder()
+                                .problemId(problem.getId())
                                 .problemNum(problem.getId() - firstNum)
                                 .incorrectRate(0)
                                 .incorrectCount(0)
@@ -234,6 +235,7 @@ public class QuizService {
                     long incorrectRate = (incorrectCount * 100) / submits.size();
 
                     return QuizStatsDto.builder()
+                            .problemId(problem.getId())
                             .problemNum(problem.getId() - firstNum)
                             .incorrectRate(incorrectRate)
                             .incorrectCount(incorrectCount)
@@ -258,7 +260,6 @@ public class QuizService {
                 }
             }
         }
-
 
         return quizStatsDtos;
     }
