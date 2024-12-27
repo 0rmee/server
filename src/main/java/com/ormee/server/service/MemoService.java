@@ -35,6 +35,7 @@ public class MemoService {
 
         memoList.stream()
                 .map(memo -> MemoDto.builder()
+                        .id(memo.getId())
                         .title(memo.getTitle())
                         .description(memo.getDescription())
                         .dueTime(memo.getDueTime())
@@ -89,6 +90,7 @@ public class MemoService {
         Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(null);
 
         return MemoDto.builder()
+                .id(memo.getId())
                 .title(memo.getTitle())
                 .dueTime(memo.getDueTime())
                 .isOpen(memo.getIsOpen())
