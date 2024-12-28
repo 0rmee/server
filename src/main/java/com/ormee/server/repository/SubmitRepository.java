@@ -14,4 +14,6 @@ public interface SubmitRepository extends JpaRepository<Submit, Long> {
     List<Submit> findAllByProblem(Problem problem);
     boolean existsByProblemAndAuthorAndPassword(Problem problem, String author, String password);
     Long countAllByProblemAndContentLike(Problem problem, String content);
+
+    long countAllByProblem(Problem problem);
 }
