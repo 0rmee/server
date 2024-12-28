@@ -66,8 +66,7 @@ public class MessageService {
                             .submit(count.intValue())
                             .build();
                 })
-                .sorted(Comparator.comparing(MessageListDto::getSubmitRate).reversed()
-                        .thenComparing(MessageListDto::getSubmit).reversed())
+                .sorted(Comparator.comparing(MessageListDto::getSubmitRate).reversed())
                 .collect(Collectors.toList());
 
         long rank = 1;
