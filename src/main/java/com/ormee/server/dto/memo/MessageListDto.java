@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class MessageListDto {
+    private long rank;
     private Integer contentDetail;
-    private float submitRate;
+    private long submitRate;
     private Integer submit;
 }

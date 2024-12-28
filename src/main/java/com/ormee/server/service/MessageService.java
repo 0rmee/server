@@ -54,11 +54,11 @@ public class MessageService {
                         Collectors.counting()
                 ));
 
-        return frequencyMap.entrySet().stream()
-                .map(entry->{
+        List<MessageListDto> messageListDtos = frequencyMap.entrySet().stream()
+                .map(entry -> {
                     Integer contentDetail = entry.getKey();
                     Long count = entry.getValue();
-                    float submitRate = (totalMessages == 0 ? 0f : (float) count / totalMessages)*100 ;
+                    long submitRate = (totalMessages == 0) ? 0 : (count * 100) / totalMessages;
 
                     return MessageListDto.builder()
                             .contentDetail(contentDetail)
@@ -66,7 +66,41 @@ public class MessageService {
                             .submit(count.intValue())
                             .build();
                 })
-                .sorted(Comparator.comparing(MessageListDto::getContentDetail))
+                .sorted(Comparator.comparing(MessageListDto::getSubmitRate).reversed()
+                        .thenComparing(MessageListDto::getSubmit).reversed())
                 .collect(Collectors.toList());
+
+        long rank = 1;
+        long previousRank = 1;
+        MessageListDto previousDto = null;
+
+        for (MessageListDto dto : messageListDtos) {
+            if (previousDto != null &&
+                    (dto.getSubmitRate() != previousDto.getSubmitRate() ||
+                            dto.getSubmit() != previousDto.getSubmit())) {
+                rank = previousRank;
+            }
+            dto.setRank(rank);
+            previousRank = rank;
+            rank++;
+            previousDto = dto;
+        }
+
+        for (int i = 0; i < messageListDtos.size(); i++) {
+            if (i == 0) {
+                messageListDtos.get(i).setRank(1);
+            } else {
+                MessageListDto current = messageListDtos.get(i);
+                MessageListDto previous = messageListDtos.get(i - 1);
+
+                if (current.getSubmitRate() == previous.getSubmitRate()) {
+                    current.setRank(previous.getRank());
+                } else {
+                    current.setRank(i + 1);
+                }
+            }
+        }
+
+        return messageListDtos;
     }
 }
