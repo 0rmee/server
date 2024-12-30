@@ -21,8 +21,8 @@ public class TeacherService {
         this.codeGenerator = codeGenerator;
     }
 
-    public TeacherDto getTeacherById(UUID id) {
-        Teacher teacher = teacherRepository.findById(id).orElse(null);
+    public TeacherDto getTeacherById(int code) {
+        Teacher teacher = teacherRepository.findByCode(code).orElse(null);
         if(teacher == null) {return null;}
         return TeacherDto.builder()
                 .name(teacher != null ? teacher.getName() : null)

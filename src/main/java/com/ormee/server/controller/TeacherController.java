@@ -16,9 +16,9 @@ public class TeacherController {
     @Autowired
     private TeacherService teacherService;
 
-    @GetMapping("/{id}")
-    public ResponseDto teacherInfo(@PathVariable UUID id) {
-        return ResponseDto.success(teacherService.getTeacherById(id));
+    @GetMapping("/{code}")
+    public ResponseDto teacherInfo(@PathVariable Integer code) {
+        return ResponseDto.success(teacherService.getTeacherById(code));
     }
 
     @PostMapping("/signUp")
