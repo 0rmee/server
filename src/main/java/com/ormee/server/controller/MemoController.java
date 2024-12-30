@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/teacher/{lectureId}/memos")
+@RequestMapping("/api/teacher/{lectureId}/memos")
 public class MemoController {
     private final MemoService memoService;
 
