@@ -36,7 +36,7 @@ public class QuizService {
                 .title(quizSaveDto.getTitle())
                 .description(quizSaveDto.getDescription())
                 .isDraft(quizSaveDto.getIsDraft())
-                .isOpened(quizSaveDto.getOpenTime().isBefore(LocalDateTime.now()))
+                .isOpened(false)
                 .openTime(quizSaveDto.getOpenTime())
                 .dueTime(quizSaveDto.getDueTime())
                 .timeLimit(quizSaveDto.getTimeLimit())
