@@ -15,7 +15,7 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping("/api/student/{memoId}/messages")
+    @PostMapping("/student/{memoId}/messages")
     public ResponseDto submitMessage(
             @PathVariable long memoId,
             @RequestBody MessageSubmitDto messageSubmitDto

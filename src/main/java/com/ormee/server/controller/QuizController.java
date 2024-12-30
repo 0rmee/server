@@ -46,7 +46,7 @@ public class QuizController {
         return ResponseDto.success(quizService.findAllByLecture(lectureId, true));
     }
 
-    @PutMapping("/api/teacher/{quizId}/open")
+    @PutMapping("/teacher/{quizId}/open")
     public ResponseDto openQuiz(@PathVariable UUID quizId) {
         quizService.openQuiz(quizId);
         return ResponseDto.success();
