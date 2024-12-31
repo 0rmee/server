@@ -283,6 +283,18 @@ public class QuizService {
         List<Map<String, Object>> results = new ArrayList<>();
 
         if (problem.getType().equals(ProblemType.CHOICE)) {
+            long noResponseCount = submitRepository.findAllByProblem(problem).stream()
+                    .map(Submit::getContent)
+                    .filter(content -> content == null || content.isEmpty())
+                    .count();
+
+            if (noResponseCount > 0) {
+                Map<String, Object> noResponseResult = new HashMap<>();
+                noResponseResult.put("option", "무응답");
+                noResponseResult.put("count", noResponseCount);
+                results.add(0, noResponseResult);
+            }
+
             for (String option : problem.getItems()) {
                 long count = submitRepository.countAllByProblemAndContentLike(problem, option);
                 Map<String, Object> result = new HashMap<>();
