@@ -69,9 +69,19 @@ public class MemoService {
 //        memo.setDescription(memoDto.getDescription());
 //        memo.setDueTime(memoDto.getDueTime());
         memo.setDueTime(LocalDateTime.now().plusYears(1));
-        memo.setIsOpen(false);
+        memo.setIsOpen(true);
+
+        closeOpenedMemos(lecture);
 
         return memoRepository.save(memo);
+    }
+
+    private void closeOpenedMemos(Lecture lecture) {
+        List<Memo> memos = memoRepository.findAllByLecture(lecture);
+        for(Memo memo : memos) {
+            memo.setIsOpen(false);
+            memoRepository.save(memo);
+        }
     }
 
     public Memo toggleIsOpen(Long memoId, Boolean isOpen) {
