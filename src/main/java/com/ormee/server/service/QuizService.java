@@ -106,7 +106,7 @@ public class QuizService {
                     .id(quiz.getId().toString())
                     .quizName(quiz.getTitle())
                     .timeLimit(quiz.getTimeLimit())
-                    .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd (E)", Locale.KOREAN)))
+                    .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .submitCount(submitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
                     .build();
