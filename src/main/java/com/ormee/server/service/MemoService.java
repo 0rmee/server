@@ -80,6 +80,7 @@ public class MemoService {
         List<Memo> memos = memoRepository.findAllByLecture(lecture);
         for(Memo memo : memos) {
             memo.setIsOpen(false);
+            memo.setDueTime(LocalDateTime.now());
             memoRepository.save(memo);
         }
     }
