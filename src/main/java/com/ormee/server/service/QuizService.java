@@ -144,10 +144,9 @@ public class QuizService {
             problemDtos.add(problemDto);
         }
 
-        LocalDateTime now = LocalDateTime.now();
         return QuizDetailDto.builder()
                 .title(quiz.getTitle())
-                .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
+                .isOpened(quiz.getIsOpened())
                 .dueTime(quiz.getDueTime())
                 .timeLimit(quiz.getTimeLimit())
                 .problems(problemDtos)
