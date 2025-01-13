@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public class QuizDetailDto {
     private String title;
+    private boolean quizAvailable;
     private LocalDateTime dueTime;
     private Long timeLimit;
     private List<ProblemDto> problems;
