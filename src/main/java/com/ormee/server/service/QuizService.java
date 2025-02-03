@@ -1,6 +1,8 @@
 package com.ormee.server.service;
 
 import com.ormee.server.dto.quiz.*;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.*;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.ProblemRepository;
@@ -29,7 +31,7 @@ public class QuizService {
     }
 
     public void saveQuiz(UUID lectureId, QuizSaveDto quizSaveDto) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         Quiz quiz = Quiz.builder()
                 .lecture(lecture)
@@ -56,20 +58,20 @@ public class QuizService {
     }
 
     public void modifyQuiz(UUID quizId, QuizSaveDto quizSaveDto) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         saveQuiz(quiz.getLecture().getId(), quizSaveDto);
         deleteQuiz(quizId);
     }
 
     public List<QuizListDto> findAllByLecture(UUID lectureId, Boolean isDraft) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
 
         return quizListToDtoList(quizList);
     }
 
     public TeacherQuizListDto teacherQuizList(UUID lectureId, Boolean isDraft) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
         List<Quiz> openQuizzes = new ArrayList<>();
         List<Quiz> closedQuizzes = new ArrayList<>();
@@ -91,7 +93,7 @@ public class QuizService {
     }
 
     public List<QuizListDto> findOpenQuizList(UUID lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true);
 
         return quizListToDtoList(quizList);
@@ -116,7 +118,7 @@ public class QuizService {
     }
 
     public void deleteQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
 
@@ -128,7 +130,7 @@ public class QuizService {
     }
 
     public QuizDetailDto findQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         List<ProblemDto> problemDtos = new ArrayList<>();
@@ -159,7 +161,7 @@ public class QuizService {
         List<SubmitDto> submitDtos = submitRequestDto.getSubmissions();
 
         for(SubmitDto submitDto : submitDtos) {
-            Problem problem = problemRepository.findById(submitDto.getProblemId()).orElseThrow();
+            Problem problem = problemRepository.findById(submitDto.getProblemId()).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
             Submit submit = Submit.builder()
                     .problem(problem)
                     .author(author)
@@ -171,12 +173,12 @@ public class QuizService {
     }
 
     public StudentQuizResultDto getStudentResult(UUID quizId, String author, String password) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         List<ProblemDto> problemDtos = new ArrayList<>();
         Integer correct = 0;
         for(Problem problem : problems) {
-            Submit submit = submitRepository.findByProblemAndAuthorAndPassword(problem, author, password).orElseThrow();
+            Submit submit = submitRepository.findByProblemAndAuthorAndPassword(problem, author, password).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));;
             ProblemDto problemDto = ProblemDto.builder()
                     .id(problem.getId())
                     .content(problem.getContent())
@@ -198,7 +200,7 @@ public class QuizService {
     }
 
     public void openQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
         quiz.setIsOpened(true);
         quiz.setOpenTime(now);
@@ -206,14 +208,14 @@ public class QuizService {
     }
 
     public void closeQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
         quiz.setDueTime(now);
         quizRepository.save(quiz);
     }
 
     public List<QuizStatsDto> getStatistics(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         long firstNum = problems.get(0).getId() - 1;
 
@@ -267,7 +269,7 @@ public class QuizService {
     }
 
     public boolean checkStudent(UUID quizId, String author, String password) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
 
         for(Problem problem : problems) {
@@ -280,7 +282,7 @@ public class QuizService {
     }
 
     public ProblemStatsDto getProblemstats(Long problemId) {
-        Problem problem = problemRepository.findById(problemId).orElseThrow();
+        Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
         List<Map<String, Object>> results = new ArrayList<>();
 
         if (problem.getType().equals(ProblemType.CHOICE)) {
