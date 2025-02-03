@@ -2,6 +2,8 @@ package com.ormee.server.service;
 
 import com.ormee.server.dto.memo.MemoDto;
 import com.ormee.server.dto.memo.MemoListDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Memo;
 import com.ormee.server.repository.LectureRepository;
@@ -27,7 +29,7 @@ public class MemoService {
     }
 
     public MemoListDto getAllMemos(UUID lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         List<Memo> memoList = memoRepository.findAllByLecture(lecture);
         List<MemoDto> openMemos = new ArrayList<>();
@@ -61,7 +63,7 @@ public class MemoService {
     }
 
     public Memo createMemo(UUID lectureId, MemoDto memoDto) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         Memo memo = new Memo();
         memo.setLecture(lecture);
@@ -87,7 +89,7 @@ public class MemoService {
 
     public Memo toggleIsOpen(Long memoId, Boolean isOpen) {
         Memo memo = memoRepository.findById(memoId)
-                .orElseThrow(()-> new IllegalArgumentException("Memo not found: " + memoId));
+                .orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 
         memo.setIsOpen(isOpen);
         if(!isOpen) {
@@ -97,8 +99,8 @@ public class MemoService {
     }
 
     public MemoDto getOpenMemo(UUID lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
-        Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(null);
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 
         return MemoDto.builder()
                 .id(memo.getId())

@@ -5,6 +5,8 @@ import com.ormee.server.dto.lecture.LectureListDto;
 import com.ormee.server.dto.lecture.LectureRequestDto;
 import com.ormee.server.dto.lecture.LectureResponseDto;
 import com.ormee.server.dto.quiz.QuizListDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Quiz;
 import com.ormee.server.model.Teacher;
@@ -39,7 +41,7 @@ public class LectureService {
     }
 
     public Lecture saveLecture(LectureRequestDto lectureRequestDto, Integer teacherCode) {
-        Teacher teacher = teacherRepository.findByCode(teacherCode).orElse(null);
+        Teacher teacher = teacherRepository.findByCode(teacherCode).orElseThrow(() -> new CustomException(ExceptionType.TEACHER_NOT_FOUND_EXCEPTION));
         Integer lectureCode = codeGenerator.generateCode();
 
         while(lectureRepository.existsByCode(lectureCode)) {
@@ -62,12 +64,12 @@ public class LectureService {
     }
 
     public LectureResponseDto findLectureByCode(Integer code) {
-        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new IllegalArgumentException("Lecture not found: " + code));
+        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         return lectureToDto(lecture);
     }
 
     public LectureListDto findAllLectures(Integer teacherCode) {
-        Teacher teacher = teacherRepository.findByCode(teacherCode).orElseThrow();
+        Teacher teacher = teacherRepository.findByCode(teacherCode).orElseThrow(() -> new CustomException(ExceptionType.TEACHER_NOT_FOUND_EXCEPTION));
         List<Lecture> lectures = lectureRepository.findAllByTeacher(teacher);
         List<LectureResponseDto> openLectures = new ArrayList<>();
         List<LectureResponseDto> closedLectures = new ArrayList<>();
@@ -113,14 +115,14 @@ public class LectureService {
     }
 
     public void close(Integer code) {
-        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new IllegalArgumentException("Lecture not found: " + code));
+        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
         lecture.setDueTime(now);
         lectureRepository.save(lecture);
     }
 
     public void delete(Integer code) {
-        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new IllegalArgumentException("Lecture not found: " + code));
+        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         List<Quiz> quizzes = quizRepository.findAllByLecture(lecture);
         for(Quiz quiz : quizzes) {

@@ -2,6 +2,8 @@ package com.ormee.server.service;
 
 import com.ormee.server.dto.memo.MessageListDto;
 import com.ormee.server.dto.memo.MessageSubmitDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Memo;
 import com.ormee.server.model.Message;
 import com.ormee.server.repository.MemoRepository;
@@ -24,7 +26,7 @@ public class MessageService {
     }
 
     public void submitMessage(Long memoId, MessageSubmitDto messageSubmitDto) {
-        Memo memo = memoRepository.findById(memoId).orElse(null);
+        Memo memo = memoRepository.findById(memoId).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 
         Message message = new Message();
         message.setMemo(memo);

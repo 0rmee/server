@@ -4,6 +4,8 @@ import com.ormee.server.config.CodeGenerator;
 import com.ormee.server.dto.member.SignInDto;
 import com.ormee.server.dto.member.SignUpDto;
 import com.ormee.server.dto.member.TeacherDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
@@ -22,8 +24,7 @@ public class TeacherService {
     }
 
     public TeacherDto getTeacherById(int code) {
-        Teacher teacher = teacherRepository.findByCode(code).orElse(null);
-        if(teacher == null) {return null;}
+        Teacher teacher = teacherRepository.findByCode(code).orElseThrow(() -> new CustomException(ExceptionType.TEACHER_NOT_FOUND_EXCEPTION));
         return TeacherDto.builder()
                 .name(teacher != null ? teacher.getName() : null)
                 .email(teacher != null ? teacher.getEmail() : null)
@@ -37,10 +38,7 @@ public class TeacherService {
     }
 
     public Boolean checkTeacherPassword(SignInDto signInDto) {
-        Teacher teacher = teacherRepository.findByCode(signInDto.getCode()).orElse(null);
-        if (teacher == null) {
-            return false;
-        }
+        Teacher teacher = teacherRepository.findByCode(signInDto.getCode()).orElseThrow(() -> new CustomException(ExceptionType.TEACHER_NOT_FOUND_EXCEPTION));
         return teacher.getPassword().equals(signInDto.getPassword());
     }
 
