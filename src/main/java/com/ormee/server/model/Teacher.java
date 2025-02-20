@@ -24,6 +24,9 @@ public class Teacher extends EntityTime{
     private String name;
 
     @Column(nullable = false)
+    private String nameEng;
+
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -32,6 +35,15 @@ public class Teacher extends EntityTime{
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String introduce;
+
     @Column(nullable = true)
     private String image;
+
+    @Column(nullable = false)
+    private String socialId;
+
+    @Column(nullable = false)
+    private String socialProvider;
 }
