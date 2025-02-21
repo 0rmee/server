@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -12,11 +11,11 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Quiz extends EntityTime {
+public class Notice extends EntityTime {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "lecture_id")
@@ -29,20 +28,11 @@ public class Quiz extends EntityTime {
     private String description;
 
     @Column
-    private Boolean isDraft;
+    private LocalDateTime postDate;
 
     @Column
-    private Boolean isOpened;
+    private Boolean isPinned;
 
     @Column
-    private LocalDateTime openTime;
-
-    @Column
-    private LocalDateTime dueTime;
-
-    @Column
-    private Long timeLimit;
-
-    @Column
-    private Integer submitStudents;
+    private Integer like;
 }

@@ -76,7 +76,7 @@ public class LectureService {
 
         LocalDateTime now = LocalDateTime.now();
         for(Lecture lecture : lectures) {
-            if(lecture.getDueTime().isBefore(now)) {
+            if(lecture.getDueDate().isBefore(now)) {
                 closedLectures.add(lectureToDto(lecture));
             } else {
                 openLectures.add(lectureToDto(lecture));
@@ -106,8 +106,8 @@ public class LectureService {
                 .lectureDays(lecture.getLectureDays())
                 .startTime(lecture.getStartTime())
                 .endTime(lecture.getEndTime())
-                .openTime(lecture.getOpenTime())
-                .dueTime(lecture.getDueTime())
+                .openTime(lecture.getStartDate())
+                .dueTime(lecture.getDueDate())
                 .quizList(quizListDtos)
                 .activeQuizCount(count)
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
@@ -117,7 +117,7 @@ public class LectureService {
     public void close(Integer code) {
         Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
-        lecture.setDueTime(now);
+        lecture.setDueDate(now);
         lectureRepository.save(lecture);
     }
 

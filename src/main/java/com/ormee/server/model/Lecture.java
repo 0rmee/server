@@ -30,6 +30,9 @@ public class Lecture extends EntityTime {
     private Integer code;
 
     @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
     private String title;
 
     @Column
@@ -48,8 +51,11 @@ public class Lecture extends EntityTime {
     private LocalTime endTime;
 
     @Column
-    private LocalDateTime openTime;
+    private LocalDateTime startDate;
 
     @Column
-    private LocalDateTime dueTime;
+    private LocalDateTime dueDate;
+
+    @Column
+    private Integer students;
 }
