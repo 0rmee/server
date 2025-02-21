@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NoticeAttachment extends EntityTime {
+public class Attachment extends EntityTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -20,6 +20,10 @@ public class NoticeAttachment extends EntityTime {
     @ManyToOne
     @JoinColumn(name = "notice_id")
     private Notice notice;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private AttachmentType type;
 
     @Column
     private String fileName;

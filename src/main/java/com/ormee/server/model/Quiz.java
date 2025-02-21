@@ -45,7 +45,4 @@ public class Quiz extends EntityTime {
 
     @Column
     private Integer submitStudents;
-
-    @Column
-    private Integer students;
 }

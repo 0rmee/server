@@ -3,6 +3,7 @@ package com.ormee.server.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,15 +36,20 @@ public class Teacher extends EntityTime{
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String introduce;
 
     @Column(nullable = true)
     private String image;
 
-    @Column(nullable = false)
-    private String socialId;
+    @ElementCollection
+    @CollectionTable(name = "social_ids", joinColumns = @JoinColumn(name = "teacher_id"))
+    @Column(name = "social_id")
+    private List<String> socialIds;
 
-    @Column(nullable = false)
-    private String socialProvider;
+    @ElementCollection
+    @CollectionTable(name = "social_providers", joinColumns = @JoinColumn(name = "teacher_id"))
+    @Column(name = "social_provider")
+    @Enumerated(EnumType.STRING)
+    private List<SocialProvider> socialProviders;
 }
