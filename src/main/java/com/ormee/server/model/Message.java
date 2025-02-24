@@ -17,6 +17,10 @@ public class Message extends EntityTime{
     @JoinColumn(name = "memo_id")
     private Memo memo;
 
+    @OneToOne
+    @JoinColumn(name = "student_lecture_id")
+    private StudentLecture studentLecture;
+
     @Column(nullable = false)
     private String context;
 
