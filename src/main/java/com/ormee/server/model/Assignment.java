@@ -1,18 +1,11 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class Notice extends EntityTime {
-
+public class Assignment extends EntityTime {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -21,18 +14,18 @@ public class Notice extends EntityTime {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
     @Column
     private String description;
 
     @Column
-    private LocalDateTime postDate;
+    private Boolean isDraft;
 
     @Column
-    private Boolean isPinned;
+    private LocalDateTime openTime;
 
     @Column
-    private Long likes;
+    private LocalDateTime dueTime;
 }

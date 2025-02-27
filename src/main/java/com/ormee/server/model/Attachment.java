@@ -17,9 +17,8 @@ public class Attachment extends EntityTime {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "notice_id")
-    private Notice notice;
+    @Column
+    private String parentId;
 
     @Column
     @Enumerated(EnumType.STRING)

@@ -56,8 +56,8 @@ public class LectureService {
 //                .lectureDays(lectureRequestDto.getLectureDays())
 //                .startTime(lectureRequestDto.getStartTime())
 //                .endTime(lectureRequestDto.getEndTime())
-                .openTime(lectureRequestDto.getOpenTime())
-                .dueTime(lectureRequestDto.getDueTime())
+//                .startDate(lectureRequestDto.getOpenTime())
+//                .dueDate(lectureRequestDto.getDueTime())
                 .build();
 
         return lectureRepository.save(lecture);
