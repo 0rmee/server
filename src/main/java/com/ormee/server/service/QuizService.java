@@ -148,6 +148,7 @@ public class QuizService {
 
         return QuizDetailDto.builder()
                 .title(quiz.getTitle())
+                .description(quiz.getDescription())
                 .isOpened(quiz.getIsOpened())
                 .dueTime(quiz.getDueTime())
                 .timeLimit(quiz.getTimeLimit())
