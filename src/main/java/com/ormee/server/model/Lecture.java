@@ -62,4 +62,13 @@ public class Lecture extends EntityTime {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notice> notices;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Quiz> quizzes;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
 }

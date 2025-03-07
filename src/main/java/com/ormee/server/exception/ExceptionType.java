@@ -14,7 +14,8 @@ public enum ExceptionType {
     SUBMIT_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 제출입니다."),
     MEMO_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND,"존재하지 않는 쪽지입니다."),
     QUESTION_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 질문입니다."),
-    ANSWER_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 답변입니다.");
+    ANSWER_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 답변입니다."),
+    NOTICE_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 공지입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
