@@ -13,4 +13,6 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
         this.lectureRepository = lectureRepository;
     }
+
+    // 알림 구현
 }

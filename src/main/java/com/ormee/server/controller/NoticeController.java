@@ -35,7 +35,12 @@ public class NoticeController {
     }
 
     @GetMapping("/{lectureId}")
-    public ResponseDto getNotice(@PathVariable UUID lectureId) {
+    public ResponseDto getNoticeList(@PathVariable UUID lectureId) {
         return ResponseDto.success(noticeService.findAllByLectureId(lectureId));
+    }
+
+    @GetMapping("/{lectureId}/{noticeId}")
+    public ResponseDto getNotice(@PathVariable Long noticeId) {
+        return ResponseDto.success(noticeService.findById(noticeId));
     }
 }

@@ -42,6 +42,7 @@ public class QuizService {
                 .openTime(quizSaveDto.getOpenTime())
                 .dueTime(quizSaveDto.getDueTime())
                 .timeLimit(quizSaveDto.getTimeLimit())
+                // 학생수 추가
                 .build();
         quiz = quizRepository.save(quiz);
 
@@ -111,6 +112,7 @@ public class QuizService {
                     .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .submitCount(submitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
+                    // 학생수 추가
                     .build();
             quizListDtos.add(quizListDto);
         }
