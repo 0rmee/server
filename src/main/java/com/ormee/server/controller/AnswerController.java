@@ -1,5 +1,6 @@
 package com.ormee.server.controller;
 
+import com.ormee.server.dto.answer.AnswerSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.model.Answer;
 import com.ormee.server.service.AnswerService;
@@ -13,14 +14,14 @@ public class AnswerController {
     }
 
     @PostMapping("/teacher/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody Answer answer) {
-        answerService.writeAnswer(questionId, answer);
+    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) {
+        answerService.writeAnswer(questionId, answerSaveDto);
         return ResponseDto.success();
     }
 
-    @PutMapping("/teacher/{answerId}")
-    public ResponseDto updateAnswer(@PathVariable Long answerId) {
-        answerService.modifyAnswer(answerId);
+    @PutMapping("/teacher/{questionId}")
+    public ResponseDto updateAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) {
+        answerService.modifyAnswer(questionId, answerSaveDto);
         return ResponseDto.success();
     }
 
