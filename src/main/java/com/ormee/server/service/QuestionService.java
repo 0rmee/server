@@ -8,7 +8,6 @@ import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Question;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.QuestionRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,14 +50,14 @@ public class QuestionService {
 
     public List<QuestionListDto> findAllByLecture(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Question> questions = questionRepository.findAllByLecture(lecture, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Question> questions = questionRepository.findAllByLectureOrderByCreatedAt(lecture);
 
         return questions.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     public List<QuestionListDto> findAllByLectureAndIsAnswered(UUID lectureId, Boolean isAnswered) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Question> questionList = questionRepository.findAllByLectureAndIsAnswered(lecture, isAnswered, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Question> questionList = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAt(lecture, isAnswered);
         return questionList.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 

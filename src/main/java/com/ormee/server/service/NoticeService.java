@@ -9,7 +9,6 @@ import com.ormee.server.model.Lecture;
 import com.ormee.server.model.Notice;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.NoticeRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -53,7 +52,7 @@ public class NoticeService {
 
     public List<NoticeListDto> findAllByLectureId(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Notice> notices = noticeRepository.findAllByLecture(lecture, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Notice> notices = noticeRepository.findAllByLectureOrderByCreatedAt(lecture);
         return notices.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
