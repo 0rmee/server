@@ -29,7 +29,7 @@ public class StudentService {
     }
 
     public StudentTokenDto signIn(StudentSignInDto signInDto) {
-        Student student = studentRepository.findByEmail(signInDto.getEmail()).orElseThrow(() -> new CustomException(ExceptionType.EMAIL_NOT_FOUND_EXCEPTION));
+        Student student = studentRepository.findByEmail(signInDto.getEmail()).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
 
         if(!signInDto.getPassword().equals(student.getPassword())) {
             throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
@@ -39,7 +39,7 @@ public class StudentService {
     }
 
     public StudentInfoDto getStudentInfo(String email) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.EMAIL_NOT_FOUND_EXCEPTION));
+        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
 
         return StudentInfoDto.builder()
                 .name(student.getName())
@@ -49,10 +49,10 @@ public class StudentService {
                 .build();
     }
 
-    //update method
+    // student update
 
     public void delete(String email) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.EMAIL_NOT_FOUND_EXCEPTION));
+        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
         studentRepository.delete(student);
     }
 }

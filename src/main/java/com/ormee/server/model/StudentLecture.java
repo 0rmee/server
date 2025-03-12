@@ -1,8 +1,14 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class StudentLecture extends EntityTime {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
