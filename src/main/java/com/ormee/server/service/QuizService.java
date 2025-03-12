@@ -7,7 +7,7 @@ import com.ormee.server.model.*;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.ProblemRepository;
 import com.ormee.server.repository.QuizRepository;
-import com.ormee.server.repository.SubmitRepository;
+import com.ormee.server.repository.ProblemSubmitRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,13 +21,13 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final LectureRepository lectureRepository;
     private final ProblemRepository problemRepository;
-    private final SubmitRepository submitRepository;
+    private final ProblemSubmitRepository problemSubmitRepository;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, SubmitRepository submitRepository) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
         this.problemRepository = problemRepository;
-        this.submitRepository = submitRepository;
+        this.problemSubmitRepository = problemSubmitRepository;
     }
 
     public void saveQuiz(UUID lectureId, QuizSaveDto quizSaveDto) {
@@ -110,7 +110,7 @@ public class QuizService {
                     .timeLimit(quiz.getTimeLimit())
                     .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
-                    .submitCount(submitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
+                    .submitCount(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
                     .build();
             quizListDtos.add(quizListDto);
         }
@@ -162,13 +162,13 @@ public class QuizService {
 
         for(SubmitDto submitDto : submitDtos) {
             Problem problem = problemRepository.findById(submitDto.getProblemId()).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
-            Submit submit = Submit.builder()
+            ProblemSubmit problemSubmit = ProblemSubmit.builder()
                     .problem(problem)
                     .author(author)
                     .password(password)
                     .content(submitDto.getContent())
                     .build();
-            submitRepository.save(submit);
+            problemSubmitRepository.save(problemSubmit);
         }
     }
 
@@ -178,15 +178,15 @@ public class QuizService {
         List<ProblemDto> problemDtos = new ArrayList<>();
         Integer correct = 0;
         for(Problem problem : problems) {
-            Submit submit = submitRepository.findByProblemAndAuthorAndPassword(problem, author, password).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));;
+            ProblemSubmit problemSubmit = problemSubmitRepository.findByProblemAndAuthorAndPassword(problem, author, password).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));;
             ProblemDto problemDto = ProblemDto.builder()
                     .id(problem.getId())
                     .content(problem.getContent())
                     .type(problem.getType().toString())
                     .items(problem.getItems())
                     .answer(problem.getAnswer())
-                    .submission(submit.getContent())
-                    .isCorrect(problem.getAnswer().equals(submit.getContent()))
+                    .submission(problemSubmit.getContent())
+                    .isCorrect(problem.getAnswer().equals(problemSubmit.getContent()))
                     .build();
             if(problemDto.getIsCorrect()) {
                 correct++;
@@ -221,9 +221,9 @@ public class QuizService {
 
         List<QuizStatsDto> quizStatsDtos = problems.stream()
                 .map(problem -> {
-                    List<Submit> submits = submitRepository.findAllByProblem(problem);
+                    List<ProblemSubmit> problemSubmits = problemSubmitRepository.findAllByProblem(problem);
 
-                    if(submits.isEmpty()) {
+                    if(problemSubmits.isEmpty()) {
                         return QuizStatsDto.builder()
                                 .problemId(problem.getId())
                                 .problemNum(problem.getId() - firstNum)
@@ -232,11 +232,11 @@ public class QuizService {
                                 .build();
                     }
 
-                    long incorrectCount = submits.stream()
-                            .filter(submit -> !submit.getContent().equals(problem.getAnswer()))
+                    long incorrectCount = problemSubmits.stream()
+                            .filter(problemSubmit -> !problemSubmit.getContent().equals(problem.getAnswer()))
                             .count();
 
-                    long incorrectRate = (incorrectCount * 100) / submits.size();
+                    long incorrectRate = (incorrectCount * 100) / problemSubmits.size();
 
                     return QuizStatsDto.builder()
                             .problemId(problem.getId())
@@ -273,7 +273,7 @@ public class QuizService {
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
 
         for(Problem problem : problems) {
-            if(!submitRepository.existsByProblemAndAuthorAndPassword(problem, author, password)) {
+            if(!problemSubmitRepository.existsByProblemAndAuthorAndPassword(problem, author, password)) {
                 return false;
             }
         }
@@ -286,8 +286,8 @@ public class QuizService {
         List<Map<String, Object>> results = new ArrayList<>();
 
         if (problem.getType().equals(ProblemType.CHOICE)) {
-            long noResponseCount = submitRepository.findAllByProblem(problem).stream()
-                    .map(Submit::getContent)
+            long noResponseCount = problemSubmitRepository.findAllByProblem(problem).stream()
+                    .map(ProblemSubmit::getContent)
                     .filter(content -> content == null || content.isEmpty())
                     .count();
 
@@ -299,16 +299,16 @@ public class QuizService {
             }
 
             for (String option : problem.getItems()) {
-                long count = submitRepository.countAllByProblemAndContentLike(problem, option);
+                long count = problemSubmitRepository.countAllByProblemAndContentLike(problem, option);
                 Map<String, Object> result = new HashMap<>();
                 result.put("option", option);
                 result.put("count", count);
                 results.add(result);
             }
         } else {
-            List<String> submissions = submitRepository.findAllByProblem(problem)
+            List<String> submissions = problemSubmitRepository.findAllByProblem(problem)
                     .stream()
-                    .map(Submit::getContent)
+                    .map(ProblemSubmit::getContent)
                     .collect(Collectors.toList());
 
             long noResponseCount = submissions.stream()
