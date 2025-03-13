@@ -52,7 +52,7 @@ public class NoticeService {
 
     public List<NoticeListDto> findAllByLectureId(UUID lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Notice> notices = noticeRepository.findAllByLectureOrderByCreatedAt(lecture);
+        List<Notice> notices = noticeRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         return notices.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 

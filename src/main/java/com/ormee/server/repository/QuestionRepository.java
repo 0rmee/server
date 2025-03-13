@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    List<Question> findAllByLectureOrderByCreatedAt(Lecture lecture);
-    List<Question> findAllByLectureAndIsAnsweredOrderByCreatedAt(Lecture lecture, Boolean isAnswered);
+    List<Question> findAllByLectureOrderByCreatedAtDesc(Lecture lecture);
+    List<Question> findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(Lecture lecture, Boolean isAnswered);
 }
