@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,4 +59,16 @@ public class Lecture extends EntityTime {
 
     @Column
     private Integer students;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notice> notices;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Quiz> quizzes;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
 }

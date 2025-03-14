@@ -58,6 +58,7 @@ public class LectureService {
 //                .endTime(lectureRequestDto.getEndTime())
 //                .startDate(lectureRequestDto.getOpenTime())
 //                .dueDate(lectureRequestDto.getDueTime())
+//                .students(lectureRequestDto.getStudents())
                 .build();
 
         return lectureRepository.save(lecture);
@@ -106,8 +107,9 @@ public class LectureService {
                 .lectureDays(lecture.getLectureDays())
                 .startTime(lecture.getStartTime())
                 .endTime(lecture.getEndTime())
-                .openTime(lecture.getStartDate())
-                .dueTime(lecture.getDueDate())
+                .startDate(lecture.getStartDate())
+                .dueDate(lecture.getDueDate())
+                .students(lecture.getStudents())
                 .quizList(quizListDtos)
                 .activeQuizCount(count)
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))

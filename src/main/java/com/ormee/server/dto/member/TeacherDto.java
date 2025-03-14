@@ -7,7 +7,9 @@ import lombok.Data;
 @Builder
 public class TeacherDto {
     private String name;
+    private String nameEng;
     private String email;
     private String phoneNumber;
+    private String introduce;
     private String image;
 }
