@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class Student extends EntityTime{
+@DiscriminatorValue("Student")
+public class Student extends Member {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
