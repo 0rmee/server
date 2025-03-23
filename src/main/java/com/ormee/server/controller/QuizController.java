@@ -30,7 +30,7 @@ public class QuizController {
         return ResponseDto.success();
     }
 
-    @DeleteMapping("teacher/{quizId}")
+    @DeleteMapping("/teacher/{quizId}")
     public ResponseDto deleteQuiz(@PathVariable UUID quizId) {
         quizService.deleteQuiz(quizId);
         return ResponseDto.success();

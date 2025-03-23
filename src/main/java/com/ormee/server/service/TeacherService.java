@@ -10,8 +10,6 @@ import com.ormee.server.model.Teacher;
 import com.ormee.server.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class TeacherService {
 
@@ -27,10 +25,24 @@ public class TeacherService {
         Teacher teacher = teacherRepository.findByCode(code).orElseThrow(() -> new CustomException(ExceptionType.TEACHER_NOT_FOUND_EXCEPTION));
         return TeacherDto.builder()
                 .name(teacher != null ? teacher.getName() : null)
+                .nameEng(teacher != null ? teacher.getNameEng() : null)
                 .email(teacher != null ? teacher.getEmail() : null)
                 .phoneNumber(teacher != null ? teacher.getPhoneNumber() : null)
+                .introduce(teacher != null ? teacher.getIntroduce() : null)
                 .image(teacher != null ? teacher.getImage() : null)
                 .build();
+    }
+
+    public Teacher updateTeacherById(int code, TeacherDto teacherDto) {
+        Teacher teacher = teacherRepository.findByCode(code).orElseThrow(() -> new CustomException(ExceptionType.TEACHER_NOT_FOUND_EXCEPTION));
+        if (teacherDto.getName() != null) teacher.setName(teacherDto.getName());
+        if (teacherDto.getNameEng() != null) teacher.setNameEng(teacherDto.getNameEng());
+        if (teacherDto.getEmail() != null) teacher.setEmail(teacherDto.getEmail());
+        if (teacherDto.getPhoneNumber() != null) teacher.setPhoneNumber(teacherDto.getPhoneNumber());
+        if (teacherDto.getIntroduce() != null) teacher.setIntroduce(teacherDto.getIntroduce());
+        if (teacherDto.getImage() != null) teacher.setImage(teacherDto.getImage());
+
+        return teacherRepository.save(teacher);
     }
 
     public void signUp(SignUpDto signUpDto) {

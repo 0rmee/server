@@ -14,6 +14,6 @@ public class LectureRequestDto {
 //    private List<LectureDay> lectureDays;
 //    private LocalTime startTime;
 //    private LocalTime endTime;
-    private LocalDateTime openTime;
-    private LocalDateTime dueTime;
+    private LocalDateTime startDate;
+    private LocalDateTime dueDate;
 }
