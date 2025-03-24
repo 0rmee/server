@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface AssignmentSubmitRepository extends JpaRepository<AssignmentSubmit, Long> {
     List<AssignmentSubmit> findAllByAssignmentOrderByStudent_Name(Assignment assignment);
+    boolean existsByAssignmentAndIsFeedback(Assignment assignment, boolean isFeedback);
 }

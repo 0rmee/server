@@ -2,14 +2,17 @@ package com.ormee.server.service;
 
 import com.ormee.server.dto.assignment.AssignmentDto;
 import com.ormee.server.dto.assignment.AssignmentSaveDto;
+import com.ormee.server.dto.assignment.FeedbackedAssignmentListDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Assignment;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.repository.AssignmentRepository;
+import com.ormee.server.repository.AssignmentSubmitRepository;
 import com.ormee.server.repository.LectureRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,10 +21,12 @@ import java.util.stream.Collectors;
 public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
     private final LectureRepository lectureRepository;
+    private final AssignmentSubmitRepository assignmentSubmitRepository;
 
-    public AssignmentService(AssignmentRepository assignmentRepository, LectureRepository lectureRepository) {
+    public AssignmentService(AssignmentRepository assignmentRepository, LectureRepository lectureRepository, AssignmentSubmitRepository assignmentSubmitRepository) {
         this.assignmentRepository = assignmentRepository;
         this.lectureRepository = lectureRepository;
+        this.assignmentSubmitRepository = assignmentSubmitRepository;
     }
 
     public void create(UUID lectureId, AssignmentSaveDto assignmentSaveDto) {
@@ -47,6 +52,32 @@ public class AssignmentService {
                         .dueTime(assignment.getDueTime())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public FeedbackedAssignmentListDto getFeedbackCompletedList(UUID lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Assignment> assignments = assignmentRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
+        List<AssignmentDto> feedbackCompletedAssignments = new ArrayList<>();
+        List<AssignmentDto> feedbackNotCompletedAssignments = new ArrayList<>();
+
+        for (Assignment assignment : assignments) {
+            boolean hasFeedback = assignmentSubmitRepository.existsByAssignmentAndIsFeedback(assignment, true);
+            AssignmentDto dto = AssignmentDto.builder()
+                    .title(assignment.getTitle())
+                    .openTime(assignment.getOpenTime())
+                    .dueTime(assignment.getDueTime())
+                    .build();
+            if (hasFeedback) {
+                feedbackCompletedAssignments.add(dto);
+            } else {
+                feedbackNotCompletedAssignments.add(dto);
+            }
+        }
+
+        return FeedbackedAssignmentListDto.builder()
+                .feedbackCompletedAssignments(feedbackCompletedAssignments)
+                .feedbackNotCompletedAssignments(feedbackNotCompletedAssignments)
+                .build();
     }
 
     public AssignmentDto get(Long assignmentId) {

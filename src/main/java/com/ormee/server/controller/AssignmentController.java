@@ -22,9 +22,14 @@ public class AssignmentController {
         return ResponseDto.success();
     }
 
-    @GetMapping("/teacher/{lectureId}/assignment")
+    @GetMapping("/student/{lectureId}/assignment")
     public ResponseDto readAssignmentList(@PathVariable UUID lectureId) {
         return ResponseDto.success(assignmentService.getList(lectureId));
+    }
+
+    @GetMapping("/teacher/{lectureId}/assignment")
+    public ResponseDto readFeedbackCompletedAssignmentList(@PathVariable UUID lectureId) {
+        return ResponseDto.success(assignmentService.getFeedbackCompletedList(lectureId));
     }
 
     @GetMapping("/teacher/assignment/{assignmentId}")
