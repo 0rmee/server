@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Submit extends EntityTime {
+public class ProblemSubmit extends EntityTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -25,10 +25,4 @@ public class Submit extends EntityTime {
 
     @Column(nullable = false)
     private String content;
-
-    @Column(nullable = false)
-    private String author;
-
-    @Column(nullable = false)
-    private String password;
 }
