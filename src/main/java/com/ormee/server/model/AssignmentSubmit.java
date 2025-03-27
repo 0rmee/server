@@ -1,8 +1,14 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AssignmentSubmit extends EntityTime {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -12,9 +18,9 @@ public class AssignmentSubmit extends EntityTime {
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 
-    @OneToOne
-    @JoinColumn(name = "student_lecture_id")
-    private StudentLecture studentLecture;
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @Column
     private String content;

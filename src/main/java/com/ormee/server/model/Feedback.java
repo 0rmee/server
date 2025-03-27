@@ -1,8 +1,14 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Feedback extends EntityTime {
 
     @Id
@@ -15,4 +21,6 @@ public class Feedback extends EntityTime {
 
     @Column
     private String content;
+
+    // 스티커 타입?
 }

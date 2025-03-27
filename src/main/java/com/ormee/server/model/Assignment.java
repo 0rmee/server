@@ -1,10 +1,16 @@
 package com.ormee.server.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Assignment extends EntityTime {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
