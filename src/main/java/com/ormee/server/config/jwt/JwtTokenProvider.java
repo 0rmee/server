@@ -1,5 +1,6 @@
 package com.ormee.server.config.jwt;
 
+import com.ormee.server.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,7 +15,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,11 +23,13 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private final Key key;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // application.yml에서 secret 값 가져와서 key에 저장
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, RefreshTokenRepository refreshTokenRepository) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     // CustomUserDetails 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
@@ -53,6 +55,11 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + 1000*60*60*24*365)) // 1년
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        // access token 재발급을 위해 refresh token을 db에 저장
+        String username = authentication.getName();
+        RefreshToken refreshToken1 = new RefreshToken(username, refreshToken);
+        refreshTokenRepository.save(refreshToken1);
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -101,7 +108,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-
     // accessToken
     private Claims parseClaims(String accessToken) {
         try {
@@ -113,5 +119,33 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    // AccessToken 재발급 로직
+    public JwtToken reissueAccessToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        String username = claims.getSubject();
+        String authorities = claims.get("auth").toString();
+
+        long now = (new Date()).getTime();
+        Date accessTokenExpiresIn = new Date(now + 1000 * 60 * 30); // 30분
+
+        String newAccessToken = Jwts.builder()
+                .setSubject(username)
+                .claim("auth", authorities)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken) // 기존 Refresh Token 유지
+                .build();
+    }
+
+    public String getUsernameFromToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        return claims.getSubject();
     }
 }

@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeRequests()
 //                .requestMatchers(HttpMethod.GET, "/teacher/users/**").authenticated() // GET 요청에 대해 인증 필요
-                  .requestMatchers("/member/signUp", "/member/signIn").permitAll()
+                  .requestMatchers("/member/signUp", "/member/signIn", "auth/reissue").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(
