@@ -24,7 +24,7 @@ public class FeedbackService {
     }
 
     public void save(Long assignmentSubmitId, FeedbackSaveDto feedbackSaveDto) {
-        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_SUBMIT_NOT_FOUND_EXCEPTION));
+        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
         Feedback feedback = Feedback.builder()
                 .assignmentSubmit(assignmentSubmit)
                 .content(feedbackSaveDto.getContent())
@@ -36,7 +36,7 @@ public class FeedbackService {
 
 
     public List<FeedbackDto> get(Long assignmentSubmitId) {
-        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_SUBMIT_NOT_FOUND_EXCEPTION));
+        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
         List<Feedback> feedbackList = feedbackRepository.findAllByAssignmentSubmit(assignmentSubmit);
 
         List<FeedbackDto> feedbackDtos = feedbackList.stream()
