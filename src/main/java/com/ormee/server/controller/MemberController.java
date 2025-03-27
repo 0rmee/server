@@ -26,10 +26,10 @@ public class MemberController {
 
     @PostMapping("/signIn")
     public JwtToken signIn(@RequestBody MemberSignInDto signInDto) {
-        String loginId = signInDto.getLoginId();
+        String email = signInDto.getEmail();
         String password = signInDto.getPassword();
-        JwtToken jwtToken = memberService.signIn(loginId, password);
-        log.info("request loginId = {}, password = {}", loginId, password);
+        JwtToken jwtToken = memberService.signIn(email, password);
+        log.info("request email = {}, password = {}", email, password);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
         return jwtToken;
     }

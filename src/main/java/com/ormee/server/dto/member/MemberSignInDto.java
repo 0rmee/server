@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class MemberSignInDto {
-    private String loginId;
+    private String email;
     private String password;
 }

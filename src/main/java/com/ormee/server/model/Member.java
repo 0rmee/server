@@ -20,17 +20,11 @@ public class Member extends EntityTime implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column
-    private String loginId;
-
     @Column(nullable = false)
     private String password;
 
     @Column
     private String email;
-
-    @Column(unique = true, nullable = false)
-    private String username;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,7 +32,7 @@ public class Member extends EntityTime implements UserDetails {
 
     @Override
     public String getUsername() {
-        return loginId;
+        return email;
     }
 
     @Override

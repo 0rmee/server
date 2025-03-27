@@ -23,8 +23,8 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public String signUp(MemberSignUpDto memberSignUpDto) {
-        if (memberRepository.findByLoginId(memberSignUpDto.getLoginId()).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 로그인 ID입니다.");
+        if (memberRepository.findByEmail(memberSignUpDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 email입니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(memberSignUpDto.getPassword());
