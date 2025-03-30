@@ -19,9 +19,9 @@ public class ProblemSubmit extends EntityTime {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @OneToOne
-    @JoinColumn(name = "student_lecture_id")
-    private StudentLecture studentLecture;
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @Column(nullable = false)
     private String content;

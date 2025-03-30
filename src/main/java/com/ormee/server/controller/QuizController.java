@@ -1,7 +1,6 @@
 package com.ormee.server.controller;
 
 import com.ormee.server.dto.quiz.QuizSaveDto;
-import com.ormee.server.dto.quiz.SubmitRequestDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.QuizService;
 import org.springframework.web.bind.annotation.*;
@@ -66,31 +65,5 @@ public class QuizController {
     @GetMapping("/student/{lectureId}")
     public ResponseDto readOpenQuizList(@PathVariable UUID lectureId) {
         return ResponseDto.success(quizService.findOpenQuizList(lectureId));
-    }
-
-    @PostMapping("/student")
-    public ResponseDto submitQuiz(@RequestBody SubmitRequestDto submitRequestDto) {
-        quizService.submit(submitRequestDto);
-        return ResponseDto.success();
-    }
-
-    @GetMapping("/{quizId}/student/result")
-    public ResponseDto readQuizResult(@RequestParam(name = "author") String author, @RequestParam(name = "password") String password, @PathVariable UUID quizId) {
-        return ResponseDto.success(quizService.getStudentResult(quizId, author, password));
-    }
-
-    @GetMapping("/{quizId}/student/check")
-    public ResponseDto checkStudent(@RequestParam(name = "author") String author, @RequestParam(name = "password") String password, @PathVariable UUID quizId) {
-        return ResponseDto.success(quizService.checkStudent(quizId, author, password));
-    }
-
-    @GetMapping("/{quizId}/teacher/statistics")
-    public ResponseDto readQuizStatistics(@PathVariable UUID quizId) {
-        return ResponseDto.success(quizService.getStatistics(quizId));
-    }
-
-    @GetMapping("/teacher/statistics/{problemId}")
-    public ResponseDto readProblemStatistics(@PathVariable Long problemId) {
-        return ResponseDto.success(quizService.getProblemstats(problemId));
     }
 }

@@ -57,7 +57,7 @@ public class AssignmentSubmitService {
     }
 
     public AssignmentSubmitDto get(Long assignmentSubmitId) {
-        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_SUBMIT_NOT_FOUND_EXCEPTION));
+        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
 
         return AssignmentSubmitDto.builder()
                 .name(assignmentSubmit.getStudent().getName())
