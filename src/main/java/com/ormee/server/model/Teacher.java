@@ -11,26 +11,27 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Teacher extends EntityTime{
+@Builder(builderMethodName = "teacherBuilder")
+@DiscriminatorValue("Teacher")
+public class Teacher extends Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private Integer code;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String nameEng;
 
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String phoneNumber;
 
     @Column(nullable = false)

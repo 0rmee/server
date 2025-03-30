@@ -11,10 +11,11 @@ import java.util.List;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Student extends EntityTime{
+@Builder(builderMethodName = "studentBuilder")
+@DiscriminatorValue("Student")
+public class Student extends Member {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
