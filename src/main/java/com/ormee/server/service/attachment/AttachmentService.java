@@ -22,7 +22,7 @@ public class AttachmentService {
         this.attachmentRepository = attachmentRepository;
     }
 
-    public Long saveAttachment(AttachmentType type, Long parentId, MultipartFile multipartFile) throws IOException {
+    public Attachment save(AttachmentType type, Long parentId, MultipartFile multipartFile) throws IOException {
         String filePath = s3Service.uploadFile(multipartFile);
 
         Attachment attachment = Attachment.builder()
@@ -34,10 +34,10 @@ public class AttachmentService {
                 .dueDate(LocalDateTime.now().plusMonths(1))
                 .build();
 
-        return attachmentRepository.save(attachment).getId();
+        return attachmentRepository.save(attachment);
     }
 
-    public void deleteAttachment(Long attachmentId) {
+    public void delete(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION));
 
         s3Service.deleteFile(attachment.getFileName());
