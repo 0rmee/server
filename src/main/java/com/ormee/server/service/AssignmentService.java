@@ -6,12 +6,17 @@ import com.ormee.server.dto.assignment.FeedbackedAssignmentListDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Assignment;
+import com.ormee.server.model.Attachment;
+import com.ormee.server.model.AttachmentType;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.repository.AssignmentRepository;
 import com.ormee.server.repository.AssignmentSubmitRepository;
 import com.ormee.server.repository.LectureRepository;
+import com.ormee.server.service.attachment.AttachmentService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +27,7 @@ public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
     private final LectureRepository lectureRepository;
     private final AssignmentSubmitRepository assignmentSubmitRepository;
+    private AttachmentService attachmentService;
 
     public AssignmentService(AssignmentRepository assignmentRepository, LectureRepository lectureRepository, AssignmentSubmitRepository assignmentSubmitRepository) {
         this.assignmentRepository = assignmentRepository;
@@ -29,7 +35,7 @@ public class AssignmentService {
         this.assignmentSubmitRepository = assignmentSubmitRepository;
     }
 
-    public void create(UUID lectureId, AssignmentSaveDto assignmentSaveDto) {
+    public void create(UUID lectureId, AssignmentSaveDto assignmentSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Assignment assignment = Assignment.builder()
                 .lecture(lecture)
@@ -39,6 +45,15 @@ public class AssignmentService {
                 .openTime(assignmentSaveDto.getOpenTime())
                 .dueTime(assignmentSaveDto.getDueTime())
                 .build();
+
+        Long parentId = assignmentRepository.save(assignment).getId();
+
+        List<Attachment> attachments = new ArrayList<>();
+        for(MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
+            attachments.add(attachmentService.save(AttachmentType.assignment, parentId, multipartFile));
+        }
+        assignment.setAttachments(attachments);
+
         assignmentRepository.save(assignment);
     }
 
@@ -86,6 +101,7 @@ public class AssignmentService {
         return AssignmentDto.builder()
                 .title(assignment.getTitle())
                 .description(assignment.getDescription())
+                .filePaths(assignment.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .openTime(assignment.getOpenTime())
                 .dueTime(assignment.getDueTime())
                 .build();
