@@ -31,7 +31,7 @@ public class Attachment extends EntityTime {
     private String filePath;
 
     @Column
-    private String fileSize;
+    private Long fileSize;
 
     @Column
     private LocalDateTime dueDate;

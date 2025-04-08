@@ -4,5 +4,5 @@ public enum AttachmentType {
     notice,
     assignment,
     assignment_submit,
-    submit
+    problem_submit
 }
