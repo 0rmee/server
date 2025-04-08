@@ -3,6 +3,9 @@ package com.ormee.server.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Builder
 @Getter
@@ -24,6 +27,9 @@ public class AssignmentSubmit extends EntityTime {
 
     @Column
     private String content;
+
+    @OneToMany(mappedBy = "assignment_submit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attachment> attachments = new ArrayList<>();
 
     @Column
     private Boolean isFeedback;
