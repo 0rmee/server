@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/teacher/{lectureId}/memos")
+@RequestMapping
 public class MemoController {
     private final MemoService memoService;
 
@@ -16,15 +16,27 @@ public class MemoController {
         this.memoService = memoService;
     }
 
-    @GetMapping
+    @PostMapping("/teachers/{lectureId}/memos")
+    public ResponseDto createMemo(@PathVariable UUID lectureId, @RequestBody MemoDto memoDto) {
+        return ResponseDto.success(memoService.createMemo(lectureId, memoDto));
+    }
+
+    @PutMapping("/teachers/memos/{memoId}/close") // 추후 서비스 로직 추가
+    public ResponseDto closeMemo(@PathVariable UUID memoId) {
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/teachers/{lectureId}/memos")
     public ResponseDto getAllMemos(@PathVariable UUID lectureId) {
         return ResponseDto.success(memoService.getAllMemos(lectureId));
     }
 
-    @PostMapping
-    public ResponseDto createMemo(@PathVariable UUID lectureId, @RequestBody MemoDto memoDto) {
-        return ResponseDto.success(memoService.createMemo(lectureId, memoDto));
+    @GetMapping("/memos/{memoId}/stats") // 추후 서비스 로직 추가
+    public ResponseDto getMemoStats(@PathVariable UUID memoId) {
+        return ResponseDto.success();
     }
+
+    // 아래는 학생로직입니다
 
     @PutMapping("{memoId}/toggleIsOpen")
     public ResponseDto toggleIsOpen(@PathVariable long memoId, @RequestParam boolean isOpen) {
