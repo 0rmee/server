@@ -23,9 +23,16 @@ public class AssignmentSubmitController {
         return ResponseDto.success();
     }
 
-    @GetMapping("/teacher/assignment/{assignmentId}")
-    public ResponseDto getAssignmentSubmitStudentList(@PathVariable Long assignmentId) {
-        return ResponseDto.success(assignmentSubmitService.getStudentList(assignmentId));
+    // 과제별 제출한 학생 목록
+//    @GetMapping("/teachers/assignments/{assignmentId}")
+//    public ResponseDto getAssignmentSubmitStudentList(@PathVariable Long assignmentId) {
+//        return ResponseDto.success(assignmentSubmitService.getStudentList(assignmentId));
+//    }
+
+    // 과제별 제출 목록 추후 service 수정할것
+    @GetMapping("/teachers/assignments/{assignmentId}")
+    public ResponseDto readAssignment(@PathVariable Long assignmentId) {
+        return ResponseDto.success();
     }
 
     @GetMapping("/student/assignment/submit/{assignmentSubmitId}")

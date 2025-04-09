@@ -13,24 +13,25 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
-    @PostMapping("/teacher/{assignmentSubmitId}/feedback/")
-    public ResponseDto createFeedback(@PathVariable Long assignmentSubmitId, @RequestBody FeedbackSaveDto feedbackSaveDto) {
-        feedbackService.save(assignmentSubmitId, feedbackSaveDto);
+    @PostMapping("/teachers/assignments/submissions/{submissionId}")
+    public ResponseDto createFeedback(@PathVariable Long submissionId, @RequestBody FeedbackSaveDto feedbackSaveDto) {
+        feedbackService.save(submissionId, feedbackSaveDto); //assignmentSubmit -> submission으로 변경할것
         return ResponseDto.success();
     }
 
-    @GetMapping("/teacher/{assignmentSubmitId}/feedback")
-    public ResponseDto readFeedback(@PathVariable Long assignmentSubmitId) {
-        return ResponseDto.success(feedbackService.get(assignmentSubmitId));
+    // 위 로직은 피드백 복수로 달을 수 있는 경우입니다. 복수 불가능시 해당 로직으로 추후 재수정
+    @GetMapping("/teachers/submissions/{submissionId}")
+    public ResponseDto readFeedback(@PathVariable Long submissionId) {
+        return ResponseDto.success(feedbackService.get(submissionId)); //assignment -> submission로 변경
     }
 
-    @PutMapping("/teacher/feedback/{feedbackId}")
+    @PutMapping("/teachers/assignments/feedback/{feedbackId}")
     public ResponseDto updateFeedback(@PathVariable Long feedbackId, @RequestBody FeedbackSaveDto feedbackSaveDto) {
         feedbackService.update(feedbackId, feedbackSaveDto);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teacher/feedback/{feedbackId}")
+    @DeleteMapping("/teachers/assignments/feedback/{feedbackId}")
     public ResponseDto deleteFeedback(@PathVariable Long feedbackId) {
         feedbackService.delete(feedbackId);
         return ResponseDto.success();

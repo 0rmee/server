@@ -17,36 +17,46 @@ public class AssignmentController {
         this.assignmentService = assignmentService;
     }
 
-    @PostMapping("/teacher/{lectureId}/assignment")
+    @PostMapping("/teachers/{lectureId}/assignments")
     public ResponseDto createAssignment(@PathVariable UUID lectureId, @ModelAttribute AssignmentSaveDto assignmentSaveDto) throws IOException {
         assignmentService.create(lectureId, assignmentSaveDto);
         return ResponseDto.success();
     }
 
-    @GetMapping("/student/{lectureId}/assignment")
-    public ResponseDto readAssignmentList(@PathVariable UUID lectureId) {
+    @GetMapping("/teachers/{lectureId}/assignments")
+    public ResponseDto readTeacherAssignmentList(@PathVariable UUID lectureId) {
         return ResponseDto.success(assignmentService.getList(lectureId));
     }
 
-    @GetMapping("/teacher/{lectureId}/assignment")
-    public ResponseDto readFeedbackCompletedAssignmentList(@PathVariable UUID lectureId) {
-        return ResponseDto.success(assignmentService.getFeedbackCompletedList(lectureId));
+    @GetMapping("/teachers/assignmetns/{assignmentId}/students")
+    public ResponseDto readTeacherAssignmentStudentsList(@PathVariable UUID assignmentId, @RequestParam String filter) {
+        return ResponseDto.success(); // 과제별 학생 현황 목록 (전체, 미제출) 추후 서비스로직에 추가
     }
 
-    @GetMapping("/teacher/assignment/{assignmentId}")
-    public ResponseDto readAssignment(@PathVariable Long assignmentId) {
-        return ResponseDto.success(assignmentService.get(assignmentId));
-    }
-
-    @PutMapping("/teacher/assignment/{assignmentId}")
+    @PutMapping("/teachers/assignments/{assignmentId}")
     public ResponseDto updateAssignment(@PathVariable Long assignmentId, @RequestBody AssignmentSaveDto assignmentSaveDto) {
         assignmentService.update(assignmentId, assignmentSaveDto);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teacher/assignment/{assignmentId}")
+    @DeleteMapping("/teachers/assignments/{assignmentId}")
     public ResponseDto deleteAssignment(@PathVariable Long assignmentId) {
         assignmentService.delete(assignmentId);
         return ResponseDto.success();
     }
+
+    @PostMapping("/teachers/assignments/{assignmentId}/notifications") // @RequestBody StudentList 추가
+    public ResponseDto sendAssignmentNotification(@PathVariable Long assignmentId) {
+        return ResponseDto.success(); // service logic 추후 추가
+    }
+
+//    @GetMapping("/teachers/{lectureId}/assignment")
+//    public ResponseDto readFeedbackCompletedAssignmentList(@PathVariable UUID lectureId) {
+//        return ResponseDto.success(assignmentService.getFeedbackCompletedList(lectureId));
+//    }
+
+//    @GetMapping("/student/{lectureId}/assignment")
+//    public ResponseDto readAssignmentList(@PathVariable UUID lectureId) {
+//        return ResponseDto.success(assignmentService.getList(lectureId));
+//    }
 }
