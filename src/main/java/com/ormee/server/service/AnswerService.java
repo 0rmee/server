@@ -33,13 +33,14 @@ public class AnswerService {
         questionRepository.save(question);
     }
 
-    public void modifyAnswer(Long questionId, AnswerSaveDto answerSaveDto) {
-        Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
-        writeAnswer(questionId, answerSaveDto);
+    public void modifyAnswer(Long answerId, AnswerSaveDto answerSaveDto) {
+        Answer answer = answerRepository.findById(answerId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
+        Question question = answer.getQuestion();
         List<Answer> answers = question.getAnswers();
         if (answers != null) {
-            answers.forEach(answer -> deleteAnswer(answer.getId()));
+            answers.forEach(a -> deleteAnswer(a.getId()));
         }
+        writeAnswer(question.getId(), answerSaveDto);
     }
 
     public void deleteAnswer(Long answerId) {

@@ -13,19 +13,19 @@ public class AnswerController {
         this.answerService = answerService;
     }
 
-    @PostMapping("/teacher/{questionId}")
+    @PostMapping("/teachers/questions/{questionId}")
     public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) {
         answerService.writeAnswer(questionId, answerSaveDto);
         return ResponseDto.success();
     }
 
-    @PutMapping("/teacher/{questionId}")
-    public ResponseDto updateAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) {
-        answerService.modifyAnswer(questionId, answerSaveDto);
+    @PutMapping("/teachers/answers/{answerId}")
+    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) {
+        answerService.modifyAnswer(answerId, answerSaveDto);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teacher/{answerId}")
+    @DeleteMapping("/teachers/answers/{answerId}")
     public ResponseDto deleteAnswer(@PathVariable Long answerId) {
         answerService.deleteAnswer(answerId);
         return ResponseDto.success();
