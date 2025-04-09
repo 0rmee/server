@@ -1,5 +1,6 @@
 package com.ormee.server.model;
 
+import com.ormee.server.config.AttachmentListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AttachmentListener.class)
 public class Attachment extends EntityTime {
 
     @Id
@@ -31,7 +33,7 @@ public class Attachment extends EntityTime {
     private String filePath;
 
     @Column
-    private String fileSize;
+    private Long fileSize;
 
     @Column
     private LocalDateTime dueDate;

@@ -5,6 +5,7 @@ import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.AssignmentService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -17,7 +18,7 @@ public class AssignmentController {
     }
 
     @PostMapping("/teacher/{lectureId}/assignment")
-    public ResponseDto createAssignment(@PathVariable UUID lectureId, @RequestBody AssignmentSaveDto assignmentSaveDto) {
+    public ResponseDto createAssignment(@PathVariable UUID lectureId, @ModelAttribute AssignmentSaveDto assignmentSaveDto) throws IOException {
         assignmentService.create(lectureId, assignmentSaveDto);
         return ResponseDto.success();
     }

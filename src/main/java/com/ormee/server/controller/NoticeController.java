@@ -2,10 +2,10 @@ package com.ormee.server.controller;
 
 import com.ormee.server.dto.notice.NoticeSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
-import com.ormee.server.model.Notice;
 import com.ormee.server.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -17,13 +17,13 @@ public class NoticeController {
     }
 
     @PostMapping("/teacher/{lectureId}")
-    public ResponseDto createNotice(@PathVariable UUID lectureId, @RequestBody NoticeSaveDto noticeSaveDto) {
+    public ResponseDto createNotice(@PathVariable UUID lectureId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
         noticeService.saveNotice(lectureId, noticeSaveDto);
         return ResponseDto.success();
     }
 
     @PutMapping("/teacher/{noticeId}")
-    public ResponseDto updateNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) {
+    public ResponseDto updateNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) throws IOException {
         noticeService.modifyNotice(noticeId, noticeSaveDto);
         return ResponseDto.success();
     }
