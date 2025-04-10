@@ -12,30 +12,50 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/teacher/users")
+@RequestMapping("/teachers")
 public class TeacherController {
 
     @Autowired
     private TeacherService teacherService;
 
-    @GetMapping("/{code}")
-    public ResponseDto teacherInfo(@PathVariable Integer code) {
-        return ResponseDto.success(teacherService.getTeacherById(code));
-    }
-
-    @PutMapping("/{code}")
-    public ResponseDto updateTeacher(@PathVariable Integer code, @RequestBody TeacherDto teacherDto) {
-        return ResponseDto.success(teacherService.updateTeacherById(code, teacherDto));
-    }
-
-    @PostMapping("/signUp")
+    @PostMapping("/signup")
     public ResponseDto teacherSignUp(@RequestBody SignUpDto signUpDto){
         teacherService.signUp(signUpDto);
         return ResponseDto.success();
     }
 
-    @PostMapping("/check")
-    public ResponseDto teacherCheck(@RequestBody SignInDto signInDto) {
+    @PostMapping("/signin")
+    public ResponseDto teacherSignIn(@RequestBody SignInDto signInDto) {
         return ResponseDto.success(teacherService.checkTeacherPassword(signInDto));
+    }
+
+    @GetMapping("/{teacherId}/profile") // profileDto 나중에 추가
+    public ResponseDto teacherProfile(@PathVariable Integer teacherId) {
+        return ResponseDto.success(teacherService.getTeacherById(teacherId));
+    }
+
+    @PutMapping("/{teacherId}/profile") // profileDto 나중에 추가
+    public ResponseDto teacherProfileModify(@PathVariable Integer teacherId, @RequestBody TeacherDto teacherDto) {
+        return ResponseDto.success(teacherService.updateTeacherById(teacherId, teacherDto));
+    }
+
+    @GetMapping("/{teacherId}/info") // infoDto 추후 수정
+    public ResponseDto teacherInfo(@PathVariable Integer teacherId) {
+        return ResponseDto.success(teacherService.getTeacherById(teacherId));
+    }
+
+    @PutMapping("/{teacherId}/info") // infoDto 추후 수정
+    public ResponseDto teacherInfoUpdate(@PathVariable Integer teacherId, @RequestBody TeacherDto teacherDto) {
+        return ResponseDto.success(teacherService.updateTeacherById(teacherId, teacherDto));
+    }
+
+    @PutMapping("/{teacherId}/password/{password}")
+    public ResponseDto teacherPasswordUpdate(@PathVariable Integer teacherId, @PathVariable String password) {
+        return ResponseDto.success(); // 추후 비밀번호 수정 서비스로직 추가
+    }
+
+    @PostMapping("/{teacherId}/password/{password}")
+    public ResponseDto teacherPasswordCheck(@PathVariable Integer teacherId, @PathVariable String password) {
+        return ResponseDto.success(); // 추후 비밀번호 확인 서비스로직 추가
     }
 }
