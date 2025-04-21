@@ -1,7 +1,8 @@
-package com.ormee.server.model;
+package com.ormee.server.model.member;
 
 public enum SocialProvider {
-    kakao,
-    google,
-    naver
+    KAKAO,
+    GOOGLE,
+    NAVER,
+    APPLE
 }

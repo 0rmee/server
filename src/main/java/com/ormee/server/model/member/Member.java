@@ -1,38 +1,66 @@
-package com.ormee.server.model;
+package com.ormee.server.model.member;
 
+import com.ormee.server.model.Attachment;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
+@Builder
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member extends EntityTime implements UserDetails {
+public class Member implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String username;
 
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String name;
+
+    @Column
+    private String nameEng;
+
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
+
+    @Column
+    private String phoneNumber2;
+
     @Column
     private String email;
 
+    @Column
+    private String introduction;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Attachment image;
+
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
+    @ElementCollection
+    @CollectionTable(name = "member_social_logins", joinColumns = @JoinColumn(name = "member_id"))
+    private List<SocialLogin> socialLogins = new ArrayList<>();
+
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

@@ -1,6 +1,6 @@
-package com.ormee.server.model;
+package com.ormee.server.model.member;
 
 public enum Role {
-    Teacher,
-    Student
+    TEACHER,
+    STUDENT
 }
