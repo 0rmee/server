@@ -33,33 +33,25 @@ public class JwtTokenProvider {
     }
 
     // CustomUserDetails 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
-    public JwtToken generateToken(Authentication authentication) {
-        // 권한 가져오기
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+    public JwtToken generateToken(String username, List<String> roles) {
+        String authorities = String.join(",", roles);
 
-        long now = (new Date()).getTime();
+        long now = new Date().getTime();
+        Date accessTokenExpiresIn = new Date(now + 1000 * 60 * 30); // 30분
 
-        // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 1000*60*30); // 30분
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(username)
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // Refresh Token 생성
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 1000*60*60*24*365)) // 1년
+                .setSubject(username)
+                .claim("auth", authorities)
+                .setExpiration(new Date(now + 1000L * 60 * 60 * 24 * 365)) // 1년
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
-        // access token 재발급을 위해 refresh token을 db에 저장
-        String username = authentication.getName();
-        RefreshToken refreshToken1 = new RefreshToken(username, refreshToken);
-        refreshTokenRepository.save(refreshToken1);
 
         return JwtToken.builder()
                 .grantType("Bearer")
