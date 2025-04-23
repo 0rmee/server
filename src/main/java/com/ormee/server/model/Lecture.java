@@ -1,14 +1,13 @@
 package com.ormee.server.model;
 
+import com.ormee.server.model.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -18,14 +17,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Lecture extends EntityTime {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
+    private Member teacher;
 
     @Column(nullable = false, unique = true)
     private Integer code;

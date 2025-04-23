@@ -22,5 +22,7 @@ public class Feedback extends EntityTime {
     @Column
     private String content;
 
-    // 스티커 타입?
+    @Column
+    @Enumerated(EnumType.STRING)
+    private StickerType stickerType;
 }

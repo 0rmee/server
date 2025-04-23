@@ -1,5 +1,6 @@
 package com.ormee.server.model;
 
+import com.ormee.server.model.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 public class StudentLecture extends EntityTime {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -20,7 +21,7 @@ public class StudentLecture extends EntityTime {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    private Student student;
+    private Member student;
 
     @Column
     private String description;
