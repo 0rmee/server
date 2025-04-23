@@ -1,9 +1,10 @@
 package com.ormee.server.controller;
 
+import com.ormee.server.dto.member.SignInDto;
+import com.ormee.server.dto.member.StudentSignUpDto;
 import com.ormee.server.dto.response.ResponseDto;
-import com.ormee.server.dto.student.StudentSignInDto;
-import com.ormee.server.dto.student.StudentInfoDto;
 import com.ormee.server.service.StudentService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,23 +16,21 @@ public class StudentController {
     }
 
     @PostMapping("/student/signup")
-    public ResponseDto signUp(@RequestBody StudentInfoDto signUpDto) {
-        return ResponseDto.success(studentService.signUp(signUpDto));
+    public ResponseDto signUp(@RequestBody StudentSignUpDto signUpDto) {
+        studentService.signUp(signUpDto);
+        return ResponseDto.success();
     }
 
     @PostMapping("/student/signin")
-    public ResponseDto signIn(@RequestBody StudentSignInDto signInDto) {
+    public ResponseDto signIn(@RequestBody SignInDto signInDto) {
         return ResponseDto.success(studentService.signIn(signInDto));
     }
 
-    @GetMapping("/student/{email}")
-    public ResponseDto studentInfo(@PathVariable String email) {
-        return ResponseDto.success(studentService.getStudentInfo(email));
-    }
+    // 학생 화면 완성 후 추가 수정
 
-    @DeleteMapping("/student/{email}")
-    public ResponseDto delete(@PathVariable String email) {
-        studentService.delete(email);
+    @DeleteMapping("/student")
+    public ResponseDto delete(Authentication authentication) {
+        studentService.delete(authentication.getName());
         return ResponseDto.success();
     }
 }
