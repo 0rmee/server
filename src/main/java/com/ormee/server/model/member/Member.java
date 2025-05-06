@@ -1,6 +1,8 @@
 package com.ormee.server.model.member;
 
 import com.ormee.server.model.Attachment;
+import com.ormee.server.model.Lecture;
+import com.ormee.server.model.StudentLecture;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -58,6 +60,12 @@ public class Member implements UserDetails {
     @CollectionTable(name = "member_social_logins", joinColumns = @JoinColumn(name = "member_id"))
     private List<SocialLogin> socialLogins = new ArrayList<>();
 
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Lecture> lectures = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentLecture> studentLectures = new ArrayList<>();
+
     @Override
     public String getUsername() {
         return username;
@@ -91,5 +99,20 @@ public class Member implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void addLecture(Lecture lecture) {
+        lectures.add(lecture);
+    }
+
+    public void removeLecture(Lecture lecture) {
+        lectures.remove(lecture);
+        if (lecture.getTeacher() == this) {
+            lecture.setTeacher(null);
+        }
+    }
+
+    public void addStudentLecture(StudentLecture studentLecture) {
+        studentLectures.add(studentLecture);
     }
 }

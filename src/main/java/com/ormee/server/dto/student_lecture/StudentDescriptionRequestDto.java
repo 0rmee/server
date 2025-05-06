@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class StudentDescriptionRequestDto {
-    private String email;
+    private Long studentLectureId;
     private String description;
 }
