@@ -41,7 +41,4 @@ public class Quiz extends EntityTime {
 
     @Column
     private Long timeLimit;
-
-    @Column
-    private Integer submitStudents;
 }
