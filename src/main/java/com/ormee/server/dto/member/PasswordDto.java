@@ -3,7 +3,7 @@ package com.ormee.server.dto.member;
 import lombok.Data;
 
 @Data
-public class MemberSignInDto {
-    private String email;
+public class PasswordDto {
     private String password;
+    private String newPassword;
 }

@@ -1,7 +1,8 @@
 package com.ormee.server.model;
 
 public enum AttachmentType {
-    notice,
-    assignment,
-    assignment_submit
+    NOTICE,
+    ASSIGNMENT,
+    ASSIGNMENT_SUBMIT,
+    TEACHER_IMAGE
 }

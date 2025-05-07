@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface QuizRepository extends JpaRepository<Quiz, UUID> {
+public interface QuizRepository extends JpaRepository<Quiz, Long> {
     List<Quiz> findAllByLecture(Lecture lecture);
     List<Quiz> findAllByLectureAndIsDraftOrderByCreatedAtDesc(Lecture lecture, Boolean isDraft);
     List<Quiz> findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(Lecture lecture, Boolean isDraft, Boolean isOpened);

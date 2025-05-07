@@ -1,58 +1,75 @@
 package com.ormee.server.service;
 
-import com.ormee.server.dto.student.StudentSignInDto;
-import com.ormee.server.dto.student.StudentInfoDto;
-import com.ormee.server.dto.student.StudentTokenDto;
+import com.ormee.server.config.jwt.JwtToken;
+import com.ormee.server.config.jwt.JwtTokenProvider;
+import com.ormee.server.config.jwt.RefreshToken;
+import com.ormee.server.dto.member.SignInDto;
+import com.ormee.server.dto.member.StudentDto;
+import com.ormee.server.dto.member.StudentSignUpDto;
+import com.ormee.server.dto.member.TokenDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
-import com.ormee.server.model.Student;
-import com.ormee.server.repository.StudentRepository;
+import com.ormee.server.model.member.Member;
+import com.ormee.server.model.member.Role;
+import com.ormee.server.repository.MemberRepository;
+import com.ormee.server.repository.RefreshTokenRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class StudentService {
-    private final StudentRepository studentRepository;
+    private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public StudentService(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
+    public StudentService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+        this.memberRepository = memberRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public Student signUp(StudentInfoDto signUpDto) {
-        Student student = Student.builder()
-                .name(signUpDto.getName())
-                .description(signUpDto.getDescription())
-                .email(signUpDto.getEmail())
-                .password(signUpDto.getPassword())
+    public void signUp(StudentSignUpDto signUpDto) {
+        Member student = Member.builder()
+                .username(signUpDto.getUsername())
+                .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
+                .name(signUpDto.getName())
+                .role(Role.STUDENT)
                 .build();
-        return studentRepository.save(student);
+        memberRepository.save(student);
     }
 
-    public StudentTokenDto signIn(StudentSignInDto signInDto) {
-        Student student = studentRepository.findByEmail(signInDto.getEmail()).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
+    public TokenDto signIn(SignInDto signInDto) {
+        Member student = memberRepository.findByUsername(signInDto.getUsername()).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
-        if(!signInDto.getPassword().equals(student.getPassword())) {
+        if(!passwordEncoder.matches(student.getPassword(), signInDto.getPassword())) {
             throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
         }
 
-        return new StudentTokenDto();
-    }
+        if(student.getRole() != Role.STUDENT) {
+            throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
+        }
 
-    public StudentInfoDto getStudentInfo(String email) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
+        JwtToken jwtToken = jwtTokenProvider.generateToken(student.getUsername(), List.of("ROLE_STUDENT"));
+        String accessToken = jwtToken.getAccessToken();
+        String refreshToken = jwtToken.getRefreshToken();
 
-        return StudentInfoDto.builder()
-                .name(student.getName())
-                .description(student.getDescription())
-                .email(student.getEmail())
-                .phoneNumber(student.getPhoneNumber())
-                .build();
+        refreshTokenRepository.save(new RefreshToken(student.getUsername(), refreshToken));
+
+        TokenDto tokenDto = new TokenDto();
+        tokenDto.setAccessToken(accessToken);
+        tokenDto.setRefreshToken(refreshToken);
+        return tokenDto;
     }
 
     // student update
 
-    public void delete(String email) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
-        studentRepository.delete(student);
+    public void delete(String username) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        memberRepository.delete(student);
     }
 }

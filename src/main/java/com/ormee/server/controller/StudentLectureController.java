@@ -3,9 +3,8 @@ package com.ormee.server.controller;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.dto.student_lecture.StudentDescriptionRequestDto;
 import com.ormee.server.service.StudentLectureService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 public class StudentLectureController {
@@ -15,26 +14,32 @@ public class StudentLectureController {
         this.studentLectureService = studentLectureService;
     }
 
-    @PostMapping("/student/{email}/lecture/{lectureId}")
-    public ResponseDto inLecture(@PathVariable String email, @PathVariable UUID lectureId) {
-        studentLectureService.in(email, lectureId);
+    @PostMapping("/student/lecture/{lectureId}")
+    public ResponseDto inLecture(@PathVariable Long lectureId, Authentication authentication) {
+        studentLectureService.in(lectureId, authentication.getName());
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/student/{email}/lecture/{lectureId}")
-    public ResponseDto outLecture(@PathVariable String email, @PathVariable UUID lectureId) {
-        studentLectureService.out(email, lectureId);
+    @DeleteMapping("/student/lecture/{lectureId}")
+    public ResponseDto outLecture(@PathVariable Long lectureId, Authentication authentication) {
+        studentLectureService.out(lectureId, authentication.getName());
         return ResponseDto.success();
     }
 
-    @GetMapping("/teacher/lecture/{lectureId}/students")
-    public ResponseDto studentsInLecture(@PathVariable UUID lectureId) {
-        return ResponseDto.success(studentLectureService.getStudentList(lectureId));
+    @GetMapping("/teachers/lectures/{lectureId}/students")
+    public ResponseDto studentsInLecture(@PathVariable Long lectureId) {
+        return ResponseDto.success(studentLectureService.findAllStudents(lectureId));
     }
 
-    @PutMapping("/teacher/lecture/{lectureId}/student")
-    public ResponseDto describeStudent(@PathVariable UUID lectureId, @RequestBody StudentDescriptionRequestDto studentDescriptionRequestDto) {
-        studentLectureService.describe(lectureId, studentDescriptionRequestDto);
+    @PutMapping("/teachers/lectures/students")
+    public ResponseDto describeStudent(@RequestBody StudentDescriptionRequestDto studentDescriptionRequestDto) {
+        studentLectureService.updateDescription(studentDescriptionRequestDto);
+        return ResponseDto.success();
+    }
+
+    @DeleteMapping("/teachers/lectures/{studentLectureId}")
+    public ResponseDto outStudent(@PathVariable Long studentLectureId) {
+        studentLectureService.delete(studentLectureId);
         return ResponseDto.success();
     }
 }

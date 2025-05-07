@@ -1,5 +1,6 @@
 package com.ormee.server.model;
 
+import com.ormee.server.model.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,7 @@ public class ProblemSubmit extends EntityTime {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    private Student student;
+    private Member student;
 
     @Column(nullable = false)
     private String content;

@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController("/problems")
 public class ProblemSubmitController {
@@ -24,18 +23,7 @@ public class ProblemSubmitController {
     }
 
     @GetMapping("/{quizId}/student/result")
-    public ResponseDto readQuizResult(@PathVariable UUID quizId, Authentication authentication) {
+    public ResponseDto readQuizResult(@PathVariable Long quizId, Authentication authentication) {
         return ResponseDto.success(problemSubmitService.getStudentResult(quizId, authentication));
     }
-
-    @GetMapping("/{quizId}/teacher/statistics")
-    public ResponseDto readQuizStatistics(@PathVariable UUID quizId) {
-        return ResponseDto.success(problemSubmitService.getStatistics(quizId));
-    }
-
-    @GetMapping("/teacher/statistics/{problemId}")
-    public ResponseDto readProblemStatistics(@PathVariable Long problemId) {
-        return ResponseDto.success(problemSubmitService.getProblemstats(problemId));
-    }
-
 }

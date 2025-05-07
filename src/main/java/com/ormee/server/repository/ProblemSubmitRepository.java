@@ -2,7 +2,7 @@ package com.ormee.server.repository;
 
 import com.ormee.server.model.Problem;
 import com.ormee.server.model.ProblemSubmit;
-import com.ormee.server.model.Student;
+import com.ormee.server.model.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +16,5 @@ public interface ProblemSubmitRepository extends JpaRepository<ProblemSubmit, Lo
 
     long countAllByProblem(Problem problem);
 
-    Optional<ProblemSubmit> findByProblemAndStudent(Problem problem, Student student);
+    Optional<ProblemSubmit> findByProblemAndStudent(Problem problem, Member student);
 }

@@ -5,32 +5,29 @@ import com.ormee.server.dto.student_lecture.StudentDescriptionRequestDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Lecture;
-import com.ormee.server.model.Student;
 import com.ormee.server.model.StudentLecture;
+import com.ormee.server.model.member.Member;
 import com.ormee.server.repository.LectureRepository;
+import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.StudentLectureRepository;
-import com.ormee.server.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentLectureService {
     private final StudentLectureRepository studentLectureRepository;
-    private final StudentRepository studentRepository;
+    private final MemberRepository memberRepository;
     private final LectureRepository lectureRepository;
 
-    public StudentLectureService(StudentLectureRepository studentLectureRepository, StudentRepository studentRepository, LectureRepository lectureRepository) {
+    public StudentLectureService(StudentLectureRepository studentLectureRepository, MemberRepository memberRepository, LectureRepository lectureRepository) {
         this.studentLectureRepository = studentLectureRepository;
-        this.studentRepository = studentRepository;
+        this.memberRepository = memberRepository;
         this.lectureRepository = lectureRepository;
     }
 
-    public void in(String email, UUID lectureId) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
+    public void in(Long lectureId, String username) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         StudentLecture studentLecture = StudentLecture.builder()
@@ -38,40 +35,51 @@ public class StudentLectureService {
                 .lecture(lecture)
                 .build();
 
-        studentLectureRepository.save(studentLecture);
+        StudentLecture savedStudentLecture = studentLectureRepository.save(studentLecture);
+
+        lecture.addStudentLecture(savedStudentLecture);
+        student.addStudentLecture(savedStudentLecture);
+        lectureRepository.save(lecture);
+        memberRepository.save(student);
     }
 
-    public void out(String email, UUID lectureId) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
+    public void out(Long lectureId, String username) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         StudentLecture studentLecture = studentLectureRepository.findByStudentAndLecture(student, lecture).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
 
-        studentLectureRepository.delete(studentLecture);
+        delete(studentLecture.getId());
     }
 
-    public List<StudentDetailDto> getStudentList(UUID lectureId) {
+    public List<StudentDetailDto> findAllStudents(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLecture(lecture);
 
-        List<StudentDetailDto> studentDetailDtos = studentLectures.stream()
+        return lecture.getStudentLectures().stream()
                 .map(studentLecture -> StudentDetailDto.builder()
+                        .id(studentLecture.getId())
+                        .enrolDate(studentLecture.getCreatedAt().toLocalDate())
                         .name(studentLecture.getStudent().getName())
                         .description(studentLecture.getDescription())
                         .build())
-                .sorted(Comparator.comparing(StudentDetailDto::getName))
-                .collect(Collectors.toList());
-
-        return studentDetailDtos;
+                .toList();
     }
 
-    public void describe(UUID lectureId, StudentDescriptionRequestDto studentDescriptionRequestDto) {
-        Student student = studentRepository.findByEmail(studentDescriptionRequestDto.getEmail()).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_NOT_FOUND_EXCEPTION));
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-
-        StudentLecture studentLecture = studentLectureRepository.findByStudentAndLecture(student, lecture).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
+    public void updateDescription(StudentDescriptionRequestDto studentDescriptionRequestDto) {
+        StudentLecture studentLecture = studentLectureRepository.findById(studentDescriptionRequestDto.getStudentLectureId()).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
         studentLecture.setDescription(studentDescriptionRequestDto.getDescription());
 
         studentLectureRepository.save(studentLecture);
+    }
+
+    public void delete(Long studentLectureId) {
+        StudentLecture studentLecture = studentLectureRepository.findById(studentLectureId).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
+        Lecture lecture = studentLecture.getLecture();
+        Member student = studentLecture.getStudent();
+
+        student.getStudentLectures().remove(studentLecture);
+        lecture.getStudentLectures().remove(studentLecture);
+
+        studentLectureRepository.delete(studentLecture);
     }
 }

@@ -1,47 +1,33 @@
 package com.ormee.server.config.jwt;
 
-import com.ormee.server.model.Role;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import com.ormee.server.model.member.Member;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-@Getter
-@ToString
-@NoArgsConstructor
 public class CustomUserDetails implements UserDetails {
-    private String loginId;
-    private String password;
-    private String email;
-    private String username;
-    private Role role;
-    private String refreshToken;
+    private final Member member;
 
-    @Builder
-    public CustomUserDetails(String loginId, String username, String password, String email, Role role, String refreshToken) {
-        this.username = username;
-        this.loginId = loginId;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.refreshToken = refreshToken;
+    public CustomUserDetails(Member member) {
+        this.member = member;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return getRole().toString();
-            }
-        });
-        return grantedAuthorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return member.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return member.getUsername();
     }
 
     @Override
