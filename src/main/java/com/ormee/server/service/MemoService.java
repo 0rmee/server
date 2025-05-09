@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class MemoService {
@@ -28,7 +27,23 @@ public class MemoService {
         this.lectureRepository = lectureRepository;
     }
 
-    public MemoListDto getAllMemos(UUID lectureId) {
+    public Memo createMemo(Long lectureId, MemoDto memoDto) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+
+        Memo memo = new Memo();
+        memo.setLecture(lecture);
+        memo.setTitle(memoDto.getTitle());
+//        memo.setDescription(memoDto.getDescription());
+//        memo.setDueTime(memoDto.getDueTime());
+        memo.setDueTime(LocalDateTime.now().plusYears(1));
+        memo.setIsOpen(true);
+
+        closeOpenedMemos(lecture);
+
+        return memoRepository.save(memo);
+    }
+
+    public MemoListDto getAllMemos(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         List<Memo> memoList = memoRepository.findAllByLecture(lecture);
@@ -43,6 +58,7 @@ public class MemoService {
                         .dueTime(memo.getDueTime())
                         .isOpen(memo.getIsOpen())
                         .submitCount(getSubmitCount(memo.getId()))
+                        .totalCount(lecture.getStudentLectures().size())
                         .build())
                 .forEach(memoDto -> {
                     if (memoDto.getDueTime().isBefore(LocalDateTime.now())) {
@@ -60,22 +76,6 @@ public class MemoService {
 
     private Integer getSubmitCount(Long memoId) {
         return messageRepository.countByMemoId(memoId);
-    }
-
-    public Memo createMemo(UUID lectureId, MemoDto memoDto) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-
-        Memo memo = new Memo();
-        memo.setLecture(lecture);
-        memo.setTitle(memoDto.getTitle());
-//        memo.setDescription(memoDto.getDescription());
-//        memo.setDueTime(memoDto.getDueTime());
-        memo.setDueTime(LocalDateTime.now().plusYears(1));
-        memo.setIsOpen(true);
-
-        closeOpenedMemos(lecture);
-
-        return memoRepository.save(memo);
     }
 
     private void closeOpenedMemos(Lecture lecture) {
@@ -98,7 +98,7 @@ public class MemoService {
         return memoRepository.save(memo);
     }
 
-    public MemoDto getOpenMemo(UUID lectureId) {
+    public MemoDto getOpenMemo(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 

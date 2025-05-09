@@ -14,4 +14,5 @@ public class MemoDto {
     private LocalDateTime dueTime;
     private Boolean isOpen;
     private Integer submitCount;
+    private Integer totalCount;
 }
