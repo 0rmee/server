@@ -1,7 +1,5 @@
 package com.ormee.server.service.attachment;
 
-import com.ormee.server.exception.CustomException;
-import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Attachment;
 import com.ormee.server.model.AttachmentType;
 import com.ormee.server.repository.AttachmentRepository;
@@ -37,9 +35,7 @@ public class AttachmentService {
         return attachmentRepository.save(attachment);
     }
 
-    public void delete(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION));
-
+    public void delete(Attachment attachment) {
         s3Service.deleteFile(attachment.getFileName());
         attachmentRepository.delete(attachment);
     }
