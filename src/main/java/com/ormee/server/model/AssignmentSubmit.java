@@ -33,5 +33,5 @@ public class AssignmentSubmit extends EntityTime {
     private List<Attachment> attachments = new ArrayList<>();
 
     @Column
-    private Boolean isFeedback;
+    private Boolean isChecked;
 }

@@ -8,4 +8,7 @@ import lombok.Data;
 public class AssignmentSubmitStudentDto {
     private Long assignmentSubmitId;
     private String studentName;
+    private Boolean isSubmitted;
+    private Boolean isChecked;
+    private String createdAt;
 }

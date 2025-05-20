@@ -2,11 +2,12 @@ package com.ormee.server.controller;
 
 import com.ormee.server.dto.assignment.AssignmentSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.service.AssignmentService;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @RestController
 public class AssignmentController {
@@ -18,23 +19,18 @@ public class AssignmentController {
     }
 
     @PostMapping("/teachers/{lectureId}/assignments")
-    public ResponseDto createAssignment(@PathVariable UUID lectureId, @ModelAttribute AssignmentSaveDto assignmentSaveDto) throws IOException {
+    public ResponseDto createAssignment(@PathVariable Long lectureId, @ModelAttribute AssignmentSaveDto assignmentSaveDto) throws IOException {
         assignmentService.create(lectureId, assignmentSaveDto);
         return ResponseDto.success();
     }
 
     @GetMapping("/teachers/{lectureId}/assignments")
-    public ResponseDto readTeacherAssignmentList(@PathVariable UUID lectureId) {
+    public ResponseDto readTeacherAssignmentList(@PathVariable Long lectureId) {
         return ResponseDto.success(assignmentService.getList(lectureId));
     }
 
-    @GetMapping("/teachers/assignmetns/{assignmentId}/students")
-    public ResponseDto readTeacherAssignmentStudentsList(@PathVariable UUID assignmentId, @RequestParam String filter) {
-        return ResponseDto.success(); // 과제별 학생 현황 목록 (전체, 미제출) 추후 서비스로직에 추가
-    }
-
     @PutMapping("/teachers/assignments/{assignmentId}")
-    public ResponseDto updateAssignment(@PathVariable Long assignmentId, @RequestBody AssignmentSaveDto assignmentSaveDto) {
+    public ResponseDto updateAssignment(@PathVariable Long assignmentId, @ModelAttribute AssignmentSaveDto assignmentSaveDto) throws IOException {
         assignmentService.update(assignmentId, assignmentSaveDto);
         return ResponseDto.success();
     }
