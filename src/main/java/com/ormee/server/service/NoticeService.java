@@ -19,54 +19,70 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final LectureRepository lectureRepository;
-    private AttachmentService attachmentService;
+    private final AttachmentService attachmentService;
 
-    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository) {
+    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, AttachmentService attachmentService) {
         this.noticeRepository = noticeRepository;
         this.lectureRepository = lectureRepository;
+        this.attachmentService = attachmentService;
     }
 
-    public void saveNotice(UUID lectureId, NoticeSaveDto noticeSaveDto) throws IOException {
+    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         Notice notice = Notice.builder()
                 .lecture(lecture)
                 .title(noticeSaveDto.getTitle())
                 .description(noticeSaveDto.getDescription())
-                .postDate(LocalDateTime.now())
                 .isPinned(false)
-                .likes(noticeSaveDto.getLikes())
                 .build();
 
-        Long parentId = noticeRepository.save(notice).getId();
+        notice = noticeRepository.save(notice);
 
         List<Attachment> attachments = new ArrayList<>();
         for(MultipartFile multipartFile : noticeSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.notice, parentId, multipartFile));
+            attachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), multipartFile));
         }
 
         notice.setAttachments(attachments);
+        noticeRepository.save(notice);
     }
 
     public void modifyNotice(Long noticeId, NoticeSaveDto noticeSaveDto) throws IOException {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
-        saveNotice(notice.getLecture().getId(), noticeSaveDto);
-        deleteNotice(noticeId);
+
+        notice.setTitle(noticeSaveDto.getTitle());
+        notice.setDescription(noticeSaveDto.getDescription());
+
+        List<Attachment> existingAttachments = notice.getAttachments();
+        if (existingAttachments != null) {
+            for (Attachment attachment : existingAttachments) {
+                attachmentService.delete(attachment);
+            }
+        }
+
+        List<Attachment> newAttachments = new ArrayList<>();
+        for (MultipartFile file : noticeSaveDto.getFiles()) {
+            newAttachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), file));
+        }
+
+        notice.setAttachments(newAttachments);
+        noticeRepository.save(notice);
     }
+
 
     public void deleteNotice(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
         noticeRepository.delete(notice);
     }
 
-    public List<NoticeListDto> findAllByLectureId(UUID lectureId) {
+    public List<NoticeListDto> findAllByLectureId(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Notice> notices = noticeRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         return notices.stream().map(this::convertToDto).collect(Collectors.toList());
@@ -74,7 +90,31 @@ public class NoticeService {
 
     public NoticeDto findById(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+        return entityToDto(notice);
+    }
 
+    public List<NoticeListDto> findByKeyword(Long lectureId, String keyword) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Notice> notices = noticeRepository.findByLectureAndTitleContainingOrLectureAndDescriptionContainingOrderByCreatedAtDesc(lecture, keyword, lecture, keyword);
+        return notices.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    public void pin(Long noticeId, boolean isPinned) {
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+        notice.setIsPinned(isPinned);
+        noticeRepository.save(notice);
+    }
+
+    private NoticeListDto convertToDto(Notice notice) {
+        NoticeListDto dto = new NoticeListDto();
+        dto.setId(notice.getId());
+        dto.setTitle(notice.getTitle() != null ? notice.getTitle() : "제목 없음");
+        dto.setPostDate(notice.getCreatedAt());
+        dto.setIsPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false);
+        return dto;
+    }
+
+    public NoticeDto entityToDto(Notice notice) {
         return NoticeDto.builder()
                 .title(notice.getTitle() != null ? notice.getTitle() : "제목 없음")
                 .description(notice.getDescription() != null ? notice.getDescription() : "설명 없음")
@@ -83,13 +123,5 @@ public class NoticeService {
                 .isPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false)
                 .likes(notice.getLikes() != null ? notice.getLikes() : 0L)
                 .build();
-    }
-
-    private NoticeListDto convertToDto(Notice notice) {
-        NoticeListDto dto = new NoticeListDto();
-        dto.setTitle(notice.getTitle() != null ? notice.getTitle() : "제목 없음");
-        dto.setPostDate(notice.getCreatedAt());
-        dto.setIsPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false);
-        return dto;
     }
 }
