@@ -34,4 +34,7 @@ public class AssignmentSubmit extends EntityTime {
 
     @Column
     private Boolean isChecked;
+
+    @Column
+    private Boolean isFeedback;
 }

@@ -39,15 +39,13 @@ public class FeedbackService {
         AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
         List<Feedback> feedbackList = feedbackRepository.findAllByAssignmentSubmit(assignmentSubmit);
 
-        List<FeedbackDto> feedbackDtos = feedbackList.stream()
+        return feedbackList.stream()
                 .map(feedback -> FeedbackDto.builder()
                         .id(feedback.getId())
                         .content(feedback.getContent())
                         .createdAt(feedback.getCreatedAt().toString())
                         .build())
-                .collect(Collectors.toList());
-
-        return feedbackDtos;
+                .toList();
     }
 
     public void update(Long feedbackId, FeedbackSaveDto feedbackSaveDto) {
