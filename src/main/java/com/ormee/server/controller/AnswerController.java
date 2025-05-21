@@ -2,9 +2,10 @@ package com.ormee.server.controller;
 
 import com.ormee.server.dto.answer.AnswerSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
-import com.ormee.server.model.Answer;
 import com.ormee.server.service.AnswerService;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController("/answers")
 public class AnswerController {
@@ -14,13 +15,13 @@ public class AnswerController {
     }
 
     @PostMapping("/teachers/questions/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) {
+    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) throws IOException {
         answerService.writeAnswer(questionId, answerSaveDto);
         return ResponseDto.success();
     }
 
     @PutMapping("/teachers/answers/{answerId}")
-    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) {
+    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) throws IOException {
         answerService.modifyAnswer(answerId, answerSaveDto);
         return ResponseDto.success();
     }

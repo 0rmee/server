@@ -3,6 +3,9 @@ package com.ormee.server.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -20,4 +23,7 @@ public class Answer extends EntityTime {
 
     @Column
     private String content;
+
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attachment> attachments = new ArrayList<>();
 }
