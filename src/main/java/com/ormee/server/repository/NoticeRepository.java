@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findAllByLectureOrderByCreatedAtDesc(Lecture lecture);
+    List<Notice> findByLectureAndTitleContainingOrLectureAndDescriptionContainingOrderByCreatedAtDesc(Lecture lecture1, String title, Lecture lecture2, String description);
 }

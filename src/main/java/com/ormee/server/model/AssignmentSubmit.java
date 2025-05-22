@@ -29,8 +29,11 @@ public class AssignmentSubmit extends EntityTime {
     @Column
     private String content;
 
-    @OneToMany(mappedBy = "assignment_submit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
+
+    @Column
+    private Boolean isChecked;
 
     @Column
     private Boolean isFeedback;

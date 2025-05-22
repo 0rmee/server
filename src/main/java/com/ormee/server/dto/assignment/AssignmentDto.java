@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class AssignmentDto {
+    private Long id;
     private String title;
     private String description;
     private List<String> filePaths;

@@ -1,6 +1,7 @@
 package com.ormee.server.service;
 
 import com.ormee.server.dto.assignment.AssignmentDto;
+import com.ormee.server.dto.assignment.AssignmentListDto;
 import com.ormee.server.dto.assignment.AssignmentSaveDto;
 import com.ormee.server.dto.assignment.FeedbackedAssignmentListDto;
 import com.ormee.server.exception.CustomException;
@@ -19,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,15 +27,16 @@ public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
     private final LectureRepository lectureRepository;
     private final AssignmentSubmitRepository assignmentSubmitRepository;
-    private AttachmentService attachmentService;
+    private final AttachmentService attachmentService;
 
-    public AssignmentService(AssignmentRepository assignmentRepository, LectureRepository lectureRepository, AssignmentSubmitRepository assignmentSubmitRepository) {
+    public AssignmentService(AssignmentRepository assignmentRepository, LectureRepository lectureRepository, AssignmentSubmitRepository assignmentSubmitRepository, AttachmentService attachmentService) {
         this.assignmentRepository = assignmentRepository;
         this.lectureRepository = lectureRepository;
         this.assignmentSubmitRepository = assignmentSubmitRepository;
+        this.attachmentService = attachmentService;
     }
 
-    public void create(UUID lectureId, AssignmentSaveDto assignmentSaveDto) throws IOException {
+    public void create(Long lectureId, AssignmentSaveDto assignmentSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Assignment assignment = Assignment.builder()
                 .lecture(lecture)
@@ -50,26 +51,39 @@ public class AssignmentService {
 
         List<Attachment> attachments = new ArrayList<>();
         for(MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.assignment, parentId, multipartFile));
+            attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT, parentId, multipartFile));
         }
         assignment.setAttachments(attachments);
 
         assignmentRepository.save(assignment);
     }
 
-    public List<AssignmentDto> getList(UUID lectureId) {
+    public AssignmentListDto getList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Assignment> assignments = assignmentRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
-        return assignments.stream()
+
+        List<AssignmentDto> openedAssignments = assignments.stream()
                 .map(assignment -> AssignmentDto.builder()
+                        .id(assignment.getId())
                         .title(assignment.getTitle())
                         .openTime(assignment.getOpenTime())
                         .dueTime(assignment.getDueTime())
-                        .build())
-                .collect(Collectors.toList());
+                        .build()).toList();
+        List<AssignmentDto> closedAssignments = assignments.stream()
+                .map(assignment -> AssignmentDto.builder()
+                        .id(assignment.getId())
+                        .title(assignment.getTitle())
+                        .openTime(assignment.getOpenTime())
+                        .dueTime(assignment.getDueTime())
+                        .build()).toList();
+
+        return AssignmentListDto.builder()
+                .openedAssignments(openedAssignments)
+                .closedAssignments(closedAssignments)
+                .build();
     }
 
-    public FeedbackedAssignmentListDto getFeedbackCompletedList(UUID lectureId) {
+    public FeedbackedAssignmentListDto getFeedbackCompletedList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Assignment> assignments = assignmentRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         List<AssignmentDto> feedbackCompletedAssignments = new ArrayList<>();
@@ -107,11 +121,17 @@ public class AssignmentService {
                 .build();
     }
 
-    public void update(Long assignmentId, AssignmentSaveDto assignmentSaveDto) {
+    public void update(Long assignmentId, AssignmentSaveDto assignmentSaveDto) throws IOException {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
 
         assignment.setTitle(assignmentSaveDto.getTitle());
         assignment.setDescription(assignmentSaveDto.getDescription());
+
+        List<Attachment> attachments = new ArrayList<>();
+        for(MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
+            attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT, assignmentId, multipartFile));
+        }
+        assignment.setAttachments(attachments);
 
         assignmentRepository.save(assignment);
     }

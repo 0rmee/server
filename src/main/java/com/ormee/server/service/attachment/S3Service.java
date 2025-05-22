@@ -1,6 +1,8 @@
 package com.ormee.server.service.attachment;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -18,12 +20,24 @@ import java.time.LocalDate;
 public class S3Service {
 
     private final AmazonS3 amazonS3;
+    private final String bucketName;
 
-    @Value("${aws.s3.bucket}")
-    private String bucketName;
+    public S3Service(
+            @Value("${cloud.aws.credentials.accessKey}") String accessKey,
+            @Value("${cloud.aws.credentials.secretKey}") String secretKey,
+            @Value("${cloud.aws.region.static}") String region,
+            @Value("${cloud.aws.s3.bucket}") String bucketName
+    ) {
+        this.bucketName = bucketName;
 
-    public S3Service() {
-        this.amazonS3 = AmazonS3ClientBuilder.standard().build();
+        this.amazonS3 = AmazonS3ClientBuilder.standard()
+                .withRegion(region)
+                .withCredentials(
+                        new AWSStaticCredentialsProvider(
+                                new BasicAWSCredentials(accessKey, secretKey)
+                        )
+                )
+                .build();
     }
 
     public String uploadFile(MultipartFile multipartFile) throws IOException {

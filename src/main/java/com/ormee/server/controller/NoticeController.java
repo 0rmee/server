@@ -6,7 +6,6 @@ import com.ormee.server.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @RestController
 @RequestMapping
@@ -17,14 +16,14 @@ public class NoticeController {
     }
 
     @PostMapping("/teachers/{lectureId}/notices")
-    public ResponseDto createNotice(@PathVariable UUID lectureId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
+    public ResponseDto createNotice(@PathVariable Long lectureId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
         noticeService.saveNotice(lectureId, noticeSaveDto);
         return ResponseDto.success();
     }
 
     @GetMapping("/teachers/{lectureId}/notices/search")
-    public ResponseDto searchNotice(@PathVariable UUID lectureId, RequestParam keyword) throws IOException {
-        return ResponseDto.success(); // 추후 서비스로직 추가
+    public ResponseDto searchNotice(@PathVariable Long lectureId, @RequestParam String keyword) {
+        return ResponseDto.success(noticeService.findByKeyword(lectureId, keyword));
     }
 
     @PutMapping("/teachers/notices/{noticeId}")
@@ -34,13 +33,15 @@ public class NoticeController {
     }
 
     @PutMapping("/teachers/notices/{noticeId}/pin")
-    public ResponseDto updatePinNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) throws IOException {
-        return ResponseDto.success(); // 추후 서비스 로직 추가
+    public ResponseDto updatePinNotice(@PathVariable Long noticeId) {
+        noticeService.pin(noticeId, true);
+        return ResponseDto.success();
     }
 
     @PutMapping("/teachers/notices/{noticeId}/unpin")
-    public ResponseDto updateUnPinNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) throws IOException {
-        return ResponseDto.success(); // 추후 서비스 로직 추가
+    public ResponseDto updateUnPinNotice(@PathVariable Long noticeId) {
+        noticeService.pin(noticeId, false);
+        return ResponseDto.success();
     }
 
     @DeleteMapping("/teachers/notices/{noticeId}")
@@ -50,7 +51,7 @@ public class NoticeController {
     }
 
     @GetMapping("/teachers/{lectureId}/notices")
-    public ResponseDto getNoticeList(@PathVariable UUID lectureId) {
+    public ResponseDto getNoticeList(@PathVariable Long lectureId) {
         return ResponseDto.success(noticeService.findAllByLectureId(lectureId));
     }
 

@@ -2,7 +2,10 @@ package com.ormee.server.controller;
 
 import com.ormee.server.dto.assignment.AssignmentSubmitSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.service.AssignmentSubmitService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -15,29 +18,25 @@ public class AssignmentSubmitController {
         this.assignmentSubmitService = assignmentSubmitService;
     }
 
-    // email -> student principal
-
     @PostMapping("/student/assignment/{assignmentId}")
-    public ResponseDto createAssignmentSubmit(@PathVariable Long assignmentId, @ModelAttribute AssignmentSubmitSaveDto assignmentSubmitSaveDto, String email) throws IOException {
-        assignmentSubmitService.create(assignmentId, assignmentSubmitSaveDto, email);
+    public ResponseDto createAssignmentSubmit(@PathVariable Long assignmentId, @ModelAttribute AssignmentSubmitSaveDto assignmentSubmitSaveDto, Authentication authentication) throws IOException {
+        assignmentSubmitService.create(assignmentId, assignmentSubmitSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 
-    // 과제별 제출한 학생 목록
-//    @GetMapping("/teachers/assignments/{assignmentId}")
-//    public ResponseDto getAssignmentSubmitStudentList(@PathVariable Long assignmentId) {
-//        return ResponseDto.success(assignmentSubmitService.getStudentList(assignmentId));
-//    }
-
-    // 과제별 제출 목록 추후 service 수정할것
-    @GetMapping("/teachers/assignments/{assignmentId}")
-    public ResponseDto readAssignment(@PathVariable Long assignmentId) {
-        return ResponseDto.success();
+    @GetMapping("/teachers/assignments/{assignmentId}/students")
+    public ResponseDto readTeacherAssignmentStudentsList(@PathVariable Long assignmentId, @RequestParam(required = false, defaultValue = "전체") String filter) {
+        return switch (filter) {
+            case "전체" -> ResponseDto.success(assignmentSubmitService.getStudents(assignmentId));
+            case "미제출" -> ResponseDto.success(assignmentSubmitService.getNotSubmittedStudents(assignmentId));
+            case "미확인" -> ResponseDto.success(assignmentSubmitService.getNotCheckedStudents(assignmentId));
+            default -> throw new CustomException(ExceptionType.FILTER_INVALID_EXCEPTION);
+        };
     }
 
     @GetMapping("/student/assignment/submit/{assignmentSubmitId}")
-    public ResponseDto getAssignmentSubmit(@PathVariable Long assignmentSubmitId) {
-        return ResponseDto.success(assignmentSubmitService.get(assignmentSubmitId));
+    public ResponseDto getAssignmentSubmit(@PathVariable Long assignmentSubmitId, Authentication authentication) {
+        return ResponseDto.success(assignmentSubmitService.get(assignmentSubmitId, authentication.getName()));
     }
 
     // 수정 (피드백 달리기 전까지 수정 가능)

@@ -4,6 +4,7 @@ import com.ormee.server.dto.memo.MessageSubmitDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,18 +17,13 @@ public class MessageController {
     }
 
     @PostMapping("/student/{memoId}/messages")
-    public ResponseDto submitMessage(
-            @PathVariable long memoId,
-            @RequestBody MessageSubmitDto messageSubmitDto
-    ){
-        messageService.submitMessage(memoId, messageSubmitDto);
+    public ResponseDto submitMessage(@PathVariable long memoId, @RequestBody MessageSubmitDto messageSubmitDto, Authentication authentication) {
+        messageService.submitMessage(memoId, messageSubmitDto, authentication.getName());
         return ResponseDto.success();
     }
 
     @GetMapping("/teacher/{memoId}/messages")
-    public ResponseDto getMessages(
-            @PathVariable Long memoId
-    ){
+    public ResponseDto getMessages(@PathVariable Long memoId) {
         return ResponseDto.success(messageService.getMessages(memoId));
     }
 }
