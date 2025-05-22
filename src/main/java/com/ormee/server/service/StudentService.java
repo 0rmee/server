@@ -46,7 +46,7 @@ public class StudentService {
     public TokenDto signIn(SignInDto signInDto) {
         Member student = memberRepository.findByUsername(signInDto.getUsername()).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
-        if(!passwordEncoder.matches(student.getPassword(), signInDto.getPassword())) {
+        if(!passwordEncoder.matches(signInDto.getPassword(), student.getPassword())) {
             throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
         }
 
