@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-@RestController("/answers")
+@RestController()
 public class AnswerController {
     private final AnswerService answerService;
     public AnswerController(AnswerService answerService) {
