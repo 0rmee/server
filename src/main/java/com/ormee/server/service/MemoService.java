@@ -27,7 +27,7 @@ public class MemoService {
         this.lectureRepository = lectureRepository;
     }
 
-    public Memo createMemo(Long lectureId, MemoDto memoDto) {
+    public void createMemo(Long lectureId, MemoDto memoDto) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         Memo memo = new Memo();
@@ -40,7 +40,7 @@ public class MemoService {
 
         closeOpenedMemos(lecture);
 
-        return memoRepository.save(memo);
+        memoRepository.save(memo);
     }
 
     public MemoListDto getAllMemos(Long lectureId) {
@@ -87,7 +87,7 @@ public class MemoService {
         }
     }
 
-    public Memo toggleIsOpen(Long memoId, Boolean isOpen) {
+    public void toggleIsOpen(Long memoId, Boolean isOpen) {
         Memo memo = memoRepository.findById(memoId)
                 .orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 
@@ -95,7 +95,7 @@ public class MemoService {
         if(!isOpen) {
             memo.setDueTime(LocalDateTime.now());
         }
-        return memoRepository.save(memo);
+        memoRepository.save(memo);
     }
 
     public MemoDto getOpenMemo(Long lectureId) {

@@ -37,7 +37,7 @@ public class StudentLectureController {
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teachers/lectures/{studentLectureId}")
+    @DeleteMapping("/teachers/lectures/students/{studentLectureId}")
     public ResponseDto outStudent(@PathVariable Long studentLectureId) {
         studentLectureService.delete(studentLectureId);
         return ResponseDto.success();

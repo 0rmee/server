@@ -87,14 +87,14 @@ public class TeacherService {
                 .build();
     }
 
-    public void updateProfile(String username, TeacherDto teacherDto, MultipartFile file) throws IOException {
+    public void updateProfile(String username, String introduction, MultipartFile file) throws IOException {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         if(teacher.getRole() != Role.TEACHER) {
             throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
         }
 
-        teacher.setIntroduction(teacherDto.getIntroduction());
+        teacher.setIntroduction(introduction);
         teacher.setImage(attachmentService.save(AttachmentType.TEACHER_IMAGE, teacher.getId(), file));
 
         memberRepository.save(teacher);
@@ -139,7 +139,7 @@ public class TeacherService {
             throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
         }
 
-        teacher.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
+        teacher.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
 
         memberRepository.save(teacher);
     }

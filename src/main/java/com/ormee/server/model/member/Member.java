@@ -102,7 +102,7 @@ public class Member implements UserDetails {
     }
 
     public void addLecture(Lecture lecture) {
-        lectures.add(lecture);
+        this.lectures.add(lecture);
     }
 
     public void removeLecture(Lecture lecture) {

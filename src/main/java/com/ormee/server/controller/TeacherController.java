@@ -38,9 +38,9 @@ public class TeacherController {
     }
 
     @PutMapping("/profile")
-    public ResponseDto teacherProfileModify(Authentication authentication, @RequestPart("teacherDto") TeacherDto teacherDto,
+    public ResponseDto teacherProfileModify(Authentication authentication, @RequestPart("introduction") String introduction,
                                             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        teacherService.updateProfile(authentication.getName(), teacherDto, file);
+        teacherService.updateProfile(authentication.getName(), introduction, file);
         return ResponseDto.success();
     }
 

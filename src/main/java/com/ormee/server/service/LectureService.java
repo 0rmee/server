@@ -59,7 +59,14 @@ public class LectureService {
                 .password(lectureRequestDto.getPassword())
                 .title(lectureRequestDto.getTitle())
                 .description(lectureRequestDto.getDescription())
-                .lectureDays(lectureRequestDto.getLectureDays().stream().map(LectureDay::fromKorean).toList())
+                .lectureDays(
+                        new ArrayList<>(
+                                lectureRequestDto.getLectureDays()
+                                        .stream()
+                                        .map(LectureDay::fromKorean)
+                                        .toList()
+                        )
+                )
                 .startTime(lectureRequestDto.getStartTime())
                 .endTime(lectureRequestDto.getEndTime())
                 .startDate(lectureRequestDto.getStartDate())

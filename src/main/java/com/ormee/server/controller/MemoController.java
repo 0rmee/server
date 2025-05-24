@@ -19,12 +19,14 @@ public class MemoController {
 
     @PostMapping("/teachers/{lectureId}/memos")
     public ResponseDto createMemo(@PathVariable Long lectureId, @RequestBody MemoDto memoDto) {
-        return ResponseDto.success(memoService.createMemo(lectureId, memoDto));
+        memoService.createMemo(lectureId, memoDto);
+        return ResponseDto.success();
     }
 
     @PutMapping("/teachers/memos/{memoId}/close")
     public ResponseDto closeMemo(@PathVariable Long memoId) {
-        return ResponseDto.success(memoService.toggleIsOpen(memoId, false));
+        memoService.toggleIsOpen(memoId, false);
+        return ResponseDto.success();
     }
 
     @GetMapping("/teachers/{lectureId}/memos")
@@ -41,7 +43,8 @@ public class MemoController {
 
     @PutMapping("{memoId}/toggleIsOpen")
     public ResponseDto toggleIsOpen(@PathVariable long memoId, @RequestParam boolean isOpen) {
-        return ResponseDto.success(memoService.toggleIsOpen(memoId, isOpen));
+        memoService.toggleIsOpen(memoId, isOpen);
+        return ResponseDto.success();
     }
 
     @GetMapping("/open")
