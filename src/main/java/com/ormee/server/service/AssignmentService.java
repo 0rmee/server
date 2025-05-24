@@ -122,19 +122,23 @@ public class AssignmentService {
     }
 
     public void update(Long assignmentId, AssignmentSaveDto assignmentSaveDto) throws IOException {
-        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
 
         assignment.setTitle(assignmentSaveDto.getTitle());
         assignment.setDescription(assignmentSaveDto.getDescription());
 
-        List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT, assignmentId, multipartFile));
+        List<Attachment> existingAttachments = assignment.getAttachments();
+        existingAttachments.clear();
+
+        for (MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
+            Attachment newAttachment = attachmentService.save(AttachmentType.ASSIGNMENT, assignmentId, multipartFile);
+            existingAttachments.add(newAttachment);
         }
-        assignment.setAttachments(attachments);
 
         assignmentRepository.save(assignment);
     }
+
 
     public void delete(Long assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
