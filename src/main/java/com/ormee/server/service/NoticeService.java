@@ -62,17 +62,12 @@ public class NoticeService {
 
         List<Attachment> existingAttachments = notice.getAttachments();
         if (existingAttachments != null) {
-            for (Attachment attachment : existingAttachments) {
-                attachmentService.delete(attachment);
-            }
+            existingAttachments.clear();
         }
-
-        List<Attachment> newAttachments = new ArrayList<>();
         for (MultipartFile file : noticeSaveDto.getFiles()) {
-            newAttachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), file));
+            Attachment newAttachment = attachmentService.save(AttachmentType.NOTICE, notice.getId(), file);
+            notice.getAttachments().add(newAttachment);
         }
-
-        notice.setAttachments(newAttachments);
         noticeRepository.save(notice);
     }
 
