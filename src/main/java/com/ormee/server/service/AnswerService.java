@@ -52,18 +52,20 @@ public class AnswerService {
     }
 
     public void modifyAnswer(Long answerId, AnswerSaveDto answerSaveDto) throws IOException {
-        Answer answer = answerRepository.findById(answerId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
-
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
         answer.setContent(answerSaveDto.getContent());
-
-        List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : answerSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.ANSWER, answer.getId(), multipartFile));
+        List<Attachment> existingAttachments = answer.getAttachments();
+        if (existingAttachments != null) {
+            existingAttachments.clear();
         }
-        answer.setAttachments(attachments);
-
+        for (MultipartFile multipartFile : answerSaveDto.getFiles()) {
+            Attachment newAttachment = attachmentService.save(AttachmentType.ANSWER, answer.getId(), multipartFile);
+            existingAttachments.add(newAttachment);
+        }
         answerRepository.save(answer);
     }
+
 
     public void deleteAnswer(Long answerId) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(()->new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
