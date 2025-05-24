@@ -20,7 +20,7 @@ public class FeedbackController {
     }
 
     // 위 로직은 피드백 복수로 달을 수 있는 경우입니다. 복수 불가능시 해당 로직으로 추후 재수정
-    @GetMapping("/teachers/submissions/{submissionId}")
+    @GetMapping("/teachers/assignments/submissions/{submissionId}")
     public ResponseDto readFeedback(@PathVariable Long submissionId) {
         return ResponseDto.success(feedbackService.get(submissionId)); //assignment -> submission로 변경
     }
