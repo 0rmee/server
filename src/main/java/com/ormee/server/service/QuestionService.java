@@ -50,8 +50,10 @@ public class QuestionService {
         question = questionRepository.save(question);
 
         List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : questionSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.QUESTION, question.getId(), multipartFile));
+        if (questionSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : questionSaveDto.getFiles()) {
+                attachments.add(attachmentService.save(AttachmentType.QUESTION, question.getId(), multipartFile));
+            }
         }
         question.setAttachments(attachments);
 
@@ -61,12 +63,17 @@ public class QuestionService {
     public void modifyQuestion(Long questionId, QuestionSaveDto questionSaveDto) throws IOException {
         Question question = questionRepository.findById(questionId).orElseThrow(()->new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
 
-        question.setTitle(questionSaveDto.getTitle());
-        question.setContent(questionSaveDto.getContent());
-
+        if (questionSaveDto.getTitle() != null) {
+            question.setTitle(questionSaveDto.getTitle());
+        }
+        if (questionSaveDto.getContent() != null) {
+            question.setContent(questionSaveDto.getContent());
+        }
         List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : questionSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.QUESTION, question.getId(), multipartFile));
+        if (questionSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : questionSaveDto.getFiles()) {
+                attachments.add(attachmentService.save(AttachmentType.QUESTION, question.getId(), multipartFile));
+            }
         }
         question.setAttachments(attachments);
     }
