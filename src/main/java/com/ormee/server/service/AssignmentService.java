@@ -50,8 +50,10 @@ public class AssignmentService {
         Long parentId = assignmentRepository.save(assignment).getId();
 
         List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT, parentId, multipartFile));
+        if (assignmentSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
+                attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT, parentId, multipartFile));
+            }
         }
         assignment.setAttachments(attachments);
 
@@ -125,17 +127,22 @@ public class AssignmentService {
         Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
 
-        assignment.setTitle(assignmentSaveDto.getTitle());
-        assignment.setDescription(assignmentSaveDto.getDescription());
-
-        List<Attachment> existingAttachments = assignment.getAttachments();
-        existingAttachments.clear();
-
-        for (MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
-            Attachment newAttachment = attachmentService.save(AttachmentType.ASSIGNMENT, assignmentId, multipartFile);
-            existingAttachments.add(newAttachment);
+        if (assignmentSaveDto.getTitle() != null) {
+            assignment.setTitle(assignmentSaveDto.getTitle());
         }
-
+        if (assignmentSaveDto.getDescription() != null) {
+            assignment.setDescription(assignmentSaveDto.getDescription());
+        }
+        List<Attachment> existingAttachments = assignment.getAttachments();
+        if (existingAttachments != null) {
+            existingAttachments.clear();
+        }
+        if (assignmentSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : assignmentSaveDto.getFiles()) {
+                Attachment newAttachment = attachmentService.save(AttachmentType.ASSIGNMENT, assignmentId, multipartFile);
+                existingAttachments.add(newAttachment);
+            }
+        }
         assignmentRepository.save(assignment);
     }
 
