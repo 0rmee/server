@@ -137,7 +137,7 @@ public class LectureService {
         return LectureResponseDto.builder()
                 .id(lecture.getId().toString())
                 .code(lecture.getCode())
-                .profileImage(teacher.getImage().getFilePath())
+                .profileImage(teacher.getImage() == null ? null : teacher.getImage().getFilePath())
                 .name(teacher.getName())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
