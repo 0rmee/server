@@ -1,6 +1,7 @@
 package com.ormee.server.model;
 
 public enum AttachmentType {
+    QUIZ,
     NOTICE,
     ASSIGNMENT,
     ASSIGNMENT_SUBMIT,

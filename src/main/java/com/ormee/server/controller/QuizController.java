@@ -5,6 +5,8 @@ import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.QuizService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/teachers")
 public class QuizController {
@@ -16,7 +18,7 @@ public class QuizController {
     }
 
     @PostMapping("/{lectureId}/quizzes")
-    public ResponseDto createQuiz(@PathVariable Long lectureId, @RequestBody QuizSaveDto quizSaveDto) {
+    public ResponseDto createQuiz(@PathVariable Long lectureId, @RequestBody QuizSaveDto quizSaveDto) throws IOException {
         quizService.saveQuiz(lectureId, quizSaveDto);
         return ResponseDto.success();
     }
@@ -73,7 +75,7 @@ public class QuizController {
 
     @GetMapping("/quizzes/problems/{problemId}/stats")
     public ResponseDto readProblemStats(@PathVariable Long problemId) {
-        return ResponseDto.success(quizService.getProblemstats(problemId));
+        return ResponseDto.success(quizService.getProblemStats(problemId));
     }
 
     // 아래는 기존 학생 uri
