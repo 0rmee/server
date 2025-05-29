@@ -1,6 +1,5 @@
 package com.ormee.server.controller;
 
-import com.ormee.server.dto.answer.AnswerSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.model.AttachmentType;
 import com.ormee.server.service.attachment.AttachmentService;
