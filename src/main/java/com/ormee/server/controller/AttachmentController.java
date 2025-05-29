@@ -18,7 +18,7 @@ public class AttachmentController {
     }
 
     @PostMapping("/attachment")
-    public ResponseDto uploadAttachment(@ModelAttribute MultipartFile file) throws IOException {
+    public ResponseDto uploadAttachment(@RequestParam("file") MultipartFile file) throws IOException {
         return ResponseDto.success(attachmentService.save(AttachmentType.QUIZ,  -1L, file).getId());
     }
 }
