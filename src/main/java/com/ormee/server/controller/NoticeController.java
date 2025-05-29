@@ -21,10 +21,25 @@ public class NoticeController {
         return ResponseDto.success();
     }
 
-    @GetMapping("/teachers/{lectureId}/notices/search")
-    public ResponseDto searchNotice(@PathVariable Long lectureId, @RequestParam String keyword) {
-        return ResponseDto.success(noticeService.findByKeyword(lectureId, keyword));
+    @GetMapping("/teachers/{lectureId}/notices")
+    public ResponseDto getNoticeList(@PathVariable Long lectureId, @RequestParam(defaultValue = "1") int page) {
+        return ResponseDto.success(noticeService.findAllByLectureId(lectureId, page - 1));
     }
+
+    @GetMapping("/teachers/{lectureId}/notices/pinned")
+    public ResponseDto getPinnedNotices(@PathVariable Long lectureId) {
+        return ResponseDto.success(noticeService.getPinnedNotices(lectureId));
+    }
+
+    @GetMapping("/teachers/{lectureId}/notices/search")
+    public ResponseDto searchNotice(
+            @PathVariable Long lectureId,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "1") int page) {
+
+        return ResponseDto.success(noticeService.findByKeyword(lectureId, keyword, page - 1));
+    }
+
 
     @PutMapping("/teachers/notices/{noticeId}")
     public ResponseDto updateNotice(@PathVariable Long noticeId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
@@ -48,11 +63,6 @@ public class NoticeController {
     public ResponseDto deleteNotice(@PathVariable Long noticeId) {
         noticeService.deleteNotice(noticeId);
         return ResponseDto.success();
-    }
-
-    @GetMapping("/teachers/{lectureId}/notices")
-    public ResponseDto getNoticeList(@PathVariable Long lectureId) {
-        return ResponseDto.success(noticeService.findAllByLectureId(lectureId));
     }
 
     @GetMapping("/teachers/notices/{noticeId}")

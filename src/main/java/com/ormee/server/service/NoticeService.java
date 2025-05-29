@@ -1,5 +1,6 @@
 package com.ormee.server.service;
 
+import com.ormee.server.dto.response.PageResponseDto;
 import com.ormee.server.dto.notice.NoticeDto;
 import com.ormee.server.dto.notice.NoticeListDto;
 import com.ormee.server.dto.notice.NoticeSaveDto;
@@ -12,6 +13,10 @@ import com.ormee.server.model.Notice;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.NoticeRepository;
 import com.ormee.server.service.attachment.AttachmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,6 +61,62 @@ public class NoticeService {
         noticeRepository.save(notice);
     }
 
+    public PageResponseDto<NoticeListDto> findAllByLectureId(Long lectureId, int page) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+
+        Page<Notice> noticePage = noticeRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable);
+
+        List<NoticeListDto> content = noticePage.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return PageResponseDto.<NoticeListDto>builder()
+                .content(content)
+                .totalPages(noticePage.getTotalPages())
+                .totalElements(noticePage.getTotalElements())
+                .currentPage(noticePage.getNumber() + 1)
+                .build();
+    }
+
+    public List<NoticeListDto> getPinnedNotices(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Notice> notices = noticeRepository.findAllByLectureAndIsPinnedTrueOrderByCreatedAtDesc(lecture);
+
+        return notices.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public PageResponseDto<NoticeListDto> findByKeyword(Long lectureId, String keyword, int page) {
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+
+        Page<Notice> noticePage = noticeRepository
+                .searchByLectureAndKeyword(
+                        lecture, keyword, pageable);
+
+        List<NoticeListDto> content = noticePage.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return PageResponseDto.<NoticeListDto>builder()
+                .content(content)
+                .totalPages(noticePage.getTotalPages())
+                .totalElements(noticePage.getTotalElements())
+                .currentPage(noticePage.getNumber() + 1)
+                .build();
+    }
+
+    public NoticeDto findById(Long noticeId) {
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+        return entityToDto(notice);
+    }
+
+
     public void modifyNotice(Long noticeId, NoticeSaveDto noticeSaveDto) throws IOException {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
 
@@ -78,29 +139,9 @@ public class NoticeService {
         noticeRepository.save(notice);
     }
 
-
-
-
     public void deleteNotice(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
         noticeRepository.delete(notice);
-    }
-
-    public List<NoticeListDto> findAllByLectureId(Long lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Notice> notices = noticeRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
-        return notices.stream().map(this::convertToDto).collect(Collectors.toList());
-    }
-
-    public NoticeDto findById(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
-        return entityToDto(notice);
-    }
-
-    public List<NoticeListDto> findByKeyword(Long lectureId, String keyword) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Notice> notices = noticeRepository.findByLectureAndTitleContainingOrLectureAndDescriptionContainingOrderByCreatedAtDesc(lecture, keyword, lecture, keyword);
-        return notices.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     public void pin(Long noticeId, boolean isPinned) {
