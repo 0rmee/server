@@ -9,5 +9,5 @@ public class NoticeSaveDto {
     private String title;
     private String description;
     private List<MultipartFile> files;
-    private Boolean isPinned;
+    private Boolean isDraft;
 }

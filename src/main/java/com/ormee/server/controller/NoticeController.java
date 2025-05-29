@@ -31,6 +31,11 @@ public class NoticeController {
         return ResponseDto.success(noticeService.getPinnedNotices(lectureId));
     }
 
+    @GetMapping("/teachers/{lectureId}/notices/draft")
+    public ResponseDto getDraftNotices(@PathVariable Long lectureId) {
+        return ResponseDto.success(noticeService.getDraftNotices(lectureId));
+    }
+
     @GetMapping("/teachers/{lectureId}/notices/search")
     public ResponseDto searchNotice(
             @PathVariable Long lectureId,

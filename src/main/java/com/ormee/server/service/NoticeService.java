@@ -46,6 +46,7 @@ public class NoticeService {
                 .title(noticeSaveDto.getTitle())
                 .description(noticeSaveDto.getDescription())
                 .isPinned(false)
+                .isDraft(noticeSaveDto.getIsDraft())
                 .build();
 
         notice = noticeRepository.save(notice);
@@ -111,6 +112,15 @@ public class NoticeService {
                 .build();
     }
 
+    public List<NoticeListDto> getDraftNotices(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Notice> notices = noticeRepository.findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(lecture);
+
+        return notices.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public NoticeDto findById(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
         return entityToDto(notice);
@@ -136,6 +146,8 @@ public class NoticeService {
                 notice.getAttachments().add(newAttachment);
             }
         }
+
+        notice.setIsDraft(noticeSaveDto.getIsDraft());
         noticeRepository.save(notice);
     }
 
