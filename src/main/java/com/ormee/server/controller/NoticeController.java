@@ -27,7 +27,7 @@ public class NoticeController {
     }
 
     @PutMapping("/teachers/notices/{noticeId}")
-    public ResponseDto updateNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) throws IOException {
+    public ResponseDto updateNotice(@PathVariable Long noticeId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
         noticeService.modifyNotice(noticeId, noticeSaveDto);
         return ResponseDto.success();
     }

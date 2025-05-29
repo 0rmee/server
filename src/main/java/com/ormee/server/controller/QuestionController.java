@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/questions")
 public class QuestionController {
     private final QuestionService questionService;
     public QuestionController(QuestionService questionService) {
@@ -38,19 +37,19 @@ public class QuestionController {
         return ResponseDto.success(questionService.findById(questionId));
     }
 
-    @PostMapping("/student/{lectureId}")
+    @PostMapping("/student/{lectureId}/questions")
     public ResponseDto createQuestion(@PathVariable Long lectureId, @ModelAttribute QuestionSaveDto questionSaveDto, Authentication authentication) throws IOException {
         questionService.saveQuestion(lectureId, questionSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 
-    @PutMapping("/student/{questionId}")
-    public ResponseDto updateQuestion(@PathVariable Long questionId, @RequestBody QuestionSaveDto questionSaveDto) throws IOException {
+    @PutMapping("/student/questions/{questionId}")
+    public ResponseDto updateQuestion(@PathVariable Long questionId, @ModelAttribute QuestionSaveDto questionSaveDto) throws IOException {
         questionService.modifyQuestion(questionId, questionSaveDto);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/student/{questionId}")
+    @DeleteMapping("/student/questions/{questionId}")
     public ResponseDto deleteQuestion(@PathVariable Long questionId) {
         questionService.deleteQuestion(questionId);
         return ResponseDto.success();

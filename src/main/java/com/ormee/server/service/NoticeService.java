@@ -46,8 +46,10 @@ public class NoticeService {
         notice = noticeRepository.save(notice);
 
         List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : noticeSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), multipartFile));
+        if (noticeSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : noticeSaveDto.getFiles()) {
+                attachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), multipartFile));
+            }
         }
 
         notice.setAttachments(attachments);
@@ -57,24 +59,26 @@ public class NoticeService {
     public void modifyNotice(Long noticeId, NoticeSaveDto noticeSaveDto) throws IOException {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
 
-        notice.setTitle(noticeSaveDto.getTitle());
-        notice.setDescription(noticeSaveDto.getDescription());
-
+        if (noticeSaveDto.getTitle() != null) {
+            notice.setTitle(noticeSaveDto.getTitle());
+        }
+        if (noticeSaveDto.getDescription() != null) {
+            notice.setDescription(noticeSaveDto.getDescription());
+        }
         List<Attachment> existingAttachments = notice.getAttachments();
         if (existingAttachments != null) {
-            for (Attachment attachment : existingAttachments) {
-                attachmentService.delete(attachment);
+            existingAttachments.clear();
+        }
+        if (noticeSaveDto.getFiles() != null) {
+            for (MultipartFile file : noticeSaveDto.getFiles()) {
+                Attachment newAttachment = attachmentService.save(AttachmentType.NOTICE, notice.getId(), file);
+                notice.getAttachments().add(newAttachment);
             }
         }
-
-        List<Attachment> newAttachments = new ArrayList<>();
-        for (MultipartFile file : noticeSaveDto.getFiles()) {
-            newAttachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), file));
-        }
-
-        notice.setAttachments(newAttachments);
         noticeRepository.save(notice);
     }
+
+
 
 
     public void deleteNotice(Long noticeId) {

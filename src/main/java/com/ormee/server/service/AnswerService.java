@@ -40,8 +40,10 @@ public class AnswerService {
         answer = answerRepository.save(answer);
 
         List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : answerSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.ANSWER, answer.getId(), multipartFile));
+        if (answerSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : answerSaveDto.getFiles()) {
+                attachments.add(attachmentService.save(AttachmentType.ANSWER, answer.getId(), multipartFile));
+            }
         }
         answer.setAttachments(attachments);
 
@@ -52,18 +54,24 @@ public class AnswerService {
     }
 
     public void modifyAnswer(Long answerId, AnswerSaveDto answerSaveDto) throws IOException {
-        Answer answer = answerRepository.findById(answerId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
-
-        answer.setContent(answerSaveDto.getContent());
-
-        List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : answerSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.ANSWER, answer.getId(), multipartFile));
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
+        if (answerSaveDto.getContent() != null) {
+            answer.setContent(answerSaveDto.getContent());
         }
-        answer.setAttachments(attachments);
-
+        List<Attachment> existingAttachments = answer.getAttachments();
+        if (existingAttachments != null) {
+            existingAttachments.clear();
+        }
+        if(answerSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : answerSaveDto.getFiles()) {
+                Attachment newAttachment = attachmentService.save(AttachmentType.ANSWER, answer.getId(), multipartFile);
+                existingAttachments.add(newAttachment);
+            }
+        }
         answerRepository.save(answer);
     }
+
 
     public void deleteAnswer(Long answerId) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(()->new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
