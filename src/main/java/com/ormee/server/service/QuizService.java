@@ -197,6 +197,7 @@ public class QuizService {
                     .content(problem.getContent())
                     .answer(problem.getAnswer())
                     .items(problem.getItems())
+                    .filePaths(problem.getAttachments().stream().map(Attachment::getFilePath).toList())
                     .build();
             problemDtos.add(problemDto);
         }

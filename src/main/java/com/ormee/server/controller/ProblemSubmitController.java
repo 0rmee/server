@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/problems")
+@RestController
 public class ProblemSubmitController {
     private final ProblemSubmitService problemSubmitService;
 
@@ -16,7 +16,7 @@ public class ProblemSubmitController {
         this.problemSubmitService = problemSubmitService;
     }
 
-    @PostMapping("/student")
+    @PostMapping("problems/student")
     public ResponseDto submitQuiz(@RequestBody List<SubmitDto> submissions, Authentication authentication) {
         problemSubmitService.submit(submissions, authentication);
         return ResponseDto.success();

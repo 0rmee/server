@@ -14,6 +14,7 @@ public class ProblemDto {
     private String answer;
     private List<String> items;
     private List<Long> fileIds;
+    private List<String> filePaths;
     private String submission;
     private Boolean isCorrect;
 }

@@ -18,7 +18,7 @@ public class QuizController {
     }
 
     @PostMapping("/{lectureId}/quizzes")
-    public ResponseDto createQuiz(@PathVariable Long lectureId, @ModelAttribute QuizSaveDto quizSaveDto) throws IOException {
+    public ResponseDto createQuiz(@PathVariable Long lectureId, @RequestBody QuizSaveDto quizSaveDto) throws IOException {
         quizService.saveQuiz(lectureId, quizSaveDto);
         return ResponseDto.success();
     }
