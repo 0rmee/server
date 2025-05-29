@@ -4,12 +4,12 @@ import com.ormee.server.dto.quiz.*;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.*;
-import com.ormee.server.repository.LectureRepository;
-import com.ormee.server.repository.ProblemRepository;
-import com.ormee.server.repository.QuizRepository;
-import com.ormee.server.repository.ProblemSubmitRepository;
+import com.ormee.server.repository.*;
+import com.ormee.server.service.attachment.AttachmentService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -22,15 +22,19 @@ public class QuizService {
     private final LectureRepository lectureRepository;
     private final ProblemRepository problemRepository;
     private final ProblemSubmitRepository problemSubmitRepository;
+    private final AttachmentRepository attachmentRepository;
+    private final AttachmentService attachmentService;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
         this.problemRepository = problemRepository;
         this.problemSubmitRepository = problemSubmitRepository;
+        this.attachmentRepository = attachmentRepository;
+        this.attachmentService = attachmentService;
     }
 
-    public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto) {
+    public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         Quiz quiz = Quiz.builder()
@@ -51,17 +55,69 @@ public class QuizService {
                     .content(problemDto.getContent())
                     .type(ProblemType.valueOf(problemDto.getType()))
                     .answer(problemDto.getAnswer())
-                    .items(problemDto.getItems())
+                    .items(problemDto.getItems() == null ? new ArrayList<>() : problemDto.getItems())
                     .build();
-            problemRepository.save(problem);
+
+            List<Attachment> attachments = problemDto.getFileIds().stream()
+                    .map(id -> attachmentRepository.findById(id)
+                            .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                    .toList();
+
+            problem.setAttachments(attachments);
+            problem = problemRepository.save(problem);
+
+            for (Attachment attachment : attachments) {
+                attachment.setParentId(problem.getId().toString());
+                attachmentRepository.save(attachment);
+            }
         }
     }
 
+    @Transactional
     public void modifyQuiz(Long quizId, QuizSaveDto quizSaveDto) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
-        saveQuiz(quiz.getLecture().getId(), quizSaveDto);
-        deleteQuiz(quizId);
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
+
+        quiz.setTitle(quizSaveDto.getTitle());
+        quiz.setDescription(quizSaveDto.getDescription());
+        quiz.setIsDraft(quizSaveDto.getIsDraft());
+        quiz.setOpenTime(quizSaveDto.getOpenTime());
+        quiz.setDueTime(quizSaveDto.getDueTime());
+        quiz.setTimeLimit(quizSaveDto.getTimeLimit());
+
+        quizRepository.save(quiz);
+
+        List<Problem> existingProblems = problemRepository.findAllByQuiz(quiz);
+        for (Problem problem : existingProblems) {
+            List<Attachment> attachments = problem.getAttachments();
+            attachmentRepository.deleteAll(attachments);
+            problemRepository.delete(problem);
+        }
+
+        for (ProblemDto problemDto : quizSaveDto.getProblems()) {
+            Problem problem = Problem.builder()
+                    .quiz(quiz)
+                    .content(problemDto.getContent())
+                    .type(ProblemType.valueOf(problemDto.getType()))
+                    .answer(problemDto.getAnswer())
+                    .items(problemDto.getItems() == null ? new ArrayList<>() : problemDto.getItems())
+                    .build();
+
+            List<Attachment> attachments = problemDto.getFileIds().stream()
+                    .map(id -> attachmentRepository.findById(id)
+                            .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                    .toList();
+
+            problem.setAttachments(attachments);
+            problem = problemRepository.save(problem);
+
+            for (Attachment attachment : attachments) {
+                attachment.setParentId(problem.getId().toString());
+                attachmentRepository.save(attachment);
+            }
+        }
     }
+
 
     public List<QuizListDto> findAllByLecture(Long lectureId, Boolean isDraft) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
@@ -224,7 +280,7 @@ public class QuizService {
         return quizStatsDtos;
     }
 
-    public ProblemStatsDto getProblemstats(Long problemId) {
+    public ProblemStatsDto getProblemStats(Long problemId) {
         Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
         List<Map<String, Object>> results = new ArrayList<>();
 
