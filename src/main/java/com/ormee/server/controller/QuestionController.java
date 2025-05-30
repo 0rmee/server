@@ -18,11 +18,11 @@ public class QuestionController {
     }
 
     @GetMapping("/teachers/{lectureId}/questions")
-    public ResponseDto readQuestionList(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter) {
+    public ResponseDto readQuestionList(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter,@RequestParam(defaultValue = "1") int page) {
         return switch (filter) {
-            case "전체" -> ResponseDto.success(questionService.getQuestions(lectureId));
-            case "등록" -> ResponseDto.success(questionService.getAnsweredQuestions(lectureId));
-            case "미등록" -> ResponseDto.success(questionService.getNotAnsweredQuestions(lectureId));
+            case "전체" -> ResponseDto.success(questionService.getQuestions(lectureId, page - 1));
+            case "등록" -> ResponseDto.success(questionService.getAnsweredQuestions(lectureId, page - 1));
+            case "미등록" -> ResponseDto.success(questionService.getNotAnsweredQuestions(lectureId, page - 1));
             default -> throw new CustomException(ExceptionType.FILTER_INVALID_EXCEPTION);
         };
     }
@@ -37,19 +37,19 @@ public class QuestionController {
         return ResponseDto.success(questionService.findById(questionId));
     }
 
-    @PostMapping("/student/{lectureId}/questions")
+    @PostMapping("/students/{lectureId}/questions")
     public ResponseDto createQuestion(@PathVariable Long lectureId, @ModelAttribute QuestionSaveDto questionSaveDto, Authentication authentication) throws IOException {
         questionService.saveQuestion(lectureId, questionSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 
-    @PutMapping("/student/questions/{questionId}")
+    @PutMapping("/students/questions/{questionId}")
     public ResponseDto updateQuestion(@PathVariable Long questionId, @ModelAttribute QuestionSaveDto questionSaveDto) throws IOException {
         questionService.modifyQuestion(questionId, questionSaveDto);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/student/questions/{questionId}")
+    @DeleteMapping("/students/questions/{questionId}")
     public ResponseDto deleteQuestion(@PathVariable Long questionId) {
         questionService.deleteQuestion(questionId);
         return ResponseDto.success();

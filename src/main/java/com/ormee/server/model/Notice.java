@@ -41,5 +41,8 @@ public class Notice extends EntityTime {
     private Boolean isPinned;
 
     @Column
+    private Boolean isDraft;
+
+    @Column
     private Long likes;
 }

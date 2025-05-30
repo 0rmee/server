@@ -85,6 +85,17 @@ public class AssignmentService {
                 .build();
     }
 
+    public List<AssignmentDto> getDrafts(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Assignment> assignments = assignmentRepository.findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(lecture);
+
+        return assignments.stream().map(assignment -> AssignmentDto.builder()
+                .id(assignment.getId())
+                .title(assignment.getTitle())
+                .openTime(assignment.getCreatedAt())
+                .build()).toList();
+    }
+
     public FeedbackedAssignmentListDto getFeedbackCompletedList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Assignment> assignments = assignmentRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
@@ -143,6 +154,8 @@ public class AssignmentService {
                 existingAttachments.add(newAttachment);
             }
         }
+        assignment.setIsDraft(assignmentSaveDto.getIsDraft());
+
         assignmentRepository.save(assignment);
     }
 

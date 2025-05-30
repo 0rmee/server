@@ -29,6 +29,11 @@ public class AssignmentController {
         return ResponseDto.success(assignmentService.getList(lectureId));
     }
 
+    @GetMapping("/teachers/{lectureId}/assignments/drafts")
+    public ResponseDto readAssignmentDrafts(@PathVariable Long lectureId) {
+        return ResponseDto.success(assignmentService.getDrafts(lectureId));
+    }
+
     @PutMapping("/teachers/assignments/{assignmentId}")
     public ResponseDto updateAssignment(@PathVariable Long assignmentId, @ModelAttribute AssignmentSaveDto assignmentSaveDto) throws IOException {
         assignmentService.update(assignmentId, assignmentSaveDto);
