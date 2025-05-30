@@ -2,6 +2,7 @@ package com.ormee.server.service;
 
 import com.ormee.server.dto.question.QuestionDto;
 import com.ormee.server.dto.question.QuestionSaveDto;
+import com.ormee.server.dto.response.PageResponseDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Attachment;
@@ -13,13 +14,16 @@ import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.QuestionRepository;
 import com.ormee.server.service.attachment.AttachmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -100,24 +104,54 @@ public class QuestionService {
         return convertToDto(question);
     }
 
-    public List<QuestionDto> getQuestions(Long lectureId) {
+    public PageResponseDto<QuestionDto> getQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Question> questions = questionRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
 
-        return questions.stream().map(this::convertToDto).toList();
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+
+        Page<Question> questionPage = questionRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable);
+
+        List<QuestionDto> content = questionPage.stream().map(this::convertToDto).toList();
+
+        return PageResponseDto.<QuestionDto>builder()
+                .content(content)
+                .totalPages(questionPage.getTotalPages())
+                .totalElements(questionPage.getTotalElements())
+                .currentPage(questionPage.getNumber() + 1)
+                .build();
     }
 
-    public List<QuestionDto> getAnsweredQuestions(Long lectureId) {
+    public PageResponseDto<QuestionDto> getAnsweredQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Question> questions = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, true);
 
-        return questions.stream().map(this::convertToDto).toList();
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+
+        Page<Question> questionPage = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, true, pageable);
+
+        List<QuestionDto> content = questionPage.stream().map(this::convertToDto).toList();
+
+        return PageResponseDto.<QuestionDto>builder()
+                .content(content)
+                .totalPages(questionPage.getTotalPages())
+                .totalElements(questionPage.getTotalElements())
+                .currentPage(questionPage.getNumber() + 1)
+                .build();
     }
 
-    public List<QuestionDto> getNotAnsweredQuestions(Long lectureId) {
+    public PageResponseDto<QuestionDto> getNotAnsweredQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Question> questions = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, false);
 
-        return questions.stream().map(this::convertToDto).toList();
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+
+        Page<Question> questionPage = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, false, pageable);
+
+        List<QuestionDto> content = questionPage.stream().map(this::convertToDto).toList();
+
+        return PageResponseDto.<QuestionDto>builder()
+                .content(content)
+                .totalPages(questionPage.getTotalPages())
+                .totalElements(questionPage.getTotalElements())
+                .currentPage(questionPage.getNumber() + 1)
+                .build();
     }
 }
