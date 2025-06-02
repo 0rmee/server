@@ -67,7 +67,7 @@ public class NoticeService {
 
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
 
-        Page<Notice> noticePage = noticeRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable);
+        Page<Notice> noticePage = noticeRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture, pageable);
 
         List<NoticeListDto> content = noticePage.stream()
                 .map(this::convertToDto)

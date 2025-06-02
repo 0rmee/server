@@ -16,4 +16,5 @@ public interface AssignmentSubmitRepository extends JpaRepository<AssignmentSubm
     List<AssignmentSubmit> findAllByAssignment(Assignment assignment);
 
     List<AssignmentSubmit> findAllByAssignmentAndIsCheckedFalse(Assignment assignment);
+    Long countAllByAssignment(Assignment assignment);
 }

@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AssignmentService {
@@ -62,7 +61,7 @@ public class AssignmentService {
 
     public AssignmentListDto getList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Assignment> assignments = assignmentRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
+        List<Assignment> assignments = assignmentRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
 
         List<AssignmentDto> openedAssignments = assignments.stream()
                 .map(assignment -> AssignmentDto.builder()
@@ -98,7 +97,7 @@ public class AssignmentService {
 
     public FeedbackedAssignmentListDto getFeedbackCompletedList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Assignment> assignments = assignmentRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
+        List<Assignment> assignments = assignmentRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
         List<AssignmentDto> feedbackCompletedAssignments = new ArrayList<>();
         List<AssignmentDto> feedbackNotCompletedAssignments = new ArrayList<>();
 

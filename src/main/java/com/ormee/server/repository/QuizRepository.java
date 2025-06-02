@@ -6,11 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
-    List<Quiz> findAllByLecture(Lecture lecture);
     List<Quiz> findAllByLectureAndIsDraftOrderByCreatedAtDesc(Lecture lecture, Boolean isDraft);
     List<Quiz> findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(Lecture lecture, Boolean isDraft, Boolean isOpened);
 }
