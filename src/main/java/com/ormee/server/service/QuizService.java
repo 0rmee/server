@@ -5,7 +5,6 @@ import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.*;
 import com.ormee.server.repository.*;
-import com.ormee.server.service.attachment.AttachmentService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +22,13 @@ public class QuizService {
     private final ProblemRepository problemRepository;
     private final ProblemSubmitRepository problemSubmitRepository;
     private final AttachmentRepository attachmentRepository;
-    private final AttachmentService attachmentService;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
         this.problemRepository = problemRepository;
         this.problemSubmitRepository = problemSubmitRepository;
         this.attachmentRepository = attachmentRepository;
-        this.attachmentService = attachmentService;
     }
 
     public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto) throws IOException {

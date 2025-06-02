@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
-    List<Assignment> findAllByLectureOrderByCreatedAtDesc(Lecture lecture);
+    List<Assignment> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
     List<Assignment> findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(Lecture lecture);
 }
