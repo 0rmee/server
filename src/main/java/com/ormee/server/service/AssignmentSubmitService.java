@@ -43,14 +43,19 @@ public class AssignmentSubmitService {
                 .student(student)
                 .content(assignmentSubmitSaveDto.getContent())
                 .isChecked(false)
+                .isFeedback(false)
                 .build();
 
         Long parentId = assignmentSubmitRepository.save(assignmentSubmit).getId();
 
         List<Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : assignmentSubmitSaveDto.getFiles()) {
-            attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT_SUBMIT, parentId, multipartFile));
+
+        if (assignmentSubmitSaveDto.getFiles() != null) {
+            for (MultipartFile multipartFile : assignmentSubmitSaveDto.getFiles()) {
+                attachments.add(attachmentService.save(AttachmentType.ASSIGNMENT_SUBMIT, parentId, multipartFile));
+            }
         }
+
         assignmentSubmit.setAttachments(attachments);
 
         assignmentSubmitRepository.save(assignmentSubmit);
@@ -110,8 +115,7 @@ public class AssignmentSubmitService {
     }
 
     public List<AssignmentSubmitStudentDto> getNotCheckedStudents(Long assignmentId) {
-        Assignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
+        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
 
         return assignmentSubmitRepository.findAllByAssignmentAndIsCheckedFalse(assignment)
                 .stream()
@@ -147,5 +151,20 @@ public class AssignmentSubmitService {
             assignmentSubmit.setIsChecked(true);
             assignmentSubmitRepository.save(assignmentSubmit);
         }
+    }
+
+    public List<AssignmentSubmitStudentDto> getSubmitStudents(Long assignmentId) {
+        Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new CustomException(ExceptionType.ASSIGNMENT_NOT_FOUND_EXCEPTION));
+
+        return assignmentSubmitRepository.findAllByAssignmentOrderByCreatedAtDesc(assignment)
+                .stream()
+                .map(submit -> AssignmentSubmitStudentDto.builder()
+                        .assignmentSubmitId(submit.getId())
+                        .studentName(submit.getStudent().getName())
+                        .isFeedback(submit.getIsFeedback() != null && submit.getIsFeedback())
+                        .createdAt(submit.getCreatedAt().toString())
+                        .build()
+                )
+                .toList();
     }
 }

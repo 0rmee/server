@@ -10,5 +10,6 @@ public class AssignmentSubmitStudentDto {
     private String studentName;
     private Boolean isSubmitted;
     private Boolean isChecked;
+    private Boolean isFeedback;
     private String createdAt;
 }
