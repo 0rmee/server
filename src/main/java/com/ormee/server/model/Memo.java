@@ -29,4 +29,7 @@ public class Memo extends EntityTime{
 
     @Column(nullable = false)
     private Boolean isOpen;
+
+    @Column
+    private Boolean notified;
 }

@@ -24,6 +24,9 @@ public class Notification extends EntityTime{
     private NotificationType type;
 
     @Column
+    private Long parentId;
+
+    @Column
     private String title;
 
     @Column
