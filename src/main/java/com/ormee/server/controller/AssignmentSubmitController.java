@@ -34,6 +34,11 @@ public class AssignmentSubmitController {
         };
     }
 
+    @GetMapping("/teachers/assignments/{assignmentId}/students/submit")
+    public ResponseDto getSubmitStudents(@PathVariable Long assignmentId) {
+        return ResponseDto.success(assignmentSubmitService.getSubmitStudents(assignmentId));
+    }
+
     @GetMapping("/student/assignment/submit/{assignmentSubmitId}")
     public ResponseDto getAssignmentSubmit(@PathVariable Long assignmentSubmitId, Authentication authentication) {
         return ResponseDto.success(assignmentSubmitService.get(assignmentSubmitId, authentication.getName()));
