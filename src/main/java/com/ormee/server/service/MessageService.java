@@ -2,8 +2,12 @@ package com.ormee.server.service;
 
 import com.ormee.server.dto.memo.MessageListDto;
 import com.ormee.server.dto.memo.MessageSubmitDto;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Memo;
 import com.ormee.server.model.Message;
+import com.ormee.server.model.member.Member;
+import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.MemoRepository;
 import com.ormee.server.repository.MessageRepository;
 import org.springframework.stereotype.Service;
@@ -12,25 +16,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
     private final MemoRepository memoRepository;
+    private final MemberRepository memberRepository;
 
-    public MessageService(MessageRepository messageRepository, MemoRepository memoRepository) {
+    public MessageService(MessageRepository messageRepository, MemoRepository memoRepository, MemberRepository memberRepository) {
         this.messageRepository = messageRepository;
         this.memoRepository = memoRepository;
+        this.memberRepository = memberRepository;
     }
 
-    public void submitMessage(Long memoId, MessageSubmitDto messageSubmitDto) {
-        Memo memo = memoRepository.findById(memoId).orElse(null);
+    public void submitMessage(Long memoId, MessageSubmitDto messageSubmitDto, String username) {
+        Memo memo = memoRepository.findById(memoId).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         Message message = new Message();
         message.setMemo(memo);
+        message.setStudent(student);
         message.setContext(messageSubmitDto.getContext());
-        message.setAuthor(messageSubmitDto.getAuthor());
-        message.setPassword(messageSubmitDto.getPassword());
 
         messageRepository.save(message);
     }
@@ -45,7 +52,7 @@ public class MessageService {
         Map<Integer, Long> frequencyMap = messages.stream()
                 .flatMap(message -> {
                     String[] parts = message.getContext().split(",");
-                    return List.of(parts).stream()
+                    return Stream.of(parts)
                             .map(String::trim)
                             .map(Integer::valueOf);
                 })

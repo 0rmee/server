@@ -21,8 +21,9 @@ public class LectureResponseDto {
     private List<LectureDay> lectureDays;
     private LocalTime startTime;
     private LocalTime endTime;
-    private LocalDateTime openTime;
-    private LocalDateTime dueTime;
+    private LocalDateTime startDate;
+    private LocalDateTime dueDate;
+    private Integer students;
     private List<QuizListDto> quizList;
     private Long activeQuizCount;
     private boolean messageAvailable;

@@ -1,13 +1,14 @@
 package com.ormee.server.service;
 
 import com.ormee.server.dto.quiz.*;
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.*;
-import com.ormee.server.repository.LectureRepository;
-import com.ormee.server.repository.ProblemRepository;
-import com.ormee.server.repository.QuizRepository;
-import com.ormee.server.repository.SubmitRepository;
+import com.ormee.server.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -19,17 +20,19 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final LectureRepository lectureRepository;
     private final ProblemRepository problemRepository;
-    private final SubmitRepository submitRepository;
+    private final ProblemSubmitRepository problemSubmitRepository;
+    private final AttachmentRepository attachmentRepository;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, SubmitRepository submitRepository) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
         this.problemRepository = problemRepository;
-        this.submitRepository = submitRepository;
+        this.problemSubmitRepository = problemSubmitRepository;
+        this.attachmentRepository = attachmentRepository;
     }
 
-    public void saveQuiz(UUID lectureId, QuizSaveDto quizSaveDto) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new IllegalArgumentException("Lecture not found: " + lectureId));
+    public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto) throws IOException {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
         Quiz quiz = Quiz.builder()
                 .lecture(lecture)
@@ -49,27 +52,79 @@ public class QuizService {
                     .content(problemDto.getContent())
                     .type(ProblemType.valueOf(problemDto.getType()))
                     .answer(problemDto.getAnswer())
-                    .items(problemDto.getItems())
+                    .items(problemDto.getItems() == null ? new ArrayList<>() : problemDto.getItems())
                     .build();
-            problemRepository.save(problem);
+
+            List<Attachment> attachments = problemDto.getFileIds().stream()
+                    .map(id -> attachmentRepository.findById(id)
+                            .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                    .toList();
+
+            problem.setAttachments(attachments);
+            problem = problemRepository.save(problem);
+
+            for (Attachment attachment : attachments) {
+                attachment.setParentId(problem.getId().toString());
+                attachmentRepository.save(attachment);
+            }
         }
     }
 
-    public void modifyQuiz(UUID quizId, QuizSaveDto quizSaveDto) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
-        saveQuiz(quiz.getLecture().getId(), quizSaveDto);
-        deleteQuiz(quizId);
+    @Transactional
+    public void modifyQuiz(Long quizId, QuizSaveDto quizSaveDto) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
+
+        quiz.setTitle(quizSaveDto.getTitle());
+        quiz.setDescription(quizSaveDto.getDescription());
+        quiz.setIsDraft(quizSaveDto.getIsDraft());
+        quiz.setOpenTime(quizSaveDto.getOpenTime());
+        quiz.setDueTime(quizSaveDto.getDueTime());
+        quiz.setTimeLimit(quizSaveDto.getTimeLimit());
+
+        quizRepository.save(quiz);
+
+        List<Problem> existingProblems = problemRepository.findAllByQuiz(quiz);
+        for (Problem problem : existingProblems) {
+            List<Attachment> attachments = problem.getAttachments();
+            attachmentRepository.deleteAll(attachments);
+            problemRepository.delete(problem);
+        }
+
+        for (ProblemDto problemDto : quizSaveDto.getProblems()) {
+            Problem problem = Problem.builder()
+                    .quiz(quiz)
+                    .content(problemDto.getContent())
+                    .type(ProblemType.valueOf(problemDto.getType()))
+                    .answer(problemDto.getAnswer())
+                    .items(problemDto.getItems() == null ? new ArrayList<>() : problemDto.getItems())
+                    .build();
+
+            List<Attachment> attachments = problemDto.getFileIds().stream()
+                    .map(id -> attachmentRepository.findById(id)
+                            .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                    .toList();
+
+            problem.setAttachments(attachments);
+            problem = problemRepository.save(problem);
+
+            for (Attachment attachment : attachments) {
+                attachment.setParentId(problem.getId().toString());
+                attachmentRepository.save(attachment);
+            }
+        }
     }
 
-    public List<QuizListDto> findAllByLecture(UUID lectureId, Boolean isDraft) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+
+    public List<QuizListDto> findAllByLecture(Long lectureId, Boolean isDraft) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
 
         return quizListToDtoList(quizList);
     }
 
-    public TeacherQuizListDto teacherQuizList(UUID lectureId, Boolean isDraft) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+    public TeacherQuizListDto teacherQuizList(Long lectureId, Boolean isDraft) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
         List<Quiz> openQuizzes = new ArrayList<>();
         List<Quiz> closedQuizzes = new ArrayList<>();
@@ -90,8 +145,8 @@ public class QuizService {
                 .build();
     }
 
-    public List<QuizListDto> findOpenQuizList(UUID lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+    public List<QuizListDto> findOpenQuizList(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true);
 
         return quizListToDtoList(quizList);
@@ -108,27 +163,26 @@ public class QuizService {
                     .timeLimit(quiz.getTimeLimit())
                     .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
-                    .submitCount(submitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
+                    .submitCount(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
+
                     .build();
             quizListDtos.add(quizListDto);
         }
         return quizListDtos;
     }
 
-    public void deleteQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+    public void deleteQuiz(Long quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
 
-        for(Problem problem : problems) {
-            problemRepository.delete(problem);
-        }
+        problemRepository.deleteAll(problems);
 
         quizRepository.delete(quiz);
     }
 
-    public QuizDetailDto findQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+    public QuizDetailDto findQuiz(Long quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         List<ProblemDto> problemDtos = new ArrayList<>();
@@ -140,12 +194,14 @@ public class QuizService {
                     .content(problem.getContent())
                     .answer(problem.getAnswer())
                     .items(problem.getItems())
+                    .filePaths(problem.getAttachments().stream().map(Attachment::getFilePath).toList())
                     .build();
             problemDtos.add(problemDto);
         }
 
         return QuizDetailDto.builder()
                 .title(quiz.getTitle())
+                .description(quiz.getDescription())
                 .isOpened(quiz.getIsOpened())
                 .dueTime(quiz.getDueTime())
                 .timeLimit(quiz.getTimeLimit())
@@ -153,75 +209,31 @@ public class QuizService {
                 .build();
     }
 
-    public void submit(SubmitRequestDto submitRequestDto) {
-        String author = submitRequestDto.getAuthor();
-        String password = submitRequestDto.getPassword();
-        List<SubmitDto> submitDtos = submitRequestDto.getSubmissions();
-
-        for(SubmitDto submitDto : submitDtos) {
-            Problem problem = problemRepository.findById(submitDto.getProblemId()).orElseThrow();
-            Submit submit = Submit.builder()
-                    .problem(problem)
-                    .author(author)
-                    .password(password)
-                    .content(submitDto.getContent())
-                    .build();
-            submitRepository.save(submit);
-        }
-    }
-
-    public StudentQuizResultDto getStudentResult(UUID quizId, String author, String password) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
-        List<Problem> problems = problemRepository.findAllByQuiz(quiz);
-        List<ProblemDto> problemDtos = new ArrayList<>();
-        Integer correct = 0;
-        for(Problem problem : problems) {
-            Submit submit = submitRepository.findByProblemAndAuthorAndPassword(problem, author, password).orElseThrow();
-            ProblemDto problemDto = ProblemDto.builder()
-                    .id(problem.getId())
-                    .content(problem.getContent())
-                    .type(problem.getType().toString())
-                    .items(problem.getItems())
-                    .answer(problem.getAnswer())
-                    .submission(submit.getContent())
-                    .isCorrect(problem.getAnswer().equals(submit.getContent()))
-                    .build();
-            if(problemDto.getIsCorrect()) {
-                correct++;
-            }
-            problemDtos.add(problemDto);
-        }
-        return StudentQuizResultDto.builder()
-                .correct(correct)
-                .problemDtos(problemDtos)
-                .build();
-    }
-
-    public void openQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+    public void openQuiz(Long quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
         quiz.setIsOpened(true);
         quiz.setOpenTime(now);
         quizRepository.save(quiz);
     }
 
-    public void closeQuiz(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+    public void closeQuiz(Long quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
         quiz.setDueTime(now);
         quizRepository.save(quiz);
     }
 
-    public List<QuizStatsDto> getStatistics(UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
+    public List<QuizStatsDto> getQuizStats(Long quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         long firstNum = problems.get(0).getId() - 1;
 
         List<QuizStatsDto> quizStatsDtos = problems.stream()
                 .map(problem -> {
-                    List<Submit> submits = submitRepository.findAllByProblem(problem);
+                    List<ProblemSubmit> problemSubmits = problemSubmitRepository.findAllByProblem(problem);
 
-                    if(submits.isEmpty()) {
+                    if(problemSubmits.isEmpty()) {
                         return QuizStatsDto.builder()
                                 .problemId(problem.getId())
                                 .problemNum(problem.getId() - firstNum)
@@ -230,11 +242,11 @@ public class QuizService {
                                 .build();
                     }
 
-                    long incorrectCount = submits.stream()
-                            .filter(submit -> !submit.getContent().equals(problem.getAnswer()))
+                    long incorrectCount = problemSubmits.stream()
+                            .filter(problemSubmit -> !problemSubmit.getContent().equals(problem.getAnswer()))
                             .count();
 
-                    long incorrectRate = (incorrectCount * 100) / submits.size();
+                    long incorrectRate = (incorrectCount * 100) / problemSubmits.size();
 
                     return QuizStatsDto.builder()
                             .problemId(problem.getId())
@@ -244,8 +256,8 @@ public class QuizService {
                             .build();
                 })
                 .sorted(Comparator
-                .comparingLong(QuizStatsDto::getIncorrectRate).reversed()
-                .thenComparingLong(QuizStatsDto::getIncorrectCount))
+                        .comparingLong(QuizStatsDto::getIncorrectRate).reversed()
+                        .thenComparingLong(QuizStatsDto::getIncorrectCount))
                 .collect(Collectors.toList());
 
         for (int i = 0; i < quizStatsDtos.size(); i++) {
@@ -266,26 +278,13 @@ public class QuizService {
         return quizStatsDtos;
     }
 
-    public boolean checkStudent(UUID quizId, String author, String password) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow();
-        List<Problem> problems = problemRepository.findAllByQuiz(quiz);
-
-        for(Problem problem : problems) {
-            if(!submitRepository.existsByProblemAndAuthorAndPassword(problem, author, password)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public ProblemStatsDto getProblemstats(Long problemId) {
-        Problem problem = problemRepository.findById(problemId).orElseThrow();
+    public ProblemStatsDto getProblemStats(Long problemId) {
+        Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
         List<Map<String, Object>> results = new ArrayList<>();
 
         if (problem.getType().equals(ProblemType.CHOICE)) {
-            long noResponseCount = submitRepository.findAllByProblem(problem).stream()
-                    .map(Submit::getContent)
+            long noResponseCount = problemSubmitRepository.findAllByProblem(problem).stream()
+                    .map(ProblemSubmit::getContent)
                     .filter(content -> content == null || content.isEmpty())
                     .count();
 
@@ -297,16 +296,16 @@ public class QuizService {
             }
 
             for (String option : problem.getItems()) {
-                long count = submitRepository.countAllByProblemAndContentLike(problem, option);
+                long count = problemSubmitRepository.countAllByProblemAndContentLike(problem, option);
                 Map<String, Object> result = new HashMap<>();
                 result.put("option", option);
                 result.put("count", count);
                 results.add(result);
             }
         } else {
-            List<String> submissions = submitRepository.findAllByProblem(problem)
+            List<String> submissions = problemSubmitRepository.findAllByProblem(problem)
                     .stream()
-                    .map(Submit::getContent)
+                    .map(ProblemSubmit::getContent)
                     .collect(Collectors.toList());
 
             long noResponseCount = submissions.stream()
@@ -315,22 +314,20 @@ public class QuizService {
 
             submissions = submissions.stream()
                     .filter(content -> content != null && !content.isEmpty() && !content.equals(problem.getAnswer()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             Map<String, Long> contentCounts = submissions.stream()
                     .collect(Collectors.groupingBy(content -> content, Collectors.counting()));
 
             List<Map.Entry<String, Long>> sortedEntries = contentCounts.entrySet().stream()
                     .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             int rank = 1;
             int previousRank = 1;
             long previousCount = -1;
 
-            for (int i = 0; i < sortedEntries.size(); i++) {
-                Map.Entry<String, Long> entry = sortedEntries.get(i);
-
+            for (Map.Entry<String, Long> entry : sortedEntries) {
                 if (previousCount != -1 && !entry.getValue().equals(previousCount)) {
                     rank = previousRank + 1;
                 }

@@ -1,5 +1,6 @@
 package com.ormee.server.model;
 
+import com.ormee.server.model.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Submit extends EntityTime {
+public class ProblemSubmit extends EntityTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -19,12 +20,10 @@ public class Submit extends EntityTime {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Member student;
+
     @Column(nullable = false)
     private String content;
-
-    @Column(nullable = false)
-    private String author;
-
-    @Column(nullable = false)
-    private String password;
 }

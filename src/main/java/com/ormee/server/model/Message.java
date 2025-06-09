@@ -1,5 +1,6 @@
 package com.ormee.server.model;
 
+import com.ormee.server.model.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,12 +18,10 @@ public class Message extends EntityTime{
     @JoinColumn(name = "memo_id")
     private Memo memo;
 
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Member student;
+
     @Column(nullable = false)
     private String context;
-
-    @Column(nullable = false)
-    private String author;
-
-    @Column(nullable = false)
-    private String password;
 }
