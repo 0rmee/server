@@ -7,8 +7,10 @@ import com.ormee.server.model.*;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -116,5 +118,10 @@ public class NotificationService {
     public void deleteById(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));
         notificationRepository.delete(notification);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteAllExpiredNotifications() {
+        notificationRepository.deleteAllByCreatedAtBefore(LocalDateTime.now().minusDays(30));
     }
 }
