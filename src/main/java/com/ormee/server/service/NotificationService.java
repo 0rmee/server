@@ -49,7 +49,7 @@ public class NotificationService {
                 title = lecture.getTitle();
                 description = "쪽지가 마감되었습니다.";
             }
-            case QNA -> {
+            case QUESTION -> {
                 Question question = (Question) parent;
                 lecture = question.getLecture();
                 parentId = question.getId();
@@ -77,7 +77,7 @@ public class NotificationService {
             case "퀴즈" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QUIZ);
             case "쪽지" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.MEMO);
             case "숙제" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.ASSIGNMENT);
-            case "질문" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QNA);
+            case "질문" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QUESTION);
             default -> notificationRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         };
 
@@ -112,7 +112,6 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));
         notification.setIsRead(true);
     }
-
 
     public void deleteById(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));

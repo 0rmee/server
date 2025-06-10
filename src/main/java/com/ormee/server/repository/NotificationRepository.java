@@ -12,7 +12,5 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findAllByLectureOrderByCreatedAtDesc(Lecture lecture);
     List<Notification> findAllByLectureAndTypeOrderByCreatedAtDesc(Lecture lecture, NotificationType type);
-
     void deleteAllByLecture(Lecture lecture);
-
 }

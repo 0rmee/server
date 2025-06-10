@@ -4,6 +4,6 @@ public enum NotificationType {
     QUIZ,
     MEMO,
     ASSIGNMENT,
-    QNA,
+    QUESTION,
     Ormee
 }
