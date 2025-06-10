@@ -37,7 +37,7 @@ public class NotificationService {
                 title = lecture.getTitle();
                 description = "퀴즈가 마감되었어요.";
             }
-            case ASSIGNMENT -> {
+            case HOMEWORK -> {
                 Assignment assignment = (Assignment) parent;
                 lecture = assignment.getLecture();
                 parentId = assignment.getId();
@@ -78,7 +78,7 @@ public class NotificationService {
         List<Notification> notifications = switch (filter) {
             case "퀴즈" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QUIZ);
             case "쪽지" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.MEMO);
-            case "숙제" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.ASSIGNMENT);
+            case "숙제" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.HOMEWORK);
             case "질문" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QUESTION);
             default -> notificationRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         };
@@ -86,7 +86,7 @@ public class NotificationService {
         return notifications.stream()
                 .map(notification -> NotificationDto.builder()
                         .notificationId(notification.getId())
-                        .type(String.valueOf(notification.getType()))
+                        .type(notification.getType().getKorean())
                         .title(notification.getTitle())
                         .description(notification.getDescription())
                         .parentId(notification.getParentId())
