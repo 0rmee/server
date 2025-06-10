@@ -33,30 +33,30 @@ public class NotificationService {
                 lecture = quiz.getLecture();
                 parentId = quiz.getId();
                 title = lecture.getTitle();
-                description = "퀴즈가 마감되었습니다.";
+                description = "퀴즈가 마감되었어요.";
             }
             case ASSIGNMENT -> {
                 Assignment assignment = (Assignment) parent;
                 lecture = assignment.getLecture();
                 parentId = assignment.getId();
                 title = lecture.getTitle();
-                description = "숙제가 마감되었습니다.";
+                description = "숙제가 마감되었어요.";
             }
             case MEMO -> {
                 Memo memo = (Memo) parent;
                 lecture = memo.getLecture();
                 parentId = memo.getId();
                 title = lecture.getTitle();
-                description = "쪽지가 마감되었습니다.";
+                description = "쪽지가 마감되었어요.";
             }
             case QUESTION -> {
                 Question question = (Question) parent;
                 lecture = question.getLecture();
                 parentId = question.getId();
                 title = lecture.getTitle();
-                description = question.getStudent().getName() + " 학생이 질문을 등록했습니다.";
+                description = question.getStudent().getName() + " 학생이 질문을 등록했어요.";
             }
-            default -> throw new IllegalArgumentException("지원하지 않는 알림 타입입니다.");
+            default -> throw new IllegalArgumentException("지원하지 않는 알림 타입");
         }
 
         Notification notification = Notification.builder()
