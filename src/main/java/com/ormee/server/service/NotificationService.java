@@ -3,9 +3,7 @@ package com.ormee.server.service;
 import com.ormee.server.dto.notification.NotificationDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
-import com.ormee.server.model.Lecture;
-import com.ormee.server.model.Notification;
-import com.ormee.server.model.NotificationType;
+import com.ormee.server.model.*;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
@@ -23,17 +21,63 @@ public class NotificationService {
         this.lectureRepository = lectureRepository;
     }
 
+    public void create(NotificationType type, Object parent) {
+        Lecture lecture;
+        Long parentId;
+        String title;
+        String description;
+
+        switch (type) {
+            case QUIZ -> {
+                Quiz quiz = (Quiz) parent;
+                lecture = quiz.getLecture();
+                parentId = quiz.getId();
+                title = lecture.getTitle();
+                description = "퀴즈가 마감되었습니다.";
+            }
+            case ASSIGNMENT -> {
+                Assignment assignment = (Assignment) parent;
+                lecture = assignment.getLecture();
+                parentId = assignment.getId();
+                title = lecture.getTitle();
+                description = "숙제가 마감되었습니다.";
+            }
+            case MEMO -> {
+                Memo memo = (Memo) parent;
+                lecture = memo.getLecture();
+                parentId = memo.getId();
+                title = lecture.getTitle();
+                description = "쪽지가 마감되었습니다.";
+            }
+            case QNA -> {
+                Question question = (Question) parent;
+                lecture = question.getLecture();
+                parentId = question.getId();
+                title = lecture.getTitle();
+                description = question.getStudent().getName() + " 학생이 질문을 등록했습니다.";
+            }
+            default -> throw new IllegalArgumentException("지원하지 않는 알림 타입입니다.");
+        }
+
+        Notification notification = Notification.builder()
+                .lecture(lecture)
+                .type(type)
+                .parentId(parentId)
+                .title(title)
+                .description(description)
+                .isRead(false)
+                .build();
+
+        notificationRepository.save(notification);
+    }
+
     public List<NotificationDto> getNotificationsByLectureIdAndType(Long lectureId, String filter) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Notification> notifications = switch (filter) {
-            case "퀴즈" ->
-                    notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.Quiz);
-            case "쪽지" ->
-                    notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.Memo);
-            case "숙제" ->
-                    notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.Assignment);
-            case "질문" ->
-                    notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QnA);
+            case "퀴즈" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QUIZ);
+            case "쪽지" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.MEMO);
+            case "숙제" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.ASSIGNMENT);
+            case "질문" -> notificationRepository.findAllByLectureAndTypeOrderByCreatedAtDesc(lecture, NotificationType.QNA);
             default -> notificationRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         };
 
