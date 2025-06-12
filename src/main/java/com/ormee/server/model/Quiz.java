@@ -41,4 +41,7 @@ public class Quiz extends EntityTime {
 
     @Column
     private Long timeLimit;
+
+    @Column
+    private Boolean notified;
 }

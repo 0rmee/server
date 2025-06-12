@@ -5,10 +5,7 @@ import com.ormee.server.dto.question.QuestionSaveDto;
 import com.ormee.server.dto.response.PageResponseDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
-import com.ormee.server.model.Attachment;
-import com.ormee.server.model.AttachmentType;
-import com.ormee.server.model.Lecture;
-import com.ormee.server.model.Question;
+import com.ormee.server.model.*;
 import com.ormee.server.model.member.Member;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemberRepository;
@@ -31,12 +28,14 @@ public class QuestionService {
     private final LectureRepository lectureRepository;
     private final MemberRepository memberRepository;
     private final AttachmentService attachmentService;
+    private final NotificationService notificationService;
 
-    public QuestionService(QuestionRepository questionRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentService attachmentService) {
+    public QuestionService(QuestionRepository questionRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentService attachmentService, NotificationService notificationService) {
         this.questionRepository = questionRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.attachmentService = attachmentService;
+        this.notificationService = notificationService;
     }
 
     public void saveQuestion(Long lectureId, QuestionSaveDto questionSaveDto, String username) throws IOException {
@@ -61,7 +60,9 @@ public class QuestionService {
         }
         question.setAttachments(attachments);
 
-        questionRepository.save(question);
+        Question savedQuestion = questionRepository.save(question);
+
+        notificationService.create(NotificationType.QUESTION, savedQuestion);
     }
 
     public void modifyQuestion(Long questionId, QuestionSaveDto questionSaveDto) throws IOException {

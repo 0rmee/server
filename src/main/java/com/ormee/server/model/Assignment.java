@@ -39,4 +39,7 @@ public class Assignment extends EntityTime {
 
     @Column
     private LocalDateTime dueTime;
+
+    @Column
+    private Boolean notified;
 }

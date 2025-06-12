@@ -11,19 +11,32 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping("/{lectureId}/notifications") // 추후 서비스로직 추가
+    @GetMapping("/teachers/{lectureId}/notifications")
     public ResponseDto getNotifications(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter) {
+        return ResponseDto.success(notificationService.getNotificationsByLectureIdAndType(lectureId, filter));
+    }
+
+    @PutMapping("/teachers/{lectureId}/notifications")
+    public ResponseDto setAllNotificationsAsRead(@PathVariable Long lectureId) {
+        notificationService.markAllAsRead(lectureId);
         return ResponseDto.success();
     }
 
-    @PutMapping("/teachers/notifications/{notificationId}") // 추후 서비스로직 추가
-    public ResponseDto readNotification(@PathVariable Long notificationId) {
-        // 읽음 로직
+    @DeleteMapping("/teachers/{lectureId}/notifications")
+    public ResponseDto deleteAllNotifications(@PathVariable Long lectureId) {
+        notificationService.deleteAll(lectureId);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teachers/notifications/{notificationId}") // 추후 서비스로직 추가
+    @PutMapping("/teachers/notifications/{notificationId}")
+    public ResponseDto setNotificationAsRead(@PathVariable Long notificationId) {
+        notificationService.markAsRead(notificationId);
+        return ResponseDto.success();
+    }
+
+    @DeleteMapping("/teachers/notifications/{notificationId}")
     public ResponseDto deleteNotification(@PathVariable Long notificationId) {
+        notificationService.deleteById(notificationId);
         return ResponseDto.success();
     }
 }

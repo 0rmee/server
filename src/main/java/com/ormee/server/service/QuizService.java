@@ -43,6 +43,7 @@ public class QuizService {
                 .openTime(quizSaveDto.getOpenTime())
                 .dueTime(quizSaveDto.getDueTime())
                 .timeLimit(quizSaveDto.getTimeLimit())
+                .notified(false)
                 .build();
         quiz = quizRepository.save(quiz);
 
@@ -164,7 +165,6 @@ public class QuizService {
                     .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .submitCount(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
-
                     .build();
             quizListDtos.add(quizListDto);
         }
