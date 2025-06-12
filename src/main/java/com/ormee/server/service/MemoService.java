@@ -37,6 +37,7 @@ public class MemoService {
 //        memo.setDueTime(memoDto.getDueTime());
         memo.setDueTime(LocalDateTime.now().plusYears(1));
         memo.setIsOpen(true);
+        memo.setNotified(false);
 
         closeOpenedMemos(lecture);
 

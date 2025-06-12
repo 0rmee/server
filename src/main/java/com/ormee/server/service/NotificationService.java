@@ -4,8 +4,7 @@ import com.ormee.server.dto.notification.NotificationDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.*;
-import com.ormee.server.repository.LectureRepository;
-import com.ormee.server.repository.NotificationRepository;
+import com.ormee.server.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,10 +16,16 @@ import java.util.List;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final LectureRepository lectureRepository;
+    private final QuizRepository quizRepository;
+    private final AssignmentRepository homeworkRepository;
+    private final MemoRepository memoRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, LectureRepository lectureRepository) {
+    public NotificationService(NotificationRepository notificationRepository, LectureRepository lectureRepository, QuizRepository quizRepository, AssignmentRepository homeworkRepository, MemoRepository memoRepository) {
         this.notificationRepository = notificationRepository;
         this.lectureRepository = lectureRepository;
+        this.quizRepository = quizRepository;
+        this.homeworkRepository = homeworkRepository;
+        this.memoRepository = memoRepository;
     }
 
     public void create(NotificationType type, Object parent) {
@@ -123,5 +128,40 @@ public class NotificationService {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAllExpiredNotifications() {
         notificationRepository.deleteAllByCreatedAtBefore(LocalDateTime.now().minusDays(30));
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    public void createAllNotifications() {
+        LocalDateTime now = LocalDateTime.now();
+        createQuizNotifications(now);
+        createHomeworkNotifications(now);
+        createMemoNotifications(now);
+    }
+
+    private void createQuizNotifications(LocalDateTime now) {
+        List<Quiz> quizzes = quizRepository.findAllByDueTimeBeforeAndNotifiedFalse(now);
+        for(Quiz quiz : quizzes) {
+            create(NotificationType.QUIZ, quiz);
+            quiz.setNotified(true);
+            quizRepository.save(quiz);
+        }
+    }
+
+    private void createHomeworkNotifications(LocalDateTime now) {
+        List<Assignment> homeworks = homeworkRepository.findAllByDueTimeBeforeAndNotifiedFalse(now);
+        for(Assignment homework : homeworks) {
+            create(NotificationType.HOMEWORK, homework);
+            homework.setNotified(true);
+            homeworkRepository.save(homework);
+        }
+    }
+
+    private void createMemoNotifications(LocalDateTime now) {
+        List<Memo> memos = memoRepository.findAllByDueTimeBeforeAndNotifiedFalse(now);
+        for(Memo memo : memos) {
+            create(NotificationType.MEMO, memo);
+            memo.setNotified(true);
+            memoRepository.save(memo);
+        }
     }
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum NotificationType {
     QUIZ("퀴즈"),
-    MEMO("메모"),
+    MEMO("쪽지"),
     HOMEWORK("숙제"),
     QUESTION("질문"),
     ORMEE("오르미");

@@ -42,6 +42,7 @@ public class AssignmentService {
                 .title(assignmentSaveDto.getTitle())
                 .description(assignmentSaveDto.getDescription())
                 .isDraft(assignmentSaveDto.getIsDraft())
+                .notified(false)
                 .openTime(assignmentSaveDto.getOpenTime())
                 .dueTime(assignmentSaveDto.getDueTime())
                 .build();
