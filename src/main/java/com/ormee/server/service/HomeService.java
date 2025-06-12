@@ -22,18 +22,18 @@ public class HomeService {
     private final QuizRepository quizRepository;
     private final ProblemRepository problemRepository;
     private final ProblemSubmitRepository problemSubmitRepository;
-    private final AssignmentRepository assignmentRepository;
-    private final AssignmentSubmitRepository assignmentSubmitRepository;
+    private final HomeworkRepository homeworkRepository;
+    private final HomeworkSubmitRepository homeworkSubmitRepository;
     private final QuestionRepository questionRepository;
     private final NoticeRepository noticeRepository;
 
-    public HomeService(LectureRepository lectureRepository, QuizRepository quizRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AssignmentRepository assignmentRepository, AssignmentSubmitRepository assignmentSubmitRepository, QuestionRepository questionRepository, NoticeRepository noticeRepository) {
+    public HomeService(LectureRepository lectureRepository, QuizRepository quizRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, HomeworkRepository homeworkRepository, HomeworkSubmitRepository homeworkSubmitRepository, QuestionRepository questionRepository, NoticeRepository noticeRepository) {
         this.lectureRepository = lectureRepository;
         this.quizRepository = quizRepository;
         this.problemRepository = problemRepository;
         this.problemSubmitRepository = problemSubmitRepository;
-        this.assignmentRepository = assignmentRepository;
-        this.assignmentSubmitRepository = assignmentSubmitRepository;
+        this.homeworkRepository = homeworkRepository;
+        this.homeworkSubmitRepository = homeworkSubmitRepository;
         this.questionRepository = questionRepository;
         this.noticeRepository = noticeRepository;
     }
@@ -74,15 +74,15 @@ public class HomeService {
                         .build())
                 .toList();
 
-        List<ListDto> homeworks = assignmentRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture)
+        List<ListDto> homeworks = homeworkRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture)
                 .stream()
-                .map(assignment -> ListDto.builder()
+                .map(homework -> ListDto.builder()
                         .type("숙제")
-                        .title(assignment.getTitle())
-                        .submitStudents(assignmentSubmitRepository.countAllByAssignment(assignment))
+                        .title(homework.getTitle())
+                        .submitStudents(homeworkSubmitRepository.countAllByHomework(homework))
                         .totalStudents(totalStudents)
-                        .openTime(assignment.getOpenTime())
-                        .dueTime(assignment.getDueTime())
+                        .openTime(homework.getOpenTime())
+                        .dueTime(homework.getDueTime())
                         .build())
                 .toList();
 

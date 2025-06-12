@@ -17,10 +17,10 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final LectureRepository lectureRepository;
     private final QuizRepository quizRepository;
-    private final AssignmentRepository homeworkRepository;
+    private final HomeworkRepository homeworkRepository;
     private final MemoRepository memoRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, LectureRepository lectureRepository, QuizRepository quizRepository, AssignmentRepository homeworkRepository, MemoRepository memoRepository) {
+    public NotificationService(NotificationRepository notificationRepository, LectureRepository lectureRepository, QuizRepository quizRepository, HomeworkRepository homeworkRepository, MemoRepository memoRepository) {
         this.notificationRepository = notificationRepository;
         this.lectureRepository = lectureRepository;
         this.quizRepository = quizRepository;
@@ -43,9 +43,9 @@ public class NotificationService {
                 description = "퀴즈가 마감되었어요.";
             }
             case HOMEWORK -> {
-                Assignment assignment = (Assignment) parent;
-                lecture = assignment.getLecture();
-                parentId = assignment.getId();
+                Homework homework = (Homework) parent;
+                lecture = homework.getLecture();
+                parentId = homework.getId();
                 title = lecture.getTitle();
                 description = "숙제가 마감되었어요.";
             }
@@ -148,8 +148,8 @@ public class NotificationService {
     }
 
     private void createHomeworkNotifications(LocalDateTime now) {
-        List<Assignment> homeworks = homeworkRepository.findAllByDueTimeBeforeAndNotifiedFalse(now);
-        for(Assignment homework : homeworks) {
+        List<Homework> homeworks = homeworkRepository.findAllByDueTimeBeforeAndNotifiedFalse(now);
+        for(Homework homework : homeworks) {
             create(NotificationType.HOMEWORK, homework);
             homework.setNotified(true);
             homeworkRepository.save(homework);

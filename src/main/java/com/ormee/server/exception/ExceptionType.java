@@ -16,7 +16,7 @@ public enum ExceptionType {
     QUESTION_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 질문입니다."),
     ANSWER_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 답변입니다."),
     NOTICE_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 공지입니다."),
-    ASSIGNMENT_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 과제입니다."),
+    HOMEWORK_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 숙제입니다."),
     FEEDBACK_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 피드백입니다."),
     STUDENT_LECTURE_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 학생-강의입니다."),
     ATTACHMENT_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 첨부파일입니다."),
