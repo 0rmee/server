@@ -1,18 +1,17 @@
-package com.ormee.server.dto.assignment;
+package com.ormee.server.dto.homework;
 
-import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Builder
-public class AssignmentDto {
-    private Long id;
+public class HomeworkSaveDto {
     private String title;
     private String description;
-    private List<String> filePaths;
+    private List<MultipartFile> files;
+    private Boolean isDraft;
     private LocalDateTime openTime;
     private LocalDateTime dueTime;
 }

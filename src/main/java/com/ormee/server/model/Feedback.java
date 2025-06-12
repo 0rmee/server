@@ -16,8 +16,8 @@ public class Feedback extends EntityTime {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "assignment_submit_id")
-    private AssignmentSubmit assignmentSubmit;
+    @JoinColumn(name = "homework_submit_id")
+    private HomeworkSubmit homeworkSubmit;
 
     @Column
     private String content;
