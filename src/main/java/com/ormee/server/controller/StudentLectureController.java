@@ -27,8 +27,8 @@ public class StudentLectureController {
     }
 
     @GetMapping("/teachers/lectures/{lectureId}/students")
-    public ResponseDto studentsInLecture(@PathVariable Long lectureId) {
-        return ResponseDto.success(studentLectureService.findAllStudents(lectureId));
+    public ResponseDto studentsInLecture(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "이름순") String filter, @RequestParam(defaultValue = "1") int page) {
+        return ResponseDto.success(studentLectureService.findAllStudents(lectureId, filter, page - 1));
     }
 
     @PutMapping("/teachers/lectures/students")

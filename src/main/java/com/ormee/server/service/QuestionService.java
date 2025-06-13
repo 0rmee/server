@@ -108,7 +108,7 @@ public class QuestionService {
     public PageResponseDto<QuestionDto> getQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Question> questionPage = questionRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable);
 
@@ -125,7 +125,7 @@ public class QuestionService {
     public PageResponseDto<QuestionDto> getAnsweredQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Question> questionPage = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, true, pageable);
 
@@ -142,7 +142,7 @@ public class QuestionService {
     public PageResponseDto<QuestionDto> getNotAnsweredQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Question> questionPage = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, false, pageable);
 

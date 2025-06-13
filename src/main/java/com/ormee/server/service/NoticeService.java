@@ -65,7 +65,7 @@ public class NoticeService {
     public PageResponseDto<NoticeListDto> findAllByLectureId(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Notice> noticePage = noticeRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture, pageable);
 
@@ -94,7 +94,7 @@ public class NoticeService {
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Notice> noticePage = noticeRepository
                 .searchByLectureAndKeyword(
