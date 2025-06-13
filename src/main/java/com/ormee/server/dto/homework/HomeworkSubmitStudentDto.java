@@ -1,12 +1,12 @@
-package com.ormee.server.dto.assignment;
+package com.ormee.server.dto.homework;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class AssignmentSubmitStudentDto {
-    private Long assignmentSubmitId;
+public class HomeworkSubmitStudentDto {
+    private Long homeworkSubmitId;
     private String studentName;
     private Boolean isSubmitted;
     private Boolean isChecked;

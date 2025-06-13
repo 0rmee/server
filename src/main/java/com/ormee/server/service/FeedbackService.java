@@ -4,40 +4,39 @@ import com.ormee.server.dto.feedback.FeedbackDto;
 import com.ormee.server.dto.feedback.FeedbackSaveDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
-import com.ormee.server.model.AssignmentSubmit;
+import com.ormee.server.model.HomeworkSubmit;
 import com.ormee.server.model.Feedback;
-import com.ormee.server.repository.AssignmentSubmitRepository;
+import com.ormee.server.repository.HomeworkSubmitRepository;
 import com.ormee.server.repository.FeedbackRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
-    private final AssignmentSubmitRepository assignmentSubmitRepository;
+    private final HomeworkSubmitRepository homeworkSubmitRepository;
 
-    public FeedbackService(FeedbackRepository feedbackRepository, AssignmentSubmitRepository assignmentSubmitRepository) {
+    public FeedbackService(FeedbackRepository feedbackRepository, HomeworkSubmitRepository homeworkSubmitRepository) {
         this.feedbackRepository = feedbackRepository;
-        this.assignmentSubmitRepository = assignmentSubmitRepository;
+        this.homeworkSubmitRepository = homeworkSubmitRepository;
     }
 
-    public void save(Long assignmentSubmitId, FeedbackSaveDto feedbackSaveDto) {
-        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
+    public void save(Long homeworkSubmitId, FeedbackSaveDto feedbackSaveDto) {
+        HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findById(homeworkSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
         Feedback feedback = Feedback.builder()
-                .assignmentSubmit(assignmentSubmit)
+                .homeworkSubmit(homeworkSubmit)
                 .content(feedbackSaveDto.getContent())
                 .build();
         feedbackRepository.save(feedback);
-        assignmentSubmit.setIsFeedback(true);
-        assignmentSubmitRepository.save(assignmentSubmit);
+        homeworkSubmit.setIsFeedback(true);
+        homeworkSubmitRepository.save(homeworkSubmit);
     }
 
 
-    public List<FeedbackDto> get(Long assignmentSubmitId) {
-        AssignmentSubmit assignmentSubmit = assignmentSubmitRepository.findById(assignmentSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
-        List<Feedback> feedbackList = feedbackRepository.findAllByAssignmentSubmit(assignmentSubmit);
+    public List<FeedbackDto> get(Long homeworkSubmitId) {
+        HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findById(homeworkSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
+        List<Feedback> feedbackList = feedbackRepository.findAllByHomeworkSubmit(homeworkSubmit);
 
         return feedbackList.stream()
                 .map(feedback -> FeedbackDto.builder()
@@ -57,10 +56,10 @@ public class FeedbackService {
 
     public void delete(Long feedbackId) {
         Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(() -> new CustomException(ExceptionType.FEEDBACK_NOT_FOUND_EXCEPTION));
-        AssignmentSubmit assignmentSubmit = feedback.getAssignmentSubmit();
+        HomeworkSubmit homeworkSubmit = feedback.getHomeworkSubmit();
 
         feedbackRepository.delete(feedback);
-        assignmentSubmit.setIsFeedback(false);
-        assignmentSubmitRepository.save(assignmentSubmit);
+        homeworkSubmit.setIsFeedback(false);
+        homeworkSubmitRepository.save(homeworkSubmit);
     }
 }

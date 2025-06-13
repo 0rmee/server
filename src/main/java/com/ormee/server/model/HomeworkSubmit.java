@@ -1,9 +1,9 @@
 package com.ormee.server.model;
 
+import com.ormee.server.model.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,33 +13,28 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Assignment extends EntityTime {
+public class HomeworkSubmit extends EntityTime {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "lecture_id")
-    private Lecture lecture;
+    @JoinColumn(name = "homework_id")
+    private Homework homework;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Member student;
 
     @Column
-    private String title;
-
-    @Column
-    private String description;
+    private String content;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
     @Column
-    private Boolean isDraft;
+    private Boolean isChecked;
 
     @Column
-    private LocalDateTime openTime;
-
-    @Column
-    private LocalDateTime dueTime;
-
-    @Column
-    private Boolean notified;
+    private Boolean isFeedback;
 }
