@@ -33,13 +33,10 @@ public class Member implements UserDetails {
     private String name;
 
     @Column
-    private String nameEng;
+    private String nickname;
 
     @Column(nullable = false, unique = true)
     private String phoneNumber;
-
-    @Column
-    private String phoneNumber2;
 
     @Column
     private String email;

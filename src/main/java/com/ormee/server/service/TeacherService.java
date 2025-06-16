@@ -43,10 +43,9 @@ public class TeacherService {
                 .username(signUpDto.getUsername())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
-                .phoneNumber2(signUpDto.getPhoneNumber2())
                 .email(signUpDto.getEmail())
                 .name(signUpDto.getName())
-                .nameEng(signUpDto.getNameEng())
+                .nickname(signUpDto.getNickname())
                 .role(Role.TEACHER)
                 .build();
         memberRepository.save(teacher);
@@ -79,7 +78,7 @@ public class TeacherService {
     public TeacherDto getProfile(String username) {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         return TeacherDto.builder()
-                .name(teacher.getName())
+                .nickname(teacher.getNickname())
                 .image(Optional.ofNullable(teacher.getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null))
@@ -105,9 +104,8 @@ public class TeacherService {
         return TeacherDto.builder()
                 .username(teacher.getUsername())
                 .name(teacher.getName())
-                .nameEng(teacher.getNameEng())
+                .nickname(teacher.getNickname())
                 .phoneNumber(teacher.getPhoneNumber())
-                .phoneNumber2(teacher.getPhoneNumber2())
                 .email(teacher.getEmail())
                 .build();
     }
@@ -120,9 +118,8 @@ public class TeacherService {
         }
 
         teacher.setName(teacherDto.getName());
-        teacher.setNameEng(teacherDto.getNameEng());
+        teacher.setNickname(teacherDto.getNickname());
         teacher.setPhoneNumber(teacherDto.getPhoneNumber());
-        teacher.setPhoneNumber2(teacherDto.getPhoneNumber2());
         teacher.setEmail(teacher.getEmail());
 
         memberRepository.save(teacher);
