@@ -72,7 +72,7 @@ public class StudentLectureService {
                 .map(studentLecture -> StudentDetailDto.builder()
                         .id(studentLecture.getId())
                         .enrolDate(studentLecture.getCreatedAt().toLocalDate())
-                        .name(studentLecture.getStudent().getName())
+                        .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
                         .description(studentLecture.getDescription())
                         .build())
                 .toList();
