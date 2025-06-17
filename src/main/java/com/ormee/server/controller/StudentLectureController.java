@@ -37,9 +37,20 @@ public class StudentLectureController {
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teachers/lectures/students/{studentLectureId}")
-    public ResponseDto outStudent(@PathVariable Long studentLectureId) {
-        studentLectureService.delete(studentLectureId);
+    @PutMapping("/teachers/lectures/students/{studentLectureId}/block")
+    public ResponseDto blockStudent(@PathVariable Long studentLectureId) {
+        studentLectureService.block(studentLectureId, true);
         return ResponseDto.success();
+    }
+
+    @PutMapping("/teachers/lectures/students/{studentLectureId}/unlock")
+    public ResponseDto unlockStudent(@PathVariable Long studentLectureId) {
+        studentLectureService.block(studentLectureId, false);
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/teachers/lectures/{lectureId}/students/block")
+    public ResponseDto getBlockedStudents(@PathVariable Long lectureId) {
+        return ResponseDto.success(studentLectureService.findBlockedStudentsByLecture(lectureId));
     }
 }

@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface StudentLectureRepository extends JpaRepository<StudentLecture, Long> {
     Optional<StudentLecture> findByStudentAndLecture(Member student, Lecture lecture);
-    Page<StudentLecture> findAllByLectureOrderByStudent_Name(Lecture lecture, Pageable pageable);
-    Page<StudentLecture> findAllByLectureOrderByCreatedAtDesc(Lecture lecture, Pageable pageable);
+    Page<StudentLecture> findAllByLectureAndBlockedFalseOrderByStudent_Name(Lecture lecture, Pageable pageable);
+    Page<StudentLecture> findAllByLectureAndBlockedFalseOrderByCreatedAtDesc(Lecture lecture, Pageable pageable);
+    List<StudentLecture> findAllByLectureAndBlockedTrueOrderByStudent_Name(Lecture lecture);
 }

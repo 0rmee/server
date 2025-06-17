@@ -63,8 +63,8 @@ public class StudentLectureService {
         Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<StudentLecture> studentLecturePage = switch (filter) {
-            case "이름순" -> studentLectureRepository.findAllByLectureOrderByStudent_Name(lecture, pageable);
-            case "최신순" -> studentLectureRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable);
+            case "이름순" -> studentLectureRepository.findAllByLectureAndBlockedFalseOrderByStudent_Name(lecture, pageable);
+            case "최신순" -> studentLectureRepository.findAllByLectureAndBlockedFalseOrderByCreatedAtDesc(lecture, pageable);
             default -> throw new CustomException(ExceptionType.FILTER_INVALID_EXCEPTION);
         };
 
@@ -92,6 +92,12 @@ public class StudentLectureService {
         studentLectureRepository.save(studentLecture);
     }
 
+    public void block(Long studentLectureId, boolean blocked) {
+        StudentLecture studentLecture = studentLectureRepository.findById(studentLectureId).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
+        studentLecture.setBlocked(blocked);
+        studentLectureRepository.save(studentLecture);
+    }
+
     public void delete(Long studentLectureId) {
         StudentLecture studentLecture = studentLectureRepository.findById(studentLectureId).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
         Lecture lecture = studentLecture.getLecture();
@@ -101,5 +107,16 @@ public class StudentLectureService {
         lecture.getStudentLectures().remove(studentLecture);
 
         studentLectureRepository.delete(studentLecture);
+    }
+
+    public List<StudentDetailDto> findBlockedStudentsByLecture(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLectureAndBlockedTrueOrderByStudent_Name(lecture);
+
+        return studentLectures.stream()
+                .map(studentLecture -> StudentDetailDto.builder()
+                        .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
+                        .build())
+                .toList();
     }
 }
