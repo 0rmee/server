@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class ListDto {
+    private Long id;
     private String type;
     private String title;
     private Long submitStudents;
