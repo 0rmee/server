@@ -44,6 +44,12 @@ public class Member implements UserDetails {
     @Column
     private String introduction;
 
+    @Column
+    private Long loginFailCount = 0L;
+
+    @Column
+    private Boolean locked = false;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Attachment image;
