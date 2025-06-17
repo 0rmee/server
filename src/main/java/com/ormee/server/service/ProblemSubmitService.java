@@ -28,8 +28,13 @@ public class ProblemSubmitService {
 
     public void submit(List<SubmitDto> submissions, Authentication authentication) {
         Member student = studentRepository.findByUsername(authentication.getName()).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
         for(SubmitDto submitDto : submissions) {
             Problem problem = problemRepository.findById(submitDto.getProblemId()).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
+
+            if(problemSubmitRepository.existsByProblemAndStudent(problem, student))
+                throw new CustomException(ExceptionType.SUBMIT_FORBIDDEN_EXCEPTION);
+
             ProblemSubmit problemSubmit = ProblemSubmit.builder()
                     .problem(problem)
                     .student(student)
@@ -55,7 +60,7 @@ public class ProblemSubmitService {
                     .items(problem.getItems())
                     .answer(problem.getAnswer())
                     .submission(problemSubmit.getContent())
-                    .isCorrect(problem.getAnswer().equals(problemSubmit.getContent()))
+                    .isCorrect(problem.getAnswer().equalsIgnoreCase(problemSubmit.getContent()))
                     .build();
             if(problemDto.getIsCorrect()) {
                 correct++;

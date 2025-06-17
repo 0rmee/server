@@ -22,8 +22,10 @@ public enum ExceptionType {
     ATTACHMENT_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 첨부파일입니다."),
     NOTIFICATION_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
     ACCOUNT_LOCKED_EXCEPTION(HttpStatus.LOCKED, "계정이 잠겼습니다."),
-    PASSWORD_INVALID_EXCEPTION(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다."),
     S3_REQUEST_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S3 요청에 실패했습니다."),
+    QUIZ_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 공개된 퀴즈는 수정 불가능합니다."),
+    SUBMIT_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 제출하였습니다."),
+    PASSWORD_INVALID_EXCEPTION(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다."),
     ACCESS_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "접근 권한 없습니다."),
     NOTICE_PIN_FAILED_EXCEPTION(HttpStatus.BAD_REQUEST, "공지는 최개 3개까지 고정 가능합니다."),
     FILTER_INVALID_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 필터값입니다");

@@ -76,6 +76,9 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
+        if(quiz.getOpenTime().isBefore(LocalDateTime.now()))
+            throw new CustomException(ExceptionType.QUIZ_MODIFY_FORBIDDEN_EXCEPTION);
+
         quiz.setTitle(quizSaveDto.getTitle());
         quiz.setDescription(quizSaveDto.getDescription());
         quiz.setIsDraft(quizSaveDto.getIsDraft());
@@ -165,6 +168,7 @@ public class QuizService {
                     .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .submitCount(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
+                    .totalCount(quiz.getLecture().getStudentLectures().size())
                     .build();
             quizListDtos.add(quizListDto);
         }
@@ -243,7 +247,7 @@ public class QuizService {
                     }
 
                     long incorrectCount = problemSubmits.stream()
-                            .filter(problemSubmit -> !problemSubmit.getContent().equals(problem.getAnswer()))
+                            .filter(problemSubmit -> !problemSubmit.getContent().equalsIgnoreCase(problem.getAnswer()))
                             .count();
 
                     long incorrectRate = (incorrectCount * 100) / problemSubmits.size();
@@ -313,7 +317,7 @@ public class QuizService {
                     .count();
 
             submissions = submissions.stream()
-                    .filter(content -> content != null && !content.isEmpty() && !content.equals(problem.getAnswer()))
+                    .filter(content -> content != null && !content.isEmpty() && !content.equalsIgnoreCase(problem.getAnswer()))
                     .toList();
 
             Map<String, Long> contentCounts = submissions.stream()
