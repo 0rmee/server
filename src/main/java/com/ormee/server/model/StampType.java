@@ -1,9 +1,9 @@
 package com.ormee.server.model;
 
-public enum StickerType {
+public enum StampType {
     EXCELLENT,
-    OK,
     GOOD,
+    OK,
     FIGHTING,
-    EFFORT
+    IMPROVE
 }
