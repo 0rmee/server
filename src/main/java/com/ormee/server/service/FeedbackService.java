@@ -43,7 +43,7 @@ public class FeedbackService {
         return feedbackList.stream()
                 .map(feedback -> FeedbackDto.builder()
                         .id(feedback.getId())
-                        .stamp(feedback.getStampType() != null? feedback.getStampType().toString() :null)
+                        .stamp(feedback.getStampType() != null? feedback.getStampType() :null)
                         .content(feedback.getContent() != null? feedback.getContent() : null)
                         .createdAt(feedback.getCreatedAt().toString())
                         .build())
