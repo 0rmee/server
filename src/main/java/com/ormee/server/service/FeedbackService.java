@@ -6,6 +6,7 @@ import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.HomeworkSubmit;
 import com.ormee.server.model.Feedback;
+import com.ormee.server.model.StampType;
 import com.ormee.server.repository.HomeworkSubmitRepository;
 import com.ormee.server.repository.FeedbackRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,8 @@ public class FeedbackService {
         HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findById(homeworkSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
         Feedback feedback = Feedback.builder()
                 .homeworkSubmit(homeworkSubmit)
-                .content(feedbackSaveDto.getContent())
+                .stampType(feedbackSaveDto.getStamp() != null ? StampType.valueOf(feedbackSaveDto.getStamp()) :null)
+                .content(feedbackSaveDto.getContent() != null ? feedbackSaveDto.getContent() : null)
                 .build();
         feedbackRepository.save(feedback);
         homeworkSubmit.setIsFeedback(true);
@@ -41,7 +43,8 @@ public class FeedbackService {
         return feedbackList.stream()
                 .map(feedback -> FeedbackDto.builder()
                         .id(feedback.getId())
-                        .content(feedback.getContent())
+                        .stamp(feedback.getStampType() != null? feedback.getStampType() :null)
+                        .content(feedback.getContent() != null? feedback.getContent() : null)
                         .createdAt(feedback.getCreatedAt().toString())
                         .build())
                 .toList();
@@ -49,7 +52,8 @@ public class FeedbackService {
 
     public void update(Long feedbackId, FeedbackSaveDto feedbackSaveDto) {
         Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(() -> new CustomException(ExceptionType.FEEDBACK_NOT_FOUND_EXCEPTION));
-        feedback.setContent(feedbackSaveDto.getContent());
+        feedback.setStampType(feedbackSaveDto.getStamp() != null ? StampType.valueOf(feedbackSaveDto.getStamp()) : null);
+        feedback.setContent(feedbackSaveDto.getContent() != null ? feedbackSaveDto.getContent() : null);
         feedbackRepository.save(feedback);
     }
 

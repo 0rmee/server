@@ -8,10 +8,9 @@ import lombok.Data;
 public class TeacherDto {
     private String username;
     private String name;
-    private String nameEng;
+    private String nickname;
     private String email;
     private String phoneNumber;
-    private String phoneNumber2;
     private String introduction;
     private String image;
 }

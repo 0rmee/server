@@ -21,4 +21,5 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
                                            @Param("keyword") String keyword,
                                            Pageable pageable);
 
+    long countAllByLectureAndIsPinnedTrue(Lecture lecture);
 }

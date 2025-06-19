@@ -47,6 +47,7 @@ public class NoticeService {
                 .description(noticeSaveDto.getDescription())
                 .isPinned(false)
                 .isDraft(noticeSaveDto.getIsDraft())
+                .likes(0L)
                 .build();
 
         notice = noticeRepository.save(notice);
@@ -65,7 +66,7 @@ public class NoticeService {
     public PageResponseDto<NoticeListDto> findAllByLectureId(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Notice> noticePage = noticeRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture, pageable);
 
@@ -94,7 +95,7 @@ public class NoticeService {
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Notice> noticePage = noticeRepository
                 .searchByLectureAndKeyword(
@@ -158,6 +159,11 @@ public class NoticeService {
 
     public void pin(Long noticeId, boolean isPinned) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+
+        if(isPinned && noticeRepository.countAllByLectureAndIsPinnedTrue(notice.getLecture()) >= 3) {
+            throw new CustomException(ExceptionType.NOTICE_PIN_FAILED_EXCEPTION);
+        }
+
         notice.setIsPinned(isPinned);
         noticeRepository.save(notice);
     }
@@ -168,6 +174,7 @@ public class NoticeService {
         dto.setTitle(notice.getTitle() != null ? notice.getTitle() : "제목 없음");
         dto.setPostDate(notice.getCreatedAt());
         dto.setIsPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false);
+        dto.setLikes(notice.getLikes());
         return dto;
     }
 

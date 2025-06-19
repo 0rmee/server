@@ -24,5 +24,5 @@ public class Feedback extends EntityTime {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private StickerType stickerType;
+    private StampType stampType;
 }

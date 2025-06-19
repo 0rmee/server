@@ -12,5 +12,5 @@ import java.util.List;
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
     List<Quiz> findAllByLectureAndIsDraftOrderByCreatedAtDesc(Lecture lecture, Boolean isDraft);
     List<Quiz> findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(Lecture lecture, Boolean isDraft, Boolean isOpened);
-    List<Quiz> findAllByDueTimeBeforeAndNotifiedFalse(LocalDateTime now);
+    List<Quiz> findAllByDueTimeBeforeAndNotifiedFalseAndIsDraftFalse(LocalDateTime now);
 }

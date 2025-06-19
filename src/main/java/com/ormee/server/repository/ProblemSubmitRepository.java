@@ -13,8 +13,7 @@ import java.util.Optional;
 public interface ProblemSubmitRepository extends JpaRepository<ProblemSubmit, Long> {
     List<ProblemSubmit> findAllByProblem(Problem problem);
     Long countAllByProblemAndContentLike(Problem problem, String content);
-
     long countAllByProblem(Problem problem);
-
     Optional<ProblemSubmit> findByProblemAndStudent(Problem problem, Member student);
+    boolean existsByProblemAndStudent(Problem problem, Member student);
 }

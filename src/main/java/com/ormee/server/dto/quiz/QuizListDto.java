@@ -12,4 +12,5 @@ public class QuizListDto {
     private Long timeLimit;
     private Boolean quizAvailable;
     private Long submitCount;
+    private int totalCount;
 }

@@ -89,12 +89,14 @@ public class QuestionService {
     }
 
     private QuestionDto convertToDto(Question question) {
+        Member student = question.getStudent();
+
         return QuestionDto.builder()
                 .id(question.getId())
                 .title(question.getTitle())
                 .content(question.getContent())
                 .isAnswered(question.getIsAnswered())
-                .author(question.getStudent().getName())
+                .author(student.getName() + student.getPhoneNumber().substring(student.getPhoneNumber().length() - 4))
                 .filePaths(question.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .createdAt(question.getCreatedAt().toString())
                 .build();
@@ -108,7 +110,7 @@ public class QuestionService {
     public PageResponseDto<QuestionDto> getQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Question> questionPage = questionRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable);
 
@@ -125,7 +127,7 @@ public class QuestionService {
     public PageResponseDto<QuestionDto> getAnsweredQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Question> questionPage = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, true, pageable);
 
@@ -142,7 +144,7 @@ public class QuestionService {
     public PageResponseDto<QuestionDto> getNotAnsweredQuestions(Long lectureId, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
         Page<Question> questionPage = questionRepository.findAllByLectureAndIsAnsweredOrderByCreatedAtDesc(lecture, false, pageable);
 
