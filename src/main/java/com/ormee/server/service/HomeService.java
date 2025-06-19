@@ -51,6 +51,7 @@ public class HomeService {
 
     public LectureDto getLectureInfo(Lecture lecture) {
         return LectureDto.builder()
+                .id(lecture.getId())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
                 .code(lecture.getCode())
@@ -65,6 +66,7 @@ public class HomeService {
         List<ListDto> quizzes = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true)
                 .stream()
                 .map(quiz -> ListDto.builder()
+                        .id(quiz.getId())
                         .type("퀴즈")
                         .title(quiz.getTitle())
                         .submitStudents(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
@@ -77,6 +79,7 @@ public class HomeService {
         List<ListDto> homeworks = homeworkRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture)
                 .stream()
                 .map(homework -> ListDto.builder()
+                        .id(homework.getId())
                         .type("숙제")
                         .title(homework.getTitle())
                         .submitStudents(homeworkSubmitRepository.countAllByHomework(homework))
@@ -90,7 +93,7 @@ public class HomeService {
         assignments.addAll(quizzes);
         assignments.addAll(homeworks);
         return assignments.stream()
-                .sorted(Comparator.comparing(ListDto::getDueTime).reversed())
+                .sorted(Comparator.comparing(ListDto::getOpenTime))
                 .toList();
     }
 
@@ -100,6 +103,7 @@ public class HomeService {
         return questionRepository.findAllByLectureOrderByCreatedAtDesc(lecture, pageable)
                 .stream()
                 .map(question -> ListDto.builder()
+                        .id(question.getId())
                         .title(question.getTitle())
                         .openTime(question.getCreatedAt())
                         .build())
@@ -110,6 +114,7 @@ public class HomeService {
         List<ListDto> notices = new ArrayList<>(noticeRepository.findAllByLectureAndIsPinnedTrueOrderByCreatedAtDesc(lecture)
                 .stream()
                 .map(notice -> ListDto.builder()
+                        .id(notice.getId())
                         .type("고정")
                         .title(notice.getTitle())
                         .openTime(notice.getPostDate())

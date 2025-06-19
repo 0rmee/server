@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class LectureDto {
+    private Long id;
     private String title;
     private String description;
     private Integer code;

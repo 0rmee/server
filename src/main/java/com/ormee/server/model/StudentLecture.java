@@ -25,4 +25,7 @@ public class StudentLecture extends EntityTime {
 
     @Column
     private String description;
+
+    @Column
+    private Boolean blocked = false;
 }

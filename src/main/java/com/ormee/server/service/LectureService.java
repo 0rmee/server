@@ -19,7 +19,9 @@ import com.ormee.server.repository.MemoRepository;
 import com.ormee.server.repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +85,8 @@ public class LectureService {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         // Role이 teacher가 아닌 경우 예외 처리
 
+        isModifiable(lecture);
+
         lecture.setPassword(lectureRequestDto.getPassword());
         lecture.setTitle(lectureRequestDto.getTitle());
         lecture.setDescription(lectureRequestDto.getDescription());
@@ -95,10 +99,17 @@ public class LectureService {
         lectureRepository.save(lecture);
     }
 
+    private void isModifiable(Lecture lecture) {
+        if(lecture.getStartDate().toLocalDate().isBefore(LocalDate.now()))
+            throw new CustomException(ExceptionType.LECTURE_MODIFY_FORBIDDEN_EXCEPTION);
+    }
+
     public void delete(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         // Role이 teacher가 아닌 경우 예외 처리
+
+        isModifiable(lecture);
 
         teacher.removeLecture(lecture);
         memberRepository.save(teacher);

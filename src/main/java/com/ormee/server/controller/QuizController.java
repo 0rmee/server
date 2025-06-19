@@ -44,12 +44,6 @@ public class QuizController {
         return ResponseDto.success();
     }
 
-    @PutMapping("/quizzes/problems/{problemId}") // 추후 problemSaveDto 추가
-    public ResponseDto updateProblem(@PathVariable Long problemId) {
-//        quizService.modifyProblem(problemId, problemSaveDto);
-        return ResponseDto.success();
-    }
-
     @DeleteMapping("/quizzes/{quizId}")
     public ResponseDto deleteQuiz(@PathVariable Long quizId) {
         quizService.deleteQuiz(quizId);

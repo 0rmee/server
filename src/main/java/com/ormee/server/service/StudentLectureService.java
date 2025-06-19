@@ -1,5 +1,6 @@
 package com.ormee.server.service;
 
+import com.ormee.server.dto.response.PageResponseDto;
 import com.ormee.server.dto.student_lecture.StudentDetailDto;
 import com.ormee.server.dto.student_lecture.StudentDescriptionRequestDto;
 import com.ormee.server.exception.CustomException;
@@ -10,6 +11,10 @@ import com.ormee.server.model.member.Member;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.StudentLectureRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,23 +57,44 @@ public class StudentLectureService {
         delete(studentLecture.getId());
     }
 
-    public List<StudentDetailDto> findAllStudents(Long lectureId) {
+    public PageResponseDto<StudentDetailDto> findAllStudents(Long lectureId, String filter, int page) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        return lecture.getStudentLectures().stream()
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
+
+        Page<StudentLecture> studentLecturePage = switch (filter) {
+            case "이름순" -> studentLectureRepository.findAllByLectureAndBlockedFalseOrderByStudent_Name(lecture, pageable);
+            case "최신순" -> studentLectureRepository.findAllByLectureAndBlockedFalseOrderByCreatedAtDesc(lecture, pageable);
+            default -> throw new CustomException(ExceptionType.FILTER_INVALID_EXCEPTION);
+        };
+
+        List<StudentDetailDto> content = studentLecturePage.stream()
                 .map(studentLecture -> StudentDetailDto.builder()
                         .id(studentLecture.getId())
                         .enrolDate(studentLecture.getCreatedAt().toLocalDate())
-                        .name(studentLecture.getStudent().getName())
+                        .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
                         .description(studentLecture.getDescription())
                         .build())
                 .toList();
+
+        return PageResponseDto.<StudentDetailDto>builder()
+                .content(content)
+                .totalPages(studentLecturePage.getTotalPages())
+                .totalElements(studentLecturePage.getTotalElements())
+                .currentPage(studentLecturePage.getNumber() + 1)
+                .build();
     }
 
     public void updateDescription(StudentDescriptionRequestDto studentDescriptionRequestDto) {
         StudentLecture studentLecture = studentLectureRepository.findById(studentDescriptionRequestDto.getStudentLectureId()).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
         studentLecture.setDescription(studentDescriptionRequestDto.getDescription());
 
+        studentLectureRepository.save(studentLecture);
+    }
+
+    public void block(Long studentLectureId, boolean blocked) {
+        StudentLecture studentLecture = studentLectureRepository.findById(studentLectureId).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
+        studentLecture.setBlocked(blocked);
         studentLectureRepository.save(studentLecture);
     }
 
@@ -81,5 +107,16 @@ public class StudentLectureService {
         lecture.getStudentLectures().remove(studentLecture);
 
         studentLectureRepository.delete(studentLecture);
+    }
+
+    public List<StudentDetailDto> findBlockedStudentsByLecture(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLectureAndBlockedTrueOrderByStudent_Name(lecture);
+
+        return studentLectures.stream()
+                .map(studentLecture -> StudentDetailDto.builder()
+                        .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
+                        .build())
+                .toList();
     }
 }

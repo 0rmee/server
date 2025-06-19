@@ -34,6 +34,8 @@ public class QuizService {
     public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
+        validateQuizFields(quizSaveDto);
+
         Quiz quiz = Quiz.builder()
                 .lecture(lecture)
                 .title(quizSaveDto.getTitle())
@@ -76,6 +78,11 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
+        if(quiz.getOpenTime().isBefore(LocalDateTime.now()))
+            throw new CustomException(ExceptionType.QUIZ_MODIFY_FORBIDDEN_EXCEPTION);
+
+        validateQuizFields(quizSaveDto);
+
         quiz.setTitle(quizSaveDto.getTitle());
         quiz.setDescription(quizSaveDto.getDescription());
         quiz.setIsDraft(quizSaveDto.getIsDraft());
@@ -112,6 +119,14 @@ public class QuizService {
             for (Attachment attachment : attachments) {
                 attachment.setParentId(problem.getId().toString());
                 attachmentRepository.save(attachment);
+            }
+        }
+    }
+
+    private void validateQuizFields(QuizSaveDto dto) {
+        if (!Boolean.TRUE.equals(dto.getIsDraft())) {
+            if (dto.getTitle() == null || dto.getOpenTime() == null || dto.getDueTime() == null || dto.getTimeLimit() == null) {
+                throw new CustomException(ExceptionType.INVALID_QUIZ_FIELD_EXCEPTION);
             }
         }
     }
@@ -162,9 +177,10 @@ public class QuizService {
                     .id(quiz.getId().toString())
                     .quizName(quiz.getTitle())
                     .timeLimit(quiz.getTimeLimit())
-                    .quizDate(quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
-                    .quizAvailable(quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
+                    .quizDate(quiz.getDueTime() == null? null : quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
+                    .quizAvailable(!quiz.getIsDraft() && quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .submitCount(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
+                    .totalCount(quiz.getLecture().getStudentLectures().size())
                     .build();
             quizListDtos.add(quizListDto);
         }
@@ -194,6 +210,7 @@ public class QuizService {
                     .content(problem.getContent())
                     .answer(problem.getAnswer())
                     .items(problem.getItems())
+                    .fileIds(problem.getAttachments().stream().map(Attachment::getId).toList())
                     .filePaths(problem.getAttachments().stream().map(Attachment::getFilePath).toList())
                     .build();
             problemDtos.add(problemDto);
@@ -203,6 +220,7 @@ public class QuizService {
                 .title(quiz.getTitle())
                 .description(quiz.getDescription())
                 .isOpened(quiz.getIsOpened())
+                .openTime(quiz.getOpenTime())
                 .dueTime(quiz.getDueTime())
                 .timeLimit(quiz.getTimeLimit())
                 .problems(problemDtos)
@@ -243,7 +261,7 @@ public class QuizService {
                     }
 
                     long incorrectCount = problemSubmits.stream()
-                            .filter(problemSubmit -> !problemSubmit.getContent().equals(problem.getAnswer()))
+                            .filter(problemSubmit -> !problemSubmit.getContent().equalsIgnoreCase(problem.getAnswer()))
                             .count();
 
                     long incorrectRate = (incorrectCount * 100) / problemSubmits.size();
@@ -313,7 +331,7 @@ public class QuizService {
                     .count();
 
             submissions = submissions.stream()
-                    .filter(content -> content != null && !content.isEmpty() && !content.equals(problem.getAnswer()))
+                    .filter(content -> content != null && !content.isEmpty() && !content.equalsIgnoreCase(problem.getAnswer()))
                     .toList();
 
             Map<String, Long> contentCounts = submissions.stream()

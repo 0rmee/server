@@ -60,10 +60,10 @@ public class StudentService {
 
         refreshTokenRepository.save(new RefreshToken(student.getUsername(), refreshToken));
 
-        TokenDto tokenDto = new TokenDto();
-        tokenDto.setAccessToken(accessToken);
-        tokenDto.setRefreshToken(refreshToken);
-        return tokenDto;
+        return TokenDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     // student update

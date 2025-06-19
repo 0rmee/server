@@ -33,19 +33,22 @@ public class Member implements UserDetails {
     private String name;
 
     @Column
-    private String nameEng;
+    private String nickname;
 
     @Column(nullable = false, unique = true)
     private String phoneNumber;
-
-    @Column
-    private String phoneNumber2;
 
     @Column
     private String email;
 
     @Column
     private String introduction;
+
+    @Column
+    private Long loginFailCount = 0L;
+
+    @Column
+    private Boolean locked = false;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_id", referencedColumnName = "id")

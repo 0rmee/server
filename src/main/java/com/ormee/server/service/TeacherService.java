@@ -13,6 +13,7 @@ import com.ormee.server.model.member.Role;
 import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.RefreshTokenRepository;
 import com.ormee.server.service.attachment.AttachmentService;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,10 +44,11 @@ public class TeacherService {
                 .username(signUpDto.getUsername())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
-                .phoneNumber2(signUpDto.getPhoneNumber2())
                 .email(signUpDto.getEmail())
                 .name(signUpDto.getName())
-                .nameEng(signUpDto.getNameEng())
+                .nickname(signUpDto.getNickname())
+                .loginFailCount(0L)
+                .locked(false)
                 .role(Role.TEACHER)
                 .build();
         memberRepository.save(teacher);
@@ -56,30 +58,55 @@ public class TeacherService {
         Member teacher = memberRepository.findByUsername(signInDto.getUsername())
                 .orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
-        if (!passwordEncoder.matches(signInDto.getPassword(), teacher.getPassword())) {
-            throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
-        }
-
-        if(teacher.getRole() != Role.TEACHER) {
-            throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
-        }
+        validateAccountLock(teacher);
+        validatePassword(signInDto.getPassword(), teacher);
+        validateRole(teacher);
 
         JwtToken jwtToken = jwtTokenProvider.generateToken(teacher.getUsername(), List.of("ROLE_TEACHER"));
-        String accessToken = jwtToken.getAccessToken();
-        String refreshToken = jwtToken.getRefreshToken();
+        refreshTokenRepository.save(new RefreshToken(teacher.getUsername(), jwtToken.getRefreshToken()));
 
-        refreshTokenRepository.save(new RefreshToken(teacher.getUsername(), refreshToken));
+        teacher.setLoginFailCount(0L);
 
-        TokenDto tokenDto = new TokenDto();
-        tokenDto.setAccessToken(accessToken);
-        tokenDto.setRefreshToken(refreshToken);
-        return tokenDto;
+        return TokenDto.builder()
+                .accessToken(jwtToken.getAccessToken())
+                .refreshToken(jwtToken.getRefreshToken())
+                .build();
+    }
+
+    private void validatePassword(String rawPassword, Member teacher) {
+        if (!passwordEncoder.matches(rawPassword, teacher.getPassword())) {
+            long failCount = teacher.getLoginFailCount() == null ? 1 : teacher.getLoginFailCount() + 1;
+            teacher.setLoginFailCount(failCount);
+            memberRepository.save(teacher);
+
+            if (failCount >= 5) {
+                teacher.setLocked(true);
+                memberRepository.save(teacher);
+                throw new CustomException(ExceptionType.ACCOUNT_LOCKED_EXCEPTION);
+            }
+
+            throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
+        }
+    }
+
+    private void validateAccountLock(Member teacher) {
+        if (Boolean.TRUE.equals(teacher.getLocked()) || (teacher.getLoginFailCount() != null && teacher.getLoginFailCount() >= 5)) {
+            teacher.setLocked(true);
+            memberRepository.save(teacher);
+            throw new CustomException(ExceptionType.ACCOUNT_LOCKED_EXCEPTION);
+        }
+    }
+
+    private void validateRole(Member teacher) {
+        if (teacher.getRole() != Role.TEACHER) {
+            throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
+        }
     }
 
     public TeacherDto getProfile(String username) {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         return TeacherDto.builder()
-                .name(teacher.getName())
+                .nickname(teacher.getNickname())
                 .image(Optional.ofNullable(teacher.getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null))
@@ -105,9 +132,8 @@ public class TeacherService {
         return TeacherDto.builder()
                 .username(teacher.getUsername())
                 .name(teacher.getName())
-                .nameEng(teacher.getNameEng())
+                .nickname(teacher.getNickname())
                 .phoneNumber(teacher.getPhoneNumber())
-                .phoneNumber2(teacher.getPhoneNumber2())
                 .email(teacher.getEmail())
                 .build();
     }
@@ -120,9 +146,8 @@ public class TeacherService {
         }
 
         teacher.setName(teacherDto.getName());
-        teacher.setNameEng(teacherDto.getNameEng());
+        teacher.setNickname(teacherDto.getNickname());
         teacher.setPhoneNumber(teacherDto.getPhoneNumber());
-        teacher.setPhoneNumber2(teacherDto.getPhoneNumber2());
         teacher.setEmail(teacher.getEmail());
 
         memberRepository.save(teacher);
