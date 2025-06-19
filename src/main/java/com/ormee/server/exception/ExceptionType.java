@@ -29,7 +29,7 @@ public enum ExceptionType {
     PASSWORD_INVALID_EXCEPTION(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다."),
     ACCESS_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "접근 권한 없습니다."),
     INVALID_QUIZ_FIELD_EXCEPTION(HttpStatus.BAD_REQUEST, "퀴즈 필수 항목(title/openTime/dueTime/timeLimit)이 누락되었습니다."),
-    NOTICE_PIN_FAILED_EXCEPTION(HttpStatus.BAD_REQUEST, "공지는 최개 3개까지 고정 가능합니다."),
+    NOTICE_PIN_FAILED_EXCEPTION(HttpStatus.BAD_REQUEST, "공지는 최대 3개까지 고정 가능합니다."),
     FILTER_INVALID_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 필터값입니다");
 
     private final HttpStatus httpStatus;
