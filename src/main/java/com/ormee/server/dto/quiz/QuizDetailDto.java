@@ -12,6 +12,7 @@ public class QuizDetailDto {
     private String title;
     private String description;
     private boolean isOpened;
+    private LocalDateTime openTime;
     private LocalDateTime dueTime;
     private Long timeLimit;
     private List<ProblemDto> problems;
