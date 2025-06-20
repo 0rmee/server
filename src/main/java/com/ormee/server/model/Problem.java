@@ -39,4 +39,8 @@ public class Problem extends EntityTime {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
+
+    public void removeAttachment(Attachment attachment) {
+        this.attachments.remove(attachment);
+    }
 }
