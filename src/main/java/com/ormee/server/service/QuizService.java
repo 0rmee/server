@@ -78,24 +78,16 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
-        if(quiz.getOpenTime().isBefore(LocalDateTime.now()))
+        if(quiz.getOpenTime() != null && quiz.getOpenTime().isBefore(LocalDateTime.now()))
             throw new CustomException(ExceptionType.QUIZ_MODIFY_FORBIDDEN_EXCEPTION);
 
         validateQuizFields(quizSaveDto);
 
-        quiz.setTitle(quizSaveDto.getTitle());
-        quiz.setDescription(quizSaveDto.getDescription());
-        quiz.setIsDraft(quizSaveDto.getIsDraft());
-        quiz.setOpenTime(quizSaveDto.getOpenTime());
-        quiz.setDueTime(quizSaveDto.getDueTime());
-        quiz.setTimeLimit(quizSaveDto.getTimeLimit());
-
-        quizRepository.save(quiz);
-
         List<Problem> existingProblems = problemRepository.findAllByQuiz(quiz);
         for (Problem problem : existingProblems) {
-            List<Attachment> attachments = problem.getAttachments();
-            attachmentRepository.deleteAll(attachments);
+            for (Attachment attachment : problem.getAttachments()) {
+                attachment.setParentId(null);
+            }
             problemRepository.delete(problem);
         }
 
@@ -121,6 +113,15 @@ public class QuizService {
                 attachmentRepository.save(attachment);
             }
         }
+
+        quiz.setTitle(quizSaveDto.getTitle());
+        quiz.setDescription(quizSaveDto.getDescription());
+        quiz.setIsDraft(quizSaveDto.getIsDraft());
+        quiz.setOpenTime(quizSaveDto.getOpenTime());
+        quiz.setDueTime(quizSaveDto.getDueTime());
+        quiz.setTimeLimit(quizSaveDto.getTimeLimit());
+
+        quizRepository.save(quiz);
     }
 
     private void validateQuizFields(QuizSaveDto dto) {
@@ -148,7 +149,7 @@ public class QuizService {
         LocalDateTime now = LocalDateTime.now();
 
         for(Quiz quiz : quizList) {
-            if(quiz.getDueTime().isBefore(now)) {
+            if(quiz.getDueTime() != null && quiz.getDueTime().isBefore(now)) {
                 closedQuizzes.add(quiz);
             } else {
                 openQuizzes.add(quiz);
