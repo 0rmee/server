@@ -1,5 +1,7 @@
 package com.ormee.server.config.jwt;
 
+import com.ormee.server.exception.CustomException;
+import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -88,16 +90,12 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
-        } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
-        } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
-        } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
+        } catch (SecurityException | MalformedJwtException |
+                 ExpiredJwtException | UnsupportedJwtException |
+                 IllegalArgumentException e) {
+            log.info("JWT Token Error", e);
+            throw new CustomException(ExceptionType.INVALID_JWT_EXCEPTION);
         }
-        return false;
     }
 
     // accessToken

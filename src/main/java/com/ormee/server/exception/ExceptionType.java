@@ -22,6 +22,7 @@ public enum ExceptionType {
     ATTACHMENT_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 첨부파일입니다."),
     NOTIFICATION_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
     ACCOUNT_LOCKED_EXCEPTION(HttpStatus.LOCKED, "계정이 잠겼습니다."),
+    INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     S3_REQUEST_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S3 요청에 실패했습니다."),
     LECTURE_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 개강한 강의는 수정 및 삭제가 불가능합니다."),
     QUIZ_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 공개된 퀴즈는 수정 불가능합니다."),
