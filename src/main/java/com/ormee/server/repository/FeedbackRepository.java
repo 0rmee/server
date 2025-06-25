@@ -1,5 +1,6 @@
 package com.ormee.server.repository;
 
+import com.ormee.server.model.Homework;
 import com.ormee.server.model.HomeworkSubmit;
 import com.ormee.server.model.Feedback;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,5 @@ import java.util.List;
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
     List<Feedback> findAllByHomeworkSubmit(HomeworkSubmit homeworkSubmit);
+    long countAllByHomeworkSubmit_Homework(Homework homework);
 }

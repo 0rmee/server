@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-@RestController()
+@RestController
 public class AnswerController {
     private final AnswerService answerService;
     public AnswerController(AnswerService answerService) {
@@ -15,9 +15,14 @@ public class AnswerController {
     }
 
     @PostMapping("/teachers/questions/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto) throws IOException {
+    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto) throws IOException {
         answerService.writeAnswer(questionId, answerSaveDto);
         return ResponseDto.success();
+    }
+
+    @GetMapping("/teachers/questions/{questionId}/answers")
+    public ResponseDto readAnswer(@PathVariable Long questionId) {
+        return ResponseDto.success(answerService.getByQuestion(questionId));
     }
 
     @PutMapping("/teachers/answers/{answerId}")

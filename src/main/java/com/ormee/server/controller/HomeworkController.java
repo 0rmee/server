@@ -18,8 +18,7 @@ public class HomeworkController {
 
     @PostMapping("/teachers/{lectureId}/homeworks")
     public ResponseDto createHomework(@PathVariable Long lectureId, @ModelAttribute HomeworkSaveDto homeworkSaveDto) throws IOException {
-        homeworkService.create(lectureId, homeworkSaveDto);
-        return ResponseDto.success();
+        return ResponseDto.success(homeworkService.create(lectureId, homeworkSaveDto));
     }
 
     @GetMapping("/teachers/{lectureId}/homeworks")
@@ -30,6 +29,11 @@ public class HomeworkController {
     @GetMapping("/teachers/{lectureId}/homeworks/drafts")
     public ResponseDto readHomeworkDrafts(@PathVariable Long lectureId) {
         return ResponseDto.success(homeworkService.getDrafts(lectureId));
+    }
+
+    @GetMapping("/teachers/homeworks/{homeworkId}")
+    public ResponseDto readHomework(@PathVariable Long homeworkId) {
+        return ResponseDto.success(homeworkService.read(homeworkId));
     }
 
     @PutMapping("/teachers/homeworks/{homeworkId}")
