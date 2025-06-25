@@ -1,5 +1,6 @@
 package com.ormee.server.service;
 
+import com.ormee.server.dto.answer.AnswerDto;
 import com.ormee.server.dto.answer.AnswerSaveDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
@@ -79,5 +80,17 @@ public class AnswerService {
         answerRepository.delete(answer);
         question.setIsAnswered(false);
         questionRepository.save(question);
+    }
+
+    public AnswerDto getByQuestion(Long questionId) {
+        Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
+        Answer answer = answerRepository.findByQuestion(question).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
+
+        return AnswerDto.builder()
+                    .teacherName(answer.getQuestion().getLecture().getTeacher().getNickname())
+                    .content(answer.getContent())
+                    .createdAt(answer.getCreatedAt().toString())
+                    .filePaths(answer.getAttachments().stream().map(Attachment::getFilePath).toList())
+                    .build();
     }
 }

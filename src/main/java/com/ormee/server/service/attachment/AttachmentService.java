@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -34,7 +33,7 @@ public class AttachmentService {
                 .type(type)
                 .parentId(parentId.toString())
                 .filePath(filePath)
-                .fileName(LocalDate.now() + multipartFile.getOriginalFilename())
+                .fileName(LocalDateTime.now() + multipartFile.getOriginalFilename())
                 .fileSize(multipartFile.getSize())
                 .dueDate(LocalDateTime.now().plusMonths(1))
                 .build();

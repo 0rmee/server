@@ -10,6 +10,7 @@ import com.ormee.server.model.Homework;
 import com.ormee.server.model.Attachment;
 import com.ormee.server.model.AttachmentType;
 import com.ormee.server.model.Lecture;
+import com.ormee.server.repository.FeedbackRepository;
 import com.ormee.server.repository.HomeworkRepository;
 import com.ormee.server.repository.HomeworkSubmitRepository;
 import com.ormee.server.repository.LectureRepository;
@@ -27,16 +28,18 @@ public class HomeworkService {
     private final HomeworkRepository homeworkRepository;
     private final LectureRepository lectureRepository;
     private final HomeworkSubmitRepository homeworkSubmitRepository;
+    private final FeedbackRepository feedbackRepository;
     private final AttachmentService attachmentService;
 
-    public HomeworkService(HomeworkRepository homeworkRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, AttachmentService attachmentService) {
+    public HomeworkService(HomeworkRepository homeworkRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentService attachmentService) {
         this.homeworkRepository = homeworkRepository;
         this.lectureRepository = lectureRepository;
         this.homeworkSubmitRepository = homeworkSubmitRepository;
+        this.feedbackRepository = feedbackRepository;
         this.attachmentService = attachmentService;
     }
 
-    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto) throws IOException {
+    public Homework create(Long lectureId, HomeworkSaveDto homeworkSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Homework homework = Homework.builder()
                 .lecture(lecture)
@@ -58,7 +61,7 @@ public class HomeworkService {
         }
         homework.setAttachments(attachments);
 
-        homeworkRepository.save(homework);
+        return homeworkRepository.save(homework);
     }
 
     public HomeworkListDto getList(Long lectureId) {
@@ -72,6 +75,7 @@ public class HomeworkService {
                 .map(homework -> HomeworkDto.builder()
                         .id(homework.getId())
                         .title(homework.getTitle())
+                        .feedbackCompleted(homeworkSubmitRepository.countAllByHomework(homework) - feedbackRepository.countAllByHomeworkSubmit_Homework(homework) > 0)
                         .openTime(homework.getOpenTime())
                         .dueTime(homework.getDueTime())
                         .build())
@@ -82,6 +86,7 @@ public class HomeworkService {
                 .map(homework -> HomeworkDto.builder()
                         .id(homework.getId())
                         .title(homework.getTitle())
+                        .feedbackCompleted(homeworkSubmitRepository.countAllByHomework(homework) - feedbackRepository.countAllByHomeworkSubmit_Homework(homework) > 0)
                         .openTime(homework.getOpenTime())
                         .dueTime(homework.getDueTime())
                         .build())
@@ -130,12 +135,14 @@ public class HomeworkService {
                 .build();
     }
 
-    public HomeworkDto get(Long homeworkId) {
+    public HomeworkDto read(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
 
         return HomeworkDto.builder()
+                .id(homework.getId())
                 .title(homework.getTitle())
                 .description(homework.getDescription())
+                .fileNames(homework.getAttachments().stream().map(Attachment::getFileName).toList())
                 .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .openTime(homework.getOpenTime())
                 .dueTime(homework.getDueTime())
@@ -166,7 +173,6 @@ public class HomeworkService {
 
         homeworkRepository.save(homework);
     }
-
 
     public void delete(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
