@@ -78,7 +78,7 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
-        if(quiz.getOpenTime() != null && quiz.getOpenTime().isBefore(LocalDateTime.now()))
+        if(!quiz.getIsDraft() && quiz.getOpenTime().isBefore(LocalDateTime.now()))
             throw new CustomException(ExceptionType.QUIZ_MODIFY_FORBIDDEN_EXCEPTION);
 
         validateQuizFields(quizSaveDto);
