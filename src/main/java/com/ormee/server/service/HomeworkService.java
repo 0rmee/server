@@ -39,7 +39,7 @@ public class HomeworkService {
         this.attachmentService = attachmentService;
     }
 
-    public Homework create(Long lectureId, HomeworkSaveDto homeworkSaveDto) throws IOException {
+    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Homework homework = Homework.builder()
                 .lecture(lecture)
@@ -61,7 +61,7 @@ public class HomeworkService {
         }
         homework.setAttachments(attachments);
 
-        return homeworkRepository.save(homework);
+        homeworkRepository.save(homework);
     }
 
     public HomeworkListDto getList(Long lectureId) {
