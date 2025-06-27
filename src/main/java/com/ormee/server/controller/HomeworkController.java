@@ -32,6 +32,11 @@ public class HomeworkController {
         return ResponseDto.success(homeworkService.getDrafts(lectureId));
     }
 
+    @GetMapping("/teachers/{lectureId}/homeworks/load")
+    public ResponseDto loadHomeworks(@PathVariable Long lectureId) {
+        return ResponseDto.success(homeworkService.loadSavedHomeworks(lectureId));
+    }
+
     @GetMapping("/teachers/homeworks/{homeworkId}")
     public ResponseDto readHomework(@PathVariable Long homeworkId) {
         return ResponseDto.success(homeworkService.read(homeworkId));

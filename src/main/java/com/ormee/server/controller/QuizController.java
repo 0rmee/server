@@ -3,6 +3,7 @@ package com.ormee.server.controller;
 import com.ormee.server.dto.quiz.QuizSaveDto;
 import com.ormee.server.dto.response.ResponseDto;
 import com.ormee.server.service.QuizService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,6 +37,11 @@ public class QuizController {
     @GetMapping("/{lectureId}/quizzes/draft")
     public ResponseDto readDraftQuizList(@PathVariable Long lectureId) {
         return ResponseDto.success(quizService.findAllByLecture(lectureId, true));
+    }
+
+    @GetMapping("/{lectureId}/quizzes/load")
+    public ResponseDto loadQuizzes(@PathVariable Long lectureId) {
+        return ResponseDto.success(quizService.loadSavedQuizzes(lectureId));
     }
 
     @PutMapping("/quizzes/{quizId}")

@@ -109,6 +109,17 @@ public class HomeworkService {
                 .build()).toList();
     }
 
+    public List<HomeworkDto> loadSavedHomeworks(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Homework> homeworks = homeworkRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
+
+        return homeworks.stream().map(homework -> HomeworkDto.builder()
+                .id(homework.getId())
+                .title(homework.getTitle())
+                .openTime(homework.getCreatedAt())
+                .build()).toList();
+    }
+
     public FeedbackHomeworkListDto getFeedbackCompletedList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Homework> homeworks = homeworkRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);

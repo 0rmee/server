@@ -140,6 +140,17 @@ public class QuizService {
         return quizListToDtoList(quizList);
     }
 
+    public List<QuizListDto> loadSavedQuizzes(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Quiz> quizzes = quizRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
+
+        return quizzes.stream().map(quiz -> QuizListDto.builder()
+                .id(quiz.getId())
+                .quizName(quiz.getTitle())
+                .quizDate(quiz.getCreatedAt().toString())
+                .build()).toList();
+    }
+
     public TeacherQuizListDto teacherQuizList(Long lectureId, Boolean isDraft) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftOrderByCreatedAtDesc(lecture, isDraft);
@@ -175,7 +186,7 @@ public class QuizService {
 
         for(Quiz quiz : quizList) {
             QuizListDto quizListDto = QuizListDto.builder()
-                    .id(quiz.getId().toString())
+                    .id(quiz.getId())
                     .quizName(quiz.getTitle())
                     .timeLimit(quiz.getTimeLimit())
                     .quizDate(quiz.getDueTime() == null? null : quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))

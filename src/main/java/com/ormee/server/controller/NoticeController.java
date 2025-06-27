@@ -36,6 +36,11 @@ public class NoticeController {
         return ResponseDto.success(noticeService.getDraftNotices(lectureId));
     }
 
+    @GetMapping("/teachers/{lectureId}/notices/load")
+    public ResponseDto loadNotices(@PathVariable Long lectureId) {
+        return ResponseDto.success(noticeService.loadSavedNotices(lectureId));
+    }
+
     @GetMapping("/teachers/{lectureId}/notices/search")
     public ResponseDto searchNotice(
             @PathVariable Long lectureId,
