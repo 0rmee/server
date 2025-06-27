@@ -5,13 +5,10 @@ import com.ormee.server.dto.lecture.LectureListDto;
 import com.ormee.server.dto.lecture.LectureRequestDto;
 import com.ormee.server.dto.lecture.LectureResponseDto;
 import com.ormee.server.dto.quiz.QuizListDto;
-import com.ormee.server.dto.student_lecture.StudentDetailDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.LectureDay;
-import com.ormee.server.model.Quiz;
-import com.ormee.server.model.StudentLecture;
 import com.ormee.server.model.member.Member;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemberRepository;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +29,13 @@ public class LectureService {
     private final MemberRepository memberRepository;
     private final QuizService quizService;
     private final MemoRepository memoRepository;
-    private final QuizRepository quizRepository;
     private final CodeGenerator codeGenerator;
 
-    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository, QuizRepository quizRepository, CodeGenerator codeGenerator) {
+    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository, CodeGenerator codeGenerator) {
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.quizService = quizService;
         this.memoRepository = memoRepository;
-        this.quizRepository = quizRepository;
         this.codeGenerator = codeGenerator;
     }
 
@@ -163,21 +157,4 @@ public class LectureService {
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
                 .build();
     }
-
-
-//    public LectureResponseDto findLectureByCode(Integer code) {
-//        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-//        return lectureToDto(lecture);
-//    }
-//
-//    public void close(Integer code) {
-//        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-//        LocalDateTime now = LocalDateTime.now();
-//        lecture.setDueDate(now);
-//        lectureRepository.save(lecture);
-//    }
-//
-//    public boolean validate(Integer code) {
-//        return lectureRepository.existsByCode(code);
-//    }
 }

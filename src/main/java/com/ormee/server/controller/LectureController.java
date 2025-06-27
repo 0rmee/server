@@ -36,20 +36,4 @@ public class LectureController {
     public ResponseDto getLectureList(Authentication authentication) {
         return ResponseDto.success(lectureService.findAllLectures(authentication.getName()));
     }
-
-//    @GetMapping("/{code}") // 추후 강의홈 uri 방식 정해지면 그때 수정
-//    public ResponseDto getLecture(@PathVariable Integer code) {
-//        return ResponseDto.success(lectureService.findLectureByCode(code));
-//    }
-//
-//    @PutMapping("/{code}")
-//    public ResponseDto closeLecture(@PathVariable Integer code) {
-//        lectureService.close(code);
-//        return ResponseDto.success();
-//    }
-//
-//    @GetMapping("/{code}/validate")
-//    public ResponseDto validateLecture(@PathVariable Integer code) {
-//        return ResponseDto.success(lectureService.validate(code));
-//    }
 }

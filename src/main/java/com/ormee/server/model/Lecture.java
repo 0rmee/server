@@ -56,6 +56,11 @@ public class Lecture extends EntityTime {
     @Column
     private LocalDateTime dueDate;
 
+
+    @ManyToMany
+    @JoinColumn(name = "co_teacher_id")
+    private List<Member> coTeachers = new ArrayList<>();
+
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentLecture> studentLectures = new ArrayList<>();
 
@@ -73,5 +78,9 @@ public class Lecture extends EntityTime {
 
     public void addStudentLecture(StudentLecture studentLecture) {
         studentLectures.add(studentLecture);
+    }
+
+    public void addCoTeacher(Member coTeacher) {
+        coTeachers.add(coTeacher);
     }
 }
