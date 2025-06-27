@@ -56,6 +56,19 @@ public class Lecture extends EntityTime {
     @Column
     private LocalDateTime dueDate;
 
+
+    @ManyToMany
+    @JoinTable(
+            name = "lecture_collaborators",
+            joinColumns = @JoinColumn(name = "lecture_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"lecture_id", "member_id"})
+    )
+    private List<Member> collaborators = new ArrayList<>();
+
+    @Column
+    private Long collaboratorChangeCount = 0L;
+
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentLecture> studentLectures = new ArrayList<>();
 
@@ -73,5 +86,18 @@ public class Lecture extends EntityTime {
 
     public void addStudentLecture(StudentLecture studentLecture) {
         studentLectures.add(studentLecture);
+    }
+
+    public void addCollaborator(Member collaborator) {
+        collaborators.add(collaborator);
+        if (collaboratorChangeCount == null) {
+            collaboratorChangeCount = 1L;
+        } else {
+            collaboratorChangeCount++;
+        }
+    }
+
+    public void removeCollaborator(Member collaborator) {
+        collaborators.remove(collaborator);
     }
 }
