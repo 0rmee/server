@@ -13,7 +13,6 @@ import com.ormee.server.model.member.Member;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.MemoRepository;
-import com.ormee.server.repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -114,7 +113,7 @@ public class LectureService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<Lecture> lectures = lectureRepository.findAllByTeacher(teacher);
+        List<Lecture> lectures = lectureRepository.findAllByTeacherOrCollaboratorsIn(teacher, List.of(teacher));
 
         List<LectureResponseDto> openLectures = lectures.stream()
                 .filter(lecture -> !lecture.getDueDate().isBefore(now))
@@ -156,5 +155,26 @@ public class LectureService {
                 .activeQuizCount(count)
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
                 .build();
+    }
+
+    public void addCollaborator(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        if(!lecture.getCollaborators().isEmpty())
+            throw new CustomException(ExceptionType.COLLABORATOR_ADD_FORBIDDEN_EXCEPTION);
+
+        Member collaborator = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        lecture.addCollaborator(collaborator);
+        lectureRepository.save(lecture);
+    }
+
+    public void removeCollaborator(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        if(lecture.getCollaborators().isEmpty()) {
+            throw new CustomException(ExceptionType.COLLABORATOR_NOT_FOUND_EXCEPTION);
+        }
+
+        Member collaborator = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        lecture.removeCollaborator(collaborator);
+        lectureRepository.save(lecture);
     }
 }

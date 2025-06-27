@@ -58,8 +58,13 @@ public class Lecture extends EntityTime {
 
 
     @ManyToMany
-    @JoinColumn(name = "co_teacher_id")
-    private List<Member> coTeachers = new ArrayList<>();
+    @JoinTable(
+            name = "lecture_collaborators",
+            joinColumns = @JoinColumn(name = "lecture_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"lecture_id", "member_id"})
+    )
+    private List<Member> collaborators = new ArrayList<>();
 
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentLecture> studentLectures = new ArrayList<>();
@@ -80,7 +85,11 @@ public class Lecture extends EntityTime {
         studentLectures.add(studentLecture);
     }
 
-    public void addCoTeacher(Member coTeacher) {
-        coTeachers.add(coTeacher);
+    public void addCollaborator(Member collaborator) {
+        collaborators.add(collaborator);
+    }
+
+    public void removeCollaborator(Member collaborator) {
+        collaborators.remove(collaborator);
     }
 }
