@@ -66,6 +66,9 @@ public class Lecture extends EntityTime {
     )
     private List<Member> collaborators = new ArrayList<>();
 
+    @Column
+    private Long collaboratorChangeCount = 0L;
+
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentLecture> studentLectures = new ArrayList<>();
 
@@ -87,6 +90,11 @@ public class Lecture extends EntityTime {
 
     public void addCollaborator(Member collaborator) {
         collaborators.add(collaborator);
+        if (collaboratorChangeCount == null) {
+            collaboratorChangeCount = 1L;
+        } else {
+            collaboratorChangeCount++;
+        }
     }
 
     public void removeCollaborator(Member collaborator) {

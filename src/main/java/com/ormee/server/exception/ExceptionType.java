@@ -26,6 +26,7 @@ public enum ExceptionType {
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     S3_REQUEST_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S3 요청에 실패했습니다."),
     COLLABORATOR_ADD_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "공동 작업자는 1명까지만 추가 가능합니다."),
+    COLLABORATOR_CHANGE_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "공동 작업자 변경은 1번만 가능합니다."),
     LECTURE_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 개강한 강의는 수정 및 삭제가 불가능합니다."),
     QUIZ_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 공개된 퀴즈는 수정 불가능합니다."),
     SUBMIT_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 제출하였습니다."),

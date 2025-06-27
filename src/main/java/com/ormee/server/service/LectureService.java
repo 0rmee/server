@@ -159,8 +159,13 @@ public class LectureService {
 
     public void addCollaborator(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+
         if(!lecture.getCollaborators().isEmpty())
             throw new CustomException(ExceptionType.COLLABORATOR_ADD_FORBIDDEN_EXCEPTION);
+
+        if(lecture.getCollaboratorChangeCount() != null && lecture.getCollaboratorChangeCount() > 1) {
+            throw new CustomException(ExceptionType.COLLABORATOR_CHANGE_FORBIDDEN_EXCEPTION);
+        }
 
         Member collaborator = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         lecture.addCollaborator(collaborator);
