@@ -37,7 +37,7 @@ public class LectureController {
         return ResponseDto.success(lectureService.findAllLectures(authentication.getName()));
     }
 
-    @PostMapping("{lectureId}/collaborators")
+    @PostMapping("/{lectureId}/collaborators")
     public ResponseDto addCollaborator(@PathVariable Long lectureId, @RequestParam("username") String username) {
         lectureService.addCollaborator(lectureId, username);
         return ResponseDto.success();
