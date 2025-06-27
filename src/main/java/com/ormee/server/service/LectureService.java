@@ -5,23 +5,18 @@ import com.ormee.server.dto.lecture.LectureListDto;
 import com.ormee.server.dto.lecture.LectureRequestDto;
 import com.ormee.server.dto.lecture.LectureResponseDto;
 import com.ormee.server.dto.quiz.QuizListDto;
-import com.ormee.server.dto.student_lecture.StudentDetailDto;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import com.ormee.server.model.Lecture;
 import com.ormee.server.model.LectureDay;
-import com.ormee.server.model.Quiz;
-import com.ormee.server.model.StudentLecture;
 import com.ormee.server.model.member.Member;
 import com.ormee.server.repository.LectureRepository;
 import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.MemoRepository;
-import com.ormee.server.repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +28,13 @@ public class LectureService {
     private final MemberRepository memberRepository;
     private final QuizService quizService;
     private final MemoRepository memoRepository;
-    private final QuizRepository quizRepository;
     private final CodeGenerator codeGenerator;
 
-    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository, QuizRepository quizRepository, CodeGenerator codeGenerator) {
+    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository, CodeGenerator codeGenerator) {
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.quizService = quizService;
         this.memoRepository = memoRepository;
-        this.quizRepository = quizRepository;
         this.codeGenerator = codeGenerator;
     }
 
@@ -120,7 +113,7 @@ public class LectureService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<Lecture> lectures = lectureRepository.findAllByTeacher(teacher);
+        List<Lecture> lectures = lectureRepository.findAllByTeacherOrCollaboratorsIn(teacher, List.of(teacher));
 
         List<LectureResponseDto> openLectures = lectures.stream()
                 .filter(lecture -> !lecture.getDueDate().isBefore(now))
@@ -164,20 +157,29 @@ public class LectureService {
                 .build();
     }
 
+    public void addCollaborator(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-//    public LectureResponseDto findLectureByCode(Integer code) {
-//        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-//        return lectureToDto(lecture);
-//    }
-//
-//    public void close(Integer code) {
-//        Lecture lecture = lectureRepository.findByCode(code).orElseThrow(()-> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-//        LocalDateTime now = LocalDateTime.now();
-//        lecture.setDueDate(now);
-//        lectureRepository.save(lecture);
-//    }
-//
-//    public boolean validate(Integer code) {
-//        return lectureRepository.existsByCode(code);
-//    }
+        if(!lecture.getCollaborators().isEmpty())
+            throw new CustomException(ExceptionType.COLLABORATOR_ADD_FORBIDDEN_EXCEPTION);
+
+        if(lecture.getCollaboratorChangeCount() != null && lecture.getCollaboratorChangeCount() > 1) {
+            throw new CustomException(ExceptionType.COLLABORATOR_CHANGE_FORBIDDEN_EXCEPTION);
+        }
+
+        Member collaborator = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        lecture.addCollaborator(collaborator);
+        lectureRepository.save(lecture);
+    }
+
+    public void removeCollaborator(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        if(lecture.getCollaborators().isEmpty()) {
+            throw new CustomException(ExceptionType.COLLABORATOR_NOT_FOUND_EXCEPTION);
+        }
+
+        Member collaborator = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        lecture.removeCollaborator(collaborator);
+        lectureRepository.save(lecture);
+    }
 }
