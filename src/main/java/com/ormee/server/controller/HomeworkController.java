@@ -18,7 +18,8 @@ public class HomeworkController {
 
     @PostMapping("/teachers/{lectureId}/homeworks")
     public ResponseDto createHomework(@PathVariable Long lectureId, @ModelAttribute HomeworkSaveDto homeworkSaveDto) throws IOException {
-        return ResponseDto.success(homeworkService.create(lectureId, homeworkSaveDto));
+        homeworkService.create(lectureId, homeworkSaveDto);
+        return ResponseDto.success();
     }
 
     @GetMapping("/teachers/{lectureId}/homeworks")
