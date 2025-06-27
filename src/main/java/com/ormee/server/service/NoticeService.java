@@ -122,6 +122,13 @@ public class NoticeService {
                 .collect(Collectors.toList());
     }
 
+    public List<NoticeListDto> loadSavedNotices(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Notice> notices = noticeRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
+
+        return notices.stream().map(this::convertToDto).toList();
+    }
+
     public NoticeDto findById(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
         return entityToDto(notice);
