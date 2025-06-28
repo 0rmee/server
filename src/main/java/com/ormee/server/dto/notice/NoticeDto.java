@@ -11,6 +11,7 @@ import java.util.List;
 public class NoticeDto {
     private String title;
     private String description;
+    private List<String> fileNames;
     private List<String> filePaths;
     private LocalDateTime postDate;
     private Boolean isPinned;

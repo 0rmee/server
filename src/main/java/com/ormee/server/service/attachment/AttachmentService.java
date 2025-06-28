@@ -1,12 +1,12 @@
 package com.ormee.server.service.attachment;
 
+import com.ormee.server.dto.attachment.UploadFileResponse;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
-import com.ormee.server.model.Attachment;
-import com.ormee.server.model.AttachmentType;
-import com.ormee.server.model.Problem;
-import com.ormee.server.repository.AttachmentRepository;
-import com.ormee.server.repository.ProblemRepository;
+import com.ormee.server.model.*;
+import com.ormee.server.model.member.Member;
+import com.ormee.server.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,21 +19,34 @@ public class AttachmentService {
     private final S3Service s3Service;
     private final AttachmentRepository attachmentRepository;
     private final ProblemRepository problemRepository;
+    private final NoticeRepository noticeRepository;
+    private final HomeworkRepository homeworkRepository;
+    private final HomeworkSubmitRepository homeworkSubmitRepository;
+    private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
+    private final MemberRepository memberRepository;
 
-    public AttachmentService(S3Service s3Service, AttachmentRepository attachmentRepository, ProblemRepository problemRepository) {
+    public AttachmentService(S3Service s3Service, AttachmentRepository attachmentRepository, ProblemRepository problemRepository, NoticeRepository noticeRepository, HomeworkRepository homeworkRepository, HomeworkSubmitRepository homeworkSubmitRepository, QuestionRepository questionRepository, AnswerRepository answerRepository, MemberRepository memberRepository) {
         this.s3Service = s3Service;
         this.attachmentRepository = attachmentRepository;
         this.problemRepository = problemRepository;
+        this.noticeRepository = noticeRepository;
+        this.homeworkRepository = homeworkRepository;
+        this.homeworkSubmitRepository = homeworkSubmitRepository;
+        this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
+        this.memberRepository = memberRepository;
     }
 
     public Attachment save(AttachmentType type, Long parentId, MultipartFile multipartFile) throws IOException {
-        String filePath = s3Service.uploadFile(multipartFile);
+        UploadFileResponse fileResponse = s3Service.uploadFile(multipartFile);
 
         Attachment attachment = Attachment.builder()
                 .type(type)
                 .parentId(parentId.toString())
-                .filePath(filePath)
-                .fileName(LocalDateTime.now() + multipartFile.getOriginalFilename())
+                .originalFileName(multipartFile.getOriginalFilename())
+                .filePath(fileResponse.getFileUrl())
+                .fileName(fileResponse.getFileName())
                 .fileSize(multipartFile.getSize())
                 .dueDate(LocalDateTime.now().plusMonths(1))
                 .build();
@@ -41,6 +54,7 @@ public class AttachmentService {
         return attachmentRepository.save(attachment);
     }
 
+    @Transactional
     public void delete(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION));
 
@@ -51,11 +65,67 @@ public class AttachmentService {
     }
 
     private void deleteByType(Attachment attachment) {
-        if (Objects.requireNonNull(attachment.getType()) == AttachmentType.QUIZ) {
-            if (!attachment.getParentId().equals("-1")) {
-                Problem problem = problemRepository.findById(Long.valueOf(attachment.getParentId())).orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
-                problem.removeAttachment(attachment);
-            }
+        AttachmentType type = Objects.requireNonNull(attachment.getType());
+
+        switch (type) {
+            case QUIZ:
+                if (!attachment.getParentId().equals("-1")) {
+                    Problem problem = problemRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.PROBLEM_NOT_FOUND_EXCEPTION));
+                    problem.removeAttachment(attachment);
+                }
+                break;
+
+            case NOTICE:
+                if (!attachment.getParentId().equals("-1")) {
+                    Notice notice = noticeRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+                    notice.removeAttachment(attachment);
+                }
+                break;
+
+            case HOMEWORK:
+                if (!attachment.getParentId().equals("-1")) {
+                    Homework homework = homeworkRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
+                    homework.removeAttachment(attachment);
+                }
+                break;
+
+            case HOMEWORK_SUBMIT:
+                if (!attachment.getParentId().equals("-1")) {
+                    HomeworkSubmit submit = homeworkSubmitRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
+                    submit.removeAttachment(attachment);
+                }
+                break;
+
+            case QUESTION:
+                if (!attachment.getParentId().equals("-1")) {
+                    Question question = questionRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
+                    question.removeAttachment(attachment);
+                }
+                break;
+
+            case ANSWER:
+                if (!attachment.getParentId().equals("-1")) {
+                    Answer answer = answerRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
+                    answer.removeAttachment(attachment);
+                }
+                break;
+
+            case TEACHER_IMAGE:
+                if (!attachment.getParentId().equals("-1")) {
+                    Member teacher = memberRepository.findById(Long.valueOf(attachment.getParentId()))
+                            .orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+                    teacher.setImage(attachment);
+                }
+                break;
+
+            default:
+                throw new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION);
         }
     }
 }

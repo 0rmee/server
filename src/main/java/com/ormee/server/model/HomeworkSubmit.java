@@ -37,4 +37,8 @@ public class HomeworkSubmit extends EntityTime {
 
     @Column
     private Boolean isFeedback;
+
+    public void removeAttachment(Attachment attachment) {
+        this.attachments.remove(attachment);
+    }
 }

@@ -25,6 +25,9 @@ public class Attachment extends EntityTime {
     private AttachmentType type;
 
     @Column
+    private String originalFileName;
+
+    @Column
     private String fileName;
 
     @Column

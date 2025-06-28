@@ -13,4 +13,5 @@ public class TeacherDto {
     private String phoneNumber;
     private String introduction;
     private String image;
+    private Long fileId;
 }

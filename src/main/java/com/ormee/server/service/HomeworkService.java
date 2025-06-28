@@ -153,7 +153,7 @@ public class HomeworkService {
                 .id(homework.getId())
                 .title(homework.getTitle())
                 .description(homework.getDescription())
-                .fileNames(homework.getAttachments().stream().map(Attachment::getFileName).toList())
+                .fileNames(homework.getAttachments().stream().map(Attachment::getOriginalFileName).toList())
                 .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .openTime(homework.getOpenTime())
                 .dueTime(homework.getDueTime())
