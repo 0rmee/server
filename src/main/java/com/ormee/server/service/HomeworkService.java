@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class HomeworkService {
@@ -153,7 +154,8 @@ public class HomeworkService {
                 .id(homework.getId())
                 .title(homework.getTitle())
                 .description(homework.getDescription())
-                .fileNames(homework.getAttachments().stream().map(Attachment::getOriginalFileName).toList())
+                .fileNames(homework.getAttachments().stream()
+                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
                 .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .openTime(homework.getOpenTime())
                 .dueTime(homework.getDueTime())
