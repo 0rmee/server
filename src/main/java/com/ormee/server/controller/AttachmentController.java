@@ -18,12 +18,13 @@ public class AttachmentController {
     }
 
     @PostMapping("/attachment")
-    public ResponseDto uploadAttachment(@RequestParam("file") MultipartFile file) throws IOException {
-        return ResponseDto.success(attachmentService.save(AttachmentType.QUIZ,  -1L, file).getId());
+    public ResponseDto uploadAttachment(@RequestParam("file") MultipartFile file, @RequestParam("type")
+                                        String type) throws IOException {
+        return ResponseDto.success(attachmentService.save(AttachmentType.valueOf(type),  -1L, file).getId());
     }
 
-    @DeleteMapping("/attachment/{attachmentId}/quizzes")
-    public ResponseDto deleteQuizAttachment(@PathVariable Long attachmentId) {
+    @DeleteMapping("/attachment/{attachmentId}")
+    public ResponseDto deleteAttachment(@PathVariable Long attachmentId) {
         attachmentService.delete(attachmentId);
         return ResponseDto.success();
     }

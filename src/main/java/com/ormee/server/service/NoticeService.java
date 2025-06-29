@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -189,6 +190,8 @@ public class NoticeService {
         return NoticeDto.builder()
                 .title(notice.getTitle() != null ? notice.getTitle() : "제목 없음")
                 .description(notice.getDescription() != null ? notice.getDescription() : "설명 없음")
+                .fileNames(notice.getAttachments().stream()
+                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
                 .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .postDate(notice.getPostDate() != null ? notice.getPostDate() : LocalDateTime.now())
                 .isPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false)

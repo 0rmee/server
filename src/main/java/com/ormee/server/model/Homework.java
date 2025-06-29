@@ -42,4 +42,8 @@ public class Homework extends EntityTime {
 
     @Column
     private Boolean notified;
+
+    public void removeAttachment(Attachment attachment) {
+        this.attachments.remove(attachment);
+    }
 }

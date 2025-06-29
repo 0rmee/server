@@ -45,4 +45,9 @@ public class Notice extends EntityTime {
 
     @Column
     private Long likes;
+
+    public void removeAttachment(Attachment attachment) {
+        this.attachments.remove(attachment);
+    }
+
 }
