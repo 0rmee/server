@@ -10,6 +10,7 @@ import com.ormee.server.model.Attachment;
 import com.ormee.server.model.AttachmentType;
 import com.ormee.server.model.member.Member;
 import com.ormee.server.model.member.Role;
+import com.ormee.server.repository.AttachmentRepository;
 import com.ormee.server.repository.MemberRepository;
 import com.ormee.server.repository.RefreshTokenRepository;
 import com.ormee.server.service.attachment.AttachmentService;
@@ -27,16 +28,16 @@ public class TeacherService {
 
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AttachmentRepository attachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AttachmentService attachmentService;
 
-    public TeacherService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, AttachmentService attachmentService) {
+    public TeacherService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, AttachmentRepository attachmentRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.memberRepository = memberRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.attachmentRepository = attachmentRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.attachmentService = attachmentService;
     }
 
     public void signUp(TeacherSignUpDto signUpDto) {
@@ -114,15 +115,19 @@ public class TeacherService {
                 .build();
     }
 
-    public void updateProfile(String username, String introduction, MultipartFile file) throws IOException {
+    public void updateProfile(String username, TeacherDto teacherDto) {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         if(teacher.getRole() != Role.TEACHER) {
             throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
         }
 
-        teacher.setIntroduction(introduction);
-        teacher.setImage(attachmentService.save(AttachmentType.TEACHER_IMAGE, teacher.getId(), file));
+        teacher.setIntroduction(teacherDto.getIntroduction());
+
+        if(teacherDto.getFileId() != null) {
+            Attachment attachment = attachmentRepository.findById(teacherDto.getFileId()).orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION));
+            teacher.setImage(attachment);
+        }
 
         memberRepository.save(teacher);
     }

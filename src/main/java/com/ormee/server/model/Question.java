@@ -43,4 +43,8 @@ public class Question extends EntityTime {
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Answer> answers = new ArrayList<>();
+
+    public void removeAttachment(Attachment attachment) {
+        this.attachments.remove(attachment);
+    }
 }

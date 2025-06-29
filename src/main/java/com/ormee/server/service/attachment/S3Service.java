@@ -6,6 +6,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.ormee.server.dto.attachment.UploadFileResponse;
 import com.ormee.server.exception.CustomException;
 import com.ormee.server.exception.ExceptionType;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class S3Service {
@@ -40,14 +41,16 @@ public class S3Service {
                 .build();
     }
 
-    public String uploadFile(MultipartFile multipartFile) throws IOException {
+    public UploadFileResponse uploadFile(MultipartFile multipartFile) throws IOException {
         File file = convertMultipartFileToFile(multipartFile);
         try {
-            String fileName = LocalDate.now() + multipartFile.getOriginalFilename();
+            String fileName = LocalDateTime.now() + multipartFile.getOriginalFilename();
 
             amazonS3.putObject(new PutObjectRequest(bucketName, fileName, file));
 
-            return amazonS3.getUrl(bucketName, fileName).toString();
+            String fileUrl = amazonS3.getUrl(bucketName, fileName).toString();
+
+            return new UploadFileResponse(fileName, fileUrl);
         } catch (AmazonServiceException e) {
             throw new CustomException(ExceptionType.S3_REQUEST_FAILED_EXCEPTION);
         } finally {
