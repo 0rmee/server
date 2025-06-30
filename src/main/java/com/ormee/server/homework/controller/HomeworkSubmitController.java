@@ -18,31 +18,7 @@ public class HomeworkSubmitController {
         this.homeworkSubmitService = homeworkSubmitService;
     }
 
-    @PostMapping("/student/homeworks/{homeworkId}")
-    public ResponseDto createHomeworkSubmit(@PathVariable Long homeworkId, @ModelAttribute HomeworkSubmitSaveDto homeworkSubmitSaveDto, Authentication authentication) throws IOException {
-        homeworkSubmitService.create(homeworkId, homeworkSubmitSaveDto, authentication.getName());
-        return ResponseDto.success();
-    }
 
-    @GetMapping("/teachers/homeworks/{homeworkId}/students")
-    public ResponseDto readTeacherHomeworkStudentsList(@PathVariable Long homeworkId, @RequestParam(required = false, defaultValue = "전체") String filter) {
-        return switch (filter) {
-            case "전체" -> ResponseDto.success(homeworkSubmitService.getStudents(homeworkId));
-            case "미제출" -> ResponseDto.success(homeworkSubmitService.getNotSubmittedStudents(homeworkId));
-            case "미확인" -> ResponseDto.success(homeworkSubmitService.getNotCheckedStudents(homeworkId));
-            default -> throw new CustomException(ExceptionType.FILTER_INVALID_EXCEPTION);
-        };
-    }
-
-    @GetMapping("/teachers/homeworks/{homeworkId}/students/submit")
-    public ResponseDto getSubmitStudents(@PathVariable Long homeworkId) {
-        return ResponseDto.success(homeworkSubmitService.getSubmitStudents(homeworkId));
-    }
-
-    @GetMapping("/student/homeworks/submit/{homeworkSubmitId}")
-    public ResponseDto getHomeworkSubmit(@PathVariable Long homeworkSubmitId, Authentication authentication) {
-        return ResponseDto.success(homeworkSubmitService.get(homeworkSubmitId, authentication.getName()));
-    }
 
     // 수정 (피드백 달리기 전까지 수정 가능)
 //    @PutMapping("/student/assignment/submit/{assignmentSubmitId}")
