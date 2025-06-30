@@ -3,6 +3,7 @@ package com.ormee.server.question.controller;
 import com.ormee.server.question.dto.AnswerSaveDto;
 import com.ormee.server.global.response.ResponseDto;
 import com.ormee.server.question.service.AnswerService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -15,8 +16,8 @@ public class AnswerController {
     }
 
     @PostMapping("/teachers/questions/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto) throws IOException {
-        answerService.writeAnswer(questionId, answerSaveDto);
+    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto, Authentication authentication) throws IOException {
+        answerService.writeAnswer(questionId, answerSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 

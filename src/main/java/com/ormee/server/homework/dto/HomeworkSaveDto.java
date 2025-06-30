@@ -1,7 +1,6 @@
 package com.ormee.server.homework.dto;
 
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
 public class HomeworkSaveDto {
     private String title;
     private String description;
-    private List<MultipartFile> files;
+    private List<Long> fileIds;
     private Boolean isDraft;
     private LocalDateTime openTime;
     private LocalDateTime dueTime;

@@ -31,12 +31,6 @@ public class Lecture extends EntityTime {
     @JoinColumn(name = "teacher_id")
     private Member teacher;
 
-    @Column(nullable = false, unique = true)
-    private Integer code;
-
-    @Column(nullable = false)
-    private String password;
-
     @Column(nullable = false)
     private String title;
 

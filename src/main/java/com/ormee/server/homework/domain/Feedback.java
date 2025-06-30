@@ -1,6 +1,7 @@
 package com.ormee.server.homework.domain;
 
 import com.ormee.server.global.config.EntityTime;
+import com.ormee.server.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,10 @@ public class Feedback extends EntityTime {
     @OneToOne
     @JoinColumn(name = "homework_submit_id")
     private HomeworkSubmit homeworkSubmit;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Member author;
 
     @Column
     private String content;

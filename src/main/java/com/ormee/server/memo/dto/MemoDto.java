@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MemoDto {
     private Long id;
+    private String author;
     private String title;
     private String description;
     private LocalDateTime dueTime;

@@ -6,6 +6,8 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
+import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.quiz.domain.Problem;
 import com.ormee.server.quiz.domain.ProblemSubmit;
 import com.ormee.server.quiz.domain.ProblemType;
@@ -17,7 +19,6 @@ import com.ormee.server.quiz.repository.QuizRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -28,25 +29,29 @@ public class QuizService {
 
     private final QuizRepository quizRepository;
     private final LectureRepository lectureRepository;
+    private final MemberRepository memberRepository;
     private final ProblemRepository problemRepository;
     private final ProblemSubmitRepository problemSubmitRepository;
     private final AttachmentRepository attachmentRepository;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, MemberRepository memberRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
+        this.memberRepository = memberRepository;
         this.problemRepository = problemRepository;
         this.problemSubmitRepository = problemSubmitRepository;
         this.attachmentRepository = attachmentRepository;
     }
 
-    public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto) throws IOException {
+    public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         validateQuizFields(quizSaveDto);
 
         Quiz quiz = Quiz.builder()
                 .lecture(lecture)
+                .author(author)
                 .title(quizSaveDto.getTitle())
                 .description(quizSaveDto.getDescription())
                 .isDraft(quizSaveDto.getIsDraft())
@@ -196,6 +201,9 @@ public class QuizService {
         for(Quiz quiz : quizList) {
             QuizListDto quizListDto = QuizListDto.builder()
                     .id(quiz.getId())
+                    .author(Optional.ofNullable(quiz.getAuthor())
+                            .map(Member::getNickname)
+                            .orElse(quiz.getLecture().getTeacher().getNickname()))
                     .quizName(quiz.getTitle())
                     .timeLimit(quiz.getTimeLimit())
                     .quizDate(quiz.getDueTime() == null? null : quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))

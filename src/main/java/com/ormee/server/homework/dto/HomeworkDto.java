@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public class HomeworkDto {
     private Long id;
+    private String author;
     private String title;
     private String description;
     private boolean feedbackCompleted;

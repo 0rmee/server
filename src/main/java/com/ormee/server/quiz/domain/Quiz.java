@@ -2,6 +2,7 @@ package com.ormee.server.quiz.domain;
 
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.global.config.EntityTime;
+import com.ormee.server.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,10 @@ public class Quiz extends EntityTime {
     @ManyToOne
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Member author;
 
     @Column(nullable = false)
     private String title;
