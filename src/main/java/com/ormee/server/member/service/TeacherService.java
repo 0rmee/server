@@ -3,7 +3,6 @@ package com.ormee.server.member.service;
 import com.ormee.server.global.config.jwt.JwtToken;
 import com.ormee.server.global.config.jwt.JwtTokenProvider;
 import com.ormee.server.global.config.jwt.RefreshToken;
-import com.ormee.server.dto.member.*;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.attachment.domain.Attachment;

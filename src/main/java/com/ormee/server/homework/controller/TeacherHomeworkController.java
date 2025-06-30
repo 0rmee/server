@@ -2,6 +2,8 @@ package com.ormee.server.homework.controller;
 
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
+import com.ormee.server.homework.dto.FeedbackSaveDto;
+import com.ormee.server.homework.service.FeedbackService;
 import com.ormee.server.homework.service.HomeworkService;
 import com.ormee.server.homework.dto.HomeworkSaveDto;
 import com.ormee.server.global.response.ResponseDto;
@@ -15,10 +17,12 @@ public class TeacherHomeworkController {
 
     private final HomeworkService homeworkService;
     private final HomeworkSubmitService homeworkSubmitService;
+    private final FeedbackService feedbackService;
 
-    public TeacherHomeworkController(HomeworkService homeworkService, HomeworkSubmitService homeworkSubmitService) {
+    public TeacherHomeworkController(HomeworkService homeworkService, HomeworkSubmitService homeworkSubmitService, FeedbackService feedbackService) {
         this.homeworkService = homeworkService;
         this.homeworkSubmitService = homeworkSubmitService;
+        this.feedbackService = feedbackService;
     }
 
     @PostMapping("/{lectureId}/homeworks")
@@ -79,13 +83,27 @@ public class TeacherHomeworkController {
         return ResponseDto.success(homeworkSubmitService.getSubmitStudents(homeworkId));
     }
 
-//    @GetMapping("/teachers/{lectureId}/assignment")
-//    public ResponseDto readFeedbackCompletedAssignmentList(@PathVariable UUID lectureId) {
-//        return ResponseDto.success(assignmentService.getFeedbackCompletedList(lectureId));
-//    }
+    @PostMapping("/homeworks/submissions/{submissionId}")
+    public ResponseDto createFeedback(@PathVariable Long submissionId, @RequestBody FeedbackSaveDto feedbackSaveDto) {
+        feedbackService.save(submissionId, feedbackSaveDto);
+        return ResponseDto.success();
+    }
 
-//    @GetMapping("/student/{lectureId}/assignment")
-//    public ResponseDto readAssignmentList(@PathVariable UUID lectureId) {
-//        return ResponseDto.success(assignmentService.getList(lectureId));
-//    }
+    // 위 로직은 피드백 복수로 달을 수 있는 경우입니다. 복수 불가능시 해당 로직으로 추후 재수정
+    @GetMapping("/homeworks/submissions/{submissionId}")
+    public ResponseDto readFeedback(@PathVariable Long submissionId) {
+        return ResponseDto.success(feedbackService.get(submissionId));
+    }
+
+    @PutMapping("/homeworks/feedback/{feedbackId}")
+    public ResponseDto updateFeedback(@PathVariable Long feedbackId, @RequestBody FeedbackSaveDto feedbackSaveDto) {
+        feedbackService.update(feedbackId, feedbackSaveDto);
+        return ResponseDto.success();
+    }
+
+    @DeleteMapping("/homeworks/feedback/{feedbackId}")
+    public ResponseDto deleteFeedback(@PathVariable Long feedbackId) {
+        feedbackService.delete(feedbackId);
+        return ResponseDto.success();
+    }
 }
