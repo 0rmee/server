@@ -1,5 +1,6 @@
 package com.ormee.server.notice.service;
 
+import com.ormee.server.attachment.repository.AttachmentRepository;
 import com.ormee.server.global.response.PageResponseDto;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
@@ -10,7 +11,6 @@ import com.ormee.server.notice.dto.NoticeSaveDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.attachment.domain.Attachment;
-import com.ormee.server.attachment.domain.AttachmentType;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.attachment.service.AttachmentService;
@@ -20,11 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,16 +32,18 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final LectureRepository lectureRepository;
     private final MemberRepository memberRepository;
+    private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
 
-    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentService attachmentService) {
+    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
         this.noticeRepository = noticeRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
+        this.attachmentRepository = attachmentRepository;
         this.attachmentService = attachmentService;
     }
 
-    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto, String username) throws IOException {
+    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
@@ -60,11 +59,14 @@ public class NoticeService {
 
         notice = noticeRepository.save(notice);
 
-        List<Attachment> attachments = new ArrayList<>();
-        if (noticeSaveDto.getFiles() != null) {
-            for (MultipartFile multipartFile : noticeSaveDto.getFiles()) {
-                attachments.add(attachmentService.save(AttachmentType.NOTICE, notice.getId(), multipartFile));
-            }
+        List<Attachment> attachments = noticeSaveDto.getFileIds().stream()
+                .map(id -> attachmentRepository.findById(id)
+                        .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                .collect(Collectors.toList());
+
+        for (Attachment attachment : attachments) {
+            attachment.setParentId(notice.getId().toString());
+            attachmentRepository.save(attachment);
         }
 
         notice.setAttachments(attachments);
@@ -143,23 +145,42 @@ public class NoticeService {
     }
 
 
-    public void modifyNotice(Long noticeId, NoticeSaveDto noticeSaveDto) throws IOException {
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+    public void modifyNotice(Long noticeId, NoticeSaveDto noticeSaveDto) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
 
         if (noticeSaveDto.getTitle() != null) {
             notice.setTitle(noticeSaveDto.getTitle());
         }
+
         if (noticeSaveDto.getDescription() != null) {
             notice.setDescription(noticeSaveDto.getDescription());
         }
+
+        List<Long> fileIds = noticeSaveDto.getFileIds() != null ? noticeSaveDto.getFileIds() : List.of();
+
         List<Attachment> existingAttachments = notice.getAttachments();
-        if (existingAttachments != null) {
-            existingAttachments.clear();
+
+        List<Attachment> toRemove = existingAttachments.stream()
+                .filter(att -> !fileIds.contains(att.getId()))
+                .toList();
+
+        for (Attachment att : toRemove) {
+            existingAttachments.remove(att);
+            attachmentService.delete(att.getId());
         }
-        if (noticeSaveDto.getFiles() != null) {
-            for (MultipartFile file : noticeSaveDto.getFiles()) {
-                Attachment newAttachment = attachmentService.save(AttachmentType.NOTICE, notice.getId(), file);
-                notice.getAttachments().add(newAttachment);
+
+        List<Long> existingIds = existingAttachments.stream()
+                .map(Attachment::getId)
+                .toList();
+
+        for (Long fileId : fileIds) {
+            if (!existingIds.contains(fileId)) {
+                Attachment attachment = attachmentRepository.findById(fileId)
+                        .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION));
+                existingAttachments.add(attachment);
+                attachment.setParentId(notice.getId().toString());
+                attachmentRepository.save(attachment);
             }
         }
 

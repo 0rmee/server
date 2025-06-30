@@ -17,7 +17,7 @@ public class NoticeController {
     }
 
     @PostMapping("/teachers/{lectureId}/notices")
-    public ResponseDto createNotice(@PathVariable Long lectureId, @ModelAttribute NoticeSaveDto noticeSaveDto, Authentication authentication) throws IOException {
+    public ResponseDto createNotice(@PathVariable Long lectureId, @RequestBody NoticeSaveDto noticeSaveDto, Authentication authentication) throws IOException {
         noticeService.saveNotice(lectureId, noticeSaveDto, authentication.getName());
         return ResponseDto.success();
     }
@@ -53,7 +53,7 @@ public class NoticeController {
 
 
     @PutMapping("/teachers/notices/{noticeId}")
-    public ResponseDto updateNotice(@PathVariable Long noticeId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
+    public ResponseDto updateNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) throws IOException {
         noticeService.modifyNotice(noticeId, noticeSaveDto);
         return ResponseDto.success();
     }

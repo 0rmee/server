@@ -1,5 +1,6 @@
 package com.ormee.server.homework.service;
 
+import com.ormee.server.attachment.repository.AttachmentRepository;
 import com.ormee.server.homework.domain.Homework;
 import com.ormee.server.homework.dto.HomeworkDto;
 import com.ormee.server.homework.dto.HomeworkListDto;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HomeworkService {
@@ -34,20 +36,24 @@ public class HomeworkService {
     private final LectureRepository lectureRepository;
     private final HomeworkSubmitRepository homeworkSubmitRepository;
     private final FeedbackRepository feedbackRepository;
+    private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
 
-    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentService attachmentService) {
+    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
         this.homeworkRepository = homeworkRepository;
         this.memberRepository = memberRepository;
         this.lectureRepository = lectureRepository;
         this.homeworkSubmitRepository = homeworkSubmitRepository;
         this.feedbackRepository = feedbackRepository;
+        this.attachmentRepository = attachmentRepository;
         this.attachmentService = attachmentService;
     }
 
-    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto, String username) throws IOException {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member author = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         Homework homework = Homework.builder()
                 .lecture(lecture)
@@ -60,14 +66,18 @@ public class HomeworkService {
                 .dueTime(homeworkSaveDto.getDueTime())
                 .build();
 
-        Long parentId = homeworkRepository.save(homework).getId();
+        homework = homeworkRepository.save(homework);
 
-        List<Attachment> attachments = new ArrayList<>();
-        if (homeworkSaveDto.getFiles() != null) {
-            for (MultipartFile multipartFile : homeworkSaveDto.getFiles()) {
-                attachments.add(attachmentService.save(AttachmentType.HOMEWORK, parentId, multipartFile));
-            }
+        List<Attachment> attachments = homeworkSaveDto.getFileIds().stream()
+                .map(id -> attachmentRepository.findById(id)
+                        .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                .collect(Collectors.toList());
+
+        for (Attachment attachment : attachments) {
+            attachment.setParentId(homework.getId().toString());
+            attachmentRepository.save(attachment);
         }
+
         homework.setAttachments(attachments);
 
         homeworkRepository.save(homework);
@@ -188,26 +198,45 @@ public class HomeworkService {
                 .build();
     }
 
-    public void update(Long homeworkId, HomeworkSaveDto homeworkSaveDto) throws IOException {
+    public void update(Long homeworkId, HomeworkSaveDto homeworkSaveDto) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
 
-        if (homeworkSaveDto.getTitle() != null) {
+        if(homeworkSaveDto.getTitle() != null) {
             homework.setTitle(homeworkSaveDto.getTitle());
         }
-        if (homeworkSaveDto.getDescription() != null) {
+
+        if(homeworkSaveDto.getDescription() != null) {
             homework.setDescription(homeworkSaveDto.getDescription());
         }
+
+        List<Long> fileIds = homeworkSaveDto.getFileIds() != null ? homeworkSaveDto.getFileIds() : List.of();
+
         List<Attachment> existingAttachments = homework.getAttachments();
-        if (existingAttachments != null) {
-            existingAttachments.clear();
+
+        List<Attachment> toRemove = existingAttachments.stream()
+                .filter(att -> !fileIds.contains(att.getId()))
+                .toList();
+
+        for (Attachment att : toRemove) {
+            existingAttachments.remove(att);
+            attachmentService.delete(att.getId());
         }
-        if (homeworkSaveDto.getFiles() != null) {
-            for (MultipartFile multipartFile : homeworkSaveDto.getFiles()) {
-                Attachment newAttachment = attachmentService.save(AttachmentType.HOMEWORK, homeworkId, multipartFile);
-                existingAttachments.add(newAttachment);
+
+        List<Long> existingIds = existingAttachments.stream()
+                .map(Attachment::getId)
+                .toList();
+
+        for (Long fileId : fileIds) {
+            if (!existingIds.contains(fileId)) {
+                Attachment attachment = attachmentRepository.findById(fileId)
+                        .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION));
+                existingAttachments.add(attachment);
+                attachment.setParentId(homework.getId().toString());
+                attachmentRepository.save(attachment);
             }
         }
+
         homework.setIsDraft(homeworkSaveDto.getIsDraft());
 
         homeworkRepository.save(homework);
