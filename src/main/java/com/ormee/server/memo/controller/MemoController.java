@@ -4,6 +4,7 @@ import com.ormee.server.memo.service.MemoService;
 import com.ormee.server.memo.service.MessageService;
 import com.ormee.server.memo.dto.MemoDto;
 import com.ormee.server.global.response.ResponseDto;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +19,8 @@ public class MemoController {
     }
 
     @PostMapping("/teachers/{lectureId}/memos")
-    public ResponseDto createMemo(@PathVariable Long lectureId, @RequestBody MemoDto memoDto) {
-        memoService.createMemo(lectureId, memoDto);
+    public ResponseDto createMemo(@PathVariable Long lectureId, @RequestBody MemoDto memoDto, Authentication authentication) {
+        memoService.createMemo(lectureId, memoDto, authentication.getName());
         return ResponseDto.success();
     }
 

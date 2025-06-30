@@ -2,6 +2,7 @@ package com.ormee.server.question.domain;
 
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.global.config.EntityTime;
+import com.ormee.server.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,10 @@ public class Answer extends EntityTime {
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Member author;
 
     @Column
     private String content;

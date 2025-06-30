@@ -7,11 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
-    Optional<Lecture> findByCode(Integer code);
-    boolean existsByCode(Integer code);
     List<Lecture> findAllByTeacherOrCollaboratorsIn(Member teacher, Collection<Member> collaborators);
 }

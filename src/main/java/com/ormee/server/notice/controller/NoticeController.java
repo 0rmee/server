@@ -3,6 +3,7 @@ package com.ormee.server.notice.controller;
 import com.ormee.server.notice.service.NoticeService;
 import com.ormee.server.notice.dto.NoticeSaveDto;
 import com.ormee.server.global.response.ResponseDto;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -16,8 +17,8 @@ public class NoticeController {
     }
 
     @PostMapping("/teachers/{lectureId}/notices")
-    public ResponseDto createNotice(@PathVariable Long lectureId, @ModelAttribute NoticeSaveDto noticeSaveDto) throws IOException {
-        noticeService.saveNotice(lectureId, noticeSaveDto);
+    public ResponseDto createNotice(@PathVariable Long lectureId, @ModelAttribute NoticeSaveDto noticeSaveDto, Authentication authentication) throws IOException {
+        noticeService.saveNotice(lectureId, noticeSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 

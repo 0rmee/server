@@ -15,6 +15,8 @@ import com.ormee.server.homework.repository.HomeworkSubmitRepository;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.attachment.service.AttachmentService;
+import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,27 +25,33 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class HomeworkService {
     private final HomeworkRepository homeworkRepository;
+    private final MemberRepository memberRepository;
     private final LectureRepository lectureRepository;
     private final HomeworkSubmitRepository homeworkSubmitRepository;
     private final FeedbackRepository feedbackRepository;
     private final AttachmentService attachmentService;
 
-    public HomeworkService(HomeworkRepository homeworkRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentService attachmentService) {
+    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentService attachmentService) {
         this.homeworkRepository = homeworkRepository;
+        this.memberRepository = memberRepository;
         this.lectureRepository = lectureRepository;
         this.homeworkSubmitRepository = homeworkSubmitRepository;
         this.feedbackRepository = feedbackRepository;
         this.attachmentService = attachmentService;
     }
 
-    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto) throws IOException {
+    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto, String username) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
         Homework homework = Homework.builder()
                 .lecture(lecture)
+                .author(author)
                 .title(homeworkSaveDto.getTitle())
                 .description(homeworkSaveDto.getDescription())
                 .isDraft(homeworkSaveDto.getIsDraft())
@@ -75,6 +83,9 @@ public class HomeworkService {
                 .filter(homework -> homework.getDueTime().isAfter(now))
                 .map(homework -> HomeworkDto.builder()
                         .id(homework.getId())
+                        .author(Optional.ofNullable(homework.getAuthor())
+                                .map(Member::getNickname)
+                                .orElse(homework.getLecture().getTeacher().getNickname()))
                         .title(homework.getTitle())
                         .feedbackCompleted(homeworkSubmitRepository.countAllByHomework(homework) - feedbackRepository.countAllByHomeworkSubmit_Homework(homework) > 0)
                         .openTime(homework.getOpenTime())
@@ -86,6 +97,9 @@ public class HomeworkService {
                 .filter(homework -> !homework.getDueTime().isAfter(now))
                 .map(homework -> HomeworkDto.builder()
                         .id(homework.getId())
+                        .author(Optional.ofNullable(homework.getAuthor())
+                                .map(Member::getNickname)
+                                .orElse(homework.getLecture().getTeacher().getNickname()))
                         .title(homework.getTitle())
                         .feedbackCompleted(homeworkSubmitRepository.countAllByHomework(homework) - feedbackRepository.countAllByHomeworkSubmit_Homework(homework) > 0)
                         .openTime(homework.getOpenTime())
@@ -105,6 +119,9 @@ public class HomeworkService {
 
         return homeworks.stream().map(homework -> HomeworkDto.builder()
                 .id(homework.getId())
+                .author(Optional.ofNullable(homework.getAuthor())
+                        .map(Member::getNickname)
+                        .orElse(homework.getLecture().getTeacher().getNickname()))
                 .title(homework.getTitle())
                 .openTime(homework.getCreatedAt())
                 .build()).toList();
@@ -116,6 +133,9 @@ public class HomeworkService {
 
         return homeworks.stream().map(homework -> HomeworkDto.builder()
                 .id(homework.getId())
+                .author(Optional.ofNullable(homework.getAuthor())
+                        .map(Member::getNickname)
+                        .orElse(homework.getLecture().getTeacher().getNickname()))
                 .title(homework.getTitle())
                 .openTime(homework.getCreatedAt())
                 .build()).toList();
@@ -130,6 +150,9 @@ public class HomeworkService {
         for (Homework homework : homeworks) {
             boolean hasFeedback = homeworkSubmitRepository.existsByHomeworkAndIsFeedback(homework, true);
             HomeworkDto dto = HomeworkDto.builder()
+                    .author(Optional.ofNullable(homework.getAuthor())
+                            .map(Member::getNickname)
+                            .orElse(homework.getLecture().getTeacher().getNickname()))
                     .title(homework.getTitle())
                     .openTime(homework.getOpenTime())
                     .dueTime(homework.getDueTime())
@@ -152,6 +175,9 @@ public class HomeworkService {
 
         return HomeworkDto.builder()
                 .id(homework.getId())
+                .author(Optional.ofNullable(homework.getAuthor())
+                        .map(Member::getNickname)
+                        .orElse(homework.getLecture().getTeacher().getNickname()))
                 .title(homework.getTitle())
                 .description(homework.getDescription())
                 .fileNames(homework.getAttachments().stream()

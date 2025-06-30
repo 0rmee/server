@@ -3,6 +3,7 @@ package com.ormee.server.notice.domain;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.global.config.EntityTime;
+import com.ormee.server.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,6 +28,10 @@ public class Notice extends EntityTime {
     @ManyToOne
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Member author;
 
     @Column(nullable = false)
     private String title;

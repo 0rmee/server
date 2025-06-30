@@ -61,7 +61,6 @@ public class HomeService {
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
-                .code(lecture.getCode())
                 .openTime(lecture.getStartDate())
                 .closeTime(lecture.getDueDate())
                 .build();

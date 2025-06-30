@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class QuizListDto {
     private Long id;
+    private String author;
     private String quizName;
     private String quizDate;
     private Long timeLimit;

@@ -3,6 +3,7 @@ package com.ormee.server.quiz.controller;
 import com.ormee.server.quiz.service.QuizService;
 import com.ormee.server.quiz.dto.QuizSaveDto;
 import com.ormee.server.global.response.ResponseDto;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,8 +19,8 @@ public class QuizController {
     }
 
     @PostMapping("/{lectureId}/quizzes")
-    public ResponseDto createQuiz(@PathVariable Long lectureId, @RequestBody QuizSaveDto quizSaveDto) throws IOException {
-        quizService.saveQuiz(lectureId, quizSaveDto);
+    public ResponseDto createQuiz(@PathVariable Long lectureId, @RequestBody QuizSaveDto quizSaveDto, Authentication authentication) throws IOException {
+        quizService.saveQuiz(lectureId, quizSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 

@@ -1,5 +1,7 @@
 package com.ormee.server.question.service;
 
+import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.question.domain.Answer;
 import com.ormee.server.question.repository.AnswerRepository;
 import com.ormee.server.question.domain.Question;
@@ -17,23 +19,28 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnswerService {
     private final AnswerRepository answerRepository;
+    private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
     private final AttachmentService attachmentService;
 
-    public AnswerService(AnswerRepository answerRepository, QuestionRepository questionRepository, AttachmentService attachmentService) {
+    public AnswerService(AnswerRepository answerRepository, MemberRepository memberRepository, QuestionRepository questionRepository, AttachmentService attachmentService) {
         this.answerRepository = answerRepository;
+        this.memberRepository = memberRepository;
         this.questionRepository = questionRepository;
         this.attachmentService = attachmentService;
     }
 
-    public void writeAnswer(Long questionId, AnswerSaveDto answerSaveDto) throws IOException {
+    public void writeAnswer(Long questionId, AnswerSaveDto answerSaveDto, String username) throws IOException {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
+        Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         Answer answer = Answer.builder()
+                .author(author)
                 .question(question)
                 .content(answerSaveDto.getContent())
                 .build();
@@ -87,7 +94,9 @@ public class AnswerService {
         Answer answer = answerRepository.findByQuestion(question).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
 
         return AnswerDto.builder()
-                    .teacherName(answer.getQuestion().getLecture().getTeacher().getNickname())
+                    .teacherName(Optional.ofNullable(answer.getAuthor())
+                            .map(Member::getNickname)
+                            .orElse(answer.getQuestion().getLecture().getTeacher().getNickname()))
                     .content(answer.getContent())
                     .createdAt(answer.getCreatedAt().toString())
                     .filePaths(answer.getAttachments().stream().map(Attachment::getFilePath).toList())

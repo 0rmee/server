@@ -8,11 +8,13 @@ import com.ormee.server.homework.service.HomeworkService;
 import com.ormee.server.homework.dto.HomeworkSaveDto;
 import com.ormee.server.global.response.ResponseDto;
 import com.ormee.server.homework.service.HomeworkSubmitService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-@RestController("/teachers")
+@RestController
+@RequestMapping("/teachers")
 public class TeacherHomeworkController {
 
     private final HomeworkService homeworkService;
@@ -26,8 +28,8 @@ public class TeacherHomeworkController {
     }
 
     @PostMapping("/{lectureId}/homeworks")
-    public ResponseDto createHomework(@PathVariable Long lectureId, @ModelAttribute HomeworkSaveDto homeworkSaveDto) throws IOException {
-        homeworkService.create(lectureId, homeworkSaveDto);
+    public ResponseDto createHomework(@PathVariable Long lectureId, @ModelAttribute HomeworkSaveDto homeworkSaveDto, Authentication authentication) throws IOException {
+        homeworkService.create(lectureId, homeworkSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 

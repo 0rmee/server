@@ -1,6 +1,8 @@
 package com.ormee.server.notice.service;
 
 import com.ormee.server.global.response.PageResponseDto;
+import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.notice.domain.Notice;
 import com.ormee.server.notice.dto.NoticeDto;
 import com.ormee.server.notice.dto.NoticeListDto;
@@ -25,25 +27,30 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final LectureRepository lectureRepository;
+    private final MemberRepository memberRepository;
     private final AttachmentService attachmentService;
 
-    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, AttachmentService attachmentService) {
+    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentService attachmentService) {
         this.noticeRepository = noticeRepository;
         this.lectureRepository = lectureRepository;
+        this.memberRepository = memberRepository;
         this.attachmentService = attachmentService;
     }
 
-    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto) throws IOException {
+    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto, String username) throws IOException {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         Notice notice = Notice.builder()
                 .lecture(lecture)
+                .author(author)
                 .title(noticeSaveDto.getTitle())
                 .description(noticeSaveDto.getDescription())
                 .isPinned(false)
@@ -178,6 +185,9 @@ public class NoticeService {
 
     private NoticeListDto convertToDto(Notice notice) {
         NoticeListDto dto = new NoticeListDto();
+        dto.setAuthor(Optional.ofNullable(notice.getAuthor())
+                .map(Member::getNickname)
+                .orElse(notice.getLecture().getTeacher().getNickname()));
         dto.setId(notice.getId());
         dto.setTitle(notice.getTitle() != null ? notice.getTitle() : "제목 없음");
         dto.setPostDate(notice.getCreatedAt());
