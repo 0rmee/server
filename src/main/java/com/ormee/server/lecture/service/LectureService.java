@@ -1,6 +1,5 @@
 package com.ormee.server.lecture.service;
 
-import com.ormee.server.global.config.CodeGenerator;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.domain.LectureDay;
 import com.ormee.server.lecture.dto.LectureListDto;
@@ -29,30 +28,19 @@ public class LectureService {
     private final MemberRepository memberRepository;
     private final QuizService quizService;
     private final MemoRepository memoRepository;
-    private final CodeGenerator codeGenerator;
 
-    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository, CodeGenerator codeGenerator) {
+    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository) {
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.quizService = quizService;
         this.memoRepository = memoRepository;
-        this.codeGenerator = codeGenerator;
     }
 
     public void save(LectureRequestDto lectureRequestDto, String username) {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        // Role이 teacher가 아닌 경우 예외 처리
-
-        int lectureCode = codeGenerator.generateCode();
-
-        while(lectureRepository.existsByCode(lectureCode)) {
-            lectureCode = codeGenerator.generateCode();
-        }
 
         Lecture lecture = Lecture.builder()
                 .teacher(teacher)
-                .code(lectureCode)
-                .password(lectureRequestDto.getPassword())
                 .title(lectureRequestDto.getTitle())
                 .description(lectureRequestDto.getDescription())
                 .lectureDays(
@@ -77,11 +65,11 @@ public class LectureService {
     public void update(LectureRequestDto lectureRequestDto, Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        // Role이 teacher가 아닌 경우 예외 처리
+
+        checkAuth(lecture, teacher);
 
         isModifiable(lecture);
 
-        lecture.setPassword(lectureRequestDto.getPassword());
         lecture.setTitle(lectureRequestDto.getTitle());
         lecture.setDescription(lectureRequestDto.getDescription());
         lecture.setLectureDays(lectureRequestDto.getLectureDays().stream().map(LectureDay::fromKorean).toList());
@@ -93,6 +81,12 @@ public class LectureService {
         lectureRepository.save(lecture);
     }
 
+    private void checkAuth(Lecture lecture, Member teacher) {
+        if(teacher != lecture.getTeacher() || !lecture.getCollaborators().contains(teacher)) {
+            throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
+        }
+    }
+
     private void isModifiable(Lecture lecture) {
         if(lecture.getStartDate().toLocalDate().isBefore(LocalDate.now()))
             throw new CustomException(ExceptionType.LECTURE_MODIFY_FORBIDDEN_EXCEPTION);
@@ -101,7 +95,8 @@ public class LectureService {
     public void delete(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        // Role이 teacher가 아닌 경우 예외 처리
+
+        checkAuth(lecture, teacher);
 
         isModifiable(lecture);
 
@@ -141,7 +136,6 @@ public class LectureService {
 
         return LectureResponseDto.builder()
                 .id(lecture.getId().toString())
-                .code(lecture.getCode())
                 .profileImage(teacher.getImage() == null ? null : teacher.getImage().getFilePath())
                 .name(teacher.getName())
                 .title(lecture.getTitle())

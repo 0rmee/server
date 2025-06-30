@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class LectureRequestDto {
-    private String password;
     private String title;
     private String description;
     private List<String> lectureDays;
