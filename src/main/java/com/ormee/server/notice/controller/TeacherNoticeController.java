@@ -9,40 +9,40 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping
-public class NoticeController {
+@RequestMapping("/teachers")
+public class TeacherNoticeController {
     private final NoticeService noticeService;
-    public NoticeController(NoticeService noticeService) {
+    public TeacherNoticeController(NoticeService noticeService) {
         this.noticeService = noticeService;
     }
 
-    @PostMapping("/teachers/{lectureId}/notices")
+    @PostMapping("/{lectureId}/notices")
     public ResponseDto createNotice(@PathVariable Long lectureId, @RequestBody NoticeSaveDto noticeSaveDto, Authentication authentication) throws IOException {
         noticeService.saveNotice(lectureId, noticeSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 
-    @GetMapping("/teachers/{lectureId}/notices")
+    @GetMapping("/{lectureId}/notices")
     public ResponseDto getNoticeList(@PathVariable Long lectureId, @RequestParam(defaultValue = "1") int page) {
         return ResponseDto.success(noticeService.findAllByLectureId(lectureId, page - 1));
     }
 
-    @GetMapping("/teachers/{lectureId}/notices/pinned")
+    @GetMapping("/{lectureId}/notices/pinned")
     public ResponseDto getPinnedNotices(@PathVariable Long lectureId) {
         return ResponseDto.success(noticeService.getPinnedNotices(lectureId));
     }
 
-    @GetMapping("/teachers/{lectureId}/notices/draft")
+    @GetMapping("/{lectureId}/notices/draft")
     public ResponseDto getDraftNotices(@PathVariable Long lectureId) {
         return ResponseDto.success(noticeService.getDraftNotices(lectureId));
     }
 
-    @GetMapping("/teachers/{lectureId}/notices/load")
+    @GetMapping("/{lectureId}/notices/load")
     public ResponseDto loadNotices(@PathVariable Long lectureId) {
         return ResponseDto.success(noticeService.loadSavedNotices(lectureId));
     }
 
-    @GetMapping("/teachers/{lectureId}/notices/search")
+    @GetMapping("/{lectureId}/notices/search")
     public ResponseDto searchNotice(
             @PathVariable Long lectureId,
             @RequestParam String keyword,
@@ -52,31 +52,31 @@ public class NoticeController {
     }
 
 
-    @PutMapping("/teachers/notices/{noticeId}")
+    @PutMapping("/notices/{noticeId}")
     public ResponseDto updateNotice(@PathVariable Long noticeId, @RequestBody NoticeSaveDto noticeSaveDto) throws IOException {
         noticeService.modifyNotice(noticeId, noticeSaveDto);
         return ResponseDto.success();
     }
 
-    @PutMapping("/teachers/notices/{noticeId}/pin")
+    @PutMapping("/notices/{noticeId}/pin")
     public ResponseDto updatePinNotice(@PathVariable Long noticeId) {
         noticeService.pin(noticeId, true);
         return ResponseDto.success();
     }
 
-    @PutMapping("/teachers/notices/{noticeId}/unpin")
+    @PutMapping("/notices/{noticeId}/unpin")
     public ResponseDto updateUnPinNotice(@PathVariable Long noticeId) {
         noticeService.pin(noticeId, false);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teachers/notices/{noticeId}")
+    @DeleteMapping("/notices/{noticeId}")
     public ResponseDto deleteNotice(@PathVariable Long noticeId) {
         noticeService.deleteNotice(noticeId);
         return ResponseDto.success();
     }
 
-    @GetMapping("/teachers/notices/{noticeId}")
+    @GetMapping("/notices/{noticeId}")
     public ResponseDto getNotice(@PathVariable Long noticeId) {
         return ResponseDto.success(noticeService.findById(noticeId));
     }

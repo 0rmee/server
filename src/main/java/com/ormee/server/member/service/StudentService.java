@@ -6,7 +6,7 @@ import com.ormee.server.global.config.jwt.RefreshToken;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.SignInDto;
-import com.ormee.server.member.dto.StudentSignUpDto;
+import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.member.dto.TokenDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
@@ -31,9 +31,10 @@ public class StudentService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public void signUp(StudentSignUpDto signUpDto) {
+    public void signUp(SignUpDto signUpDto) {
         Member student = Member.builder()
                 .username(signUpDto.getUsername())
+                .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
                 .name(signUpDto.getName())
@@ -64,8 +65,6 @@ public class StudentService {
                 .refreshToken(refreshToken)
                 .build();
     }
-
-    // student update
 
     public void delete(String username) {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));

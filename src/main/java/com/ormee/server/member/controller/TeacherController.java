@@ -3,7 +3,7 @@ package com.ormee.server.member.controller;
 import com.ormee.server.member.dto.PasswordDto;
 import com.ormee.server.member.dto.SignInDto;
 import com.ormee.server.member.dto.TeacherDto;
-import com.ormee.server.member.dto.TeacherSignUpDto;
+import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.global.response.ResponseDto;
 import com.ormee.server.member.service.TeacherService;
 import org.springframework.security.core.Authentication;
@@ -21,7 +21,7 @@ public class TeacherController {
     }
 
     @PostMapping("/signup")
-    public ResponseDto teacherSignUp(@RequestBody TeacherSignUpDto signUpDto){
+    public ResponseDto teacherSignUp(@RequestBody SignUpDto signUpDto){
         teacherService.signUp(signUpDto);
         return ResponseDto.success();
     }
