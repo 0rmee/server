@@ -1,9 +1,10 @@
 package com.ormee.server.question.controller;
 
-import com.ormee.server.question.dto.QuestionSaveDto;
-import com.ormee.server.global.response.ResponseDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
+import com.ormee.server.question.dto.AnswerSaveDto;
+import com.ormee.server.global.response.ResponseDto;
+import com.ormee.server.question.service.AnswerService;
 import com.ormee.server.question.service.QuestionService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +12,16 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
-public class QuestionController {
+@RequestMapping("/teachers")
+public class TeacherQuestionController {
     private final QuestionService questionService;
-    public QuestionController(QuestionService questionService) {
+    private final AnswerService answerService;
+    public TeacherQuestionController(QuestionService questionService, AnswerService answerService) {
         this.questionService = questionService;
+        this.answerService = answerService;
     }
 
-    @GetMapping("/teachers/{lectureId}/questions")
+    @GetMapping("/{lectureId}/questions")
     public ResponseDto readQuestionList(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter,@RequestParam(defaultValue = "1") int page) {
         return switch (filter) {
             case "전체" -> ResponseDto.success(questionService.getQuestions(lectureId, page - 1));
@@ -27,31 +31,31 @@ public class QuestionController {
         };
     }
 
-//    @GetMapping("/teacher/{lectureId}/isAnswer")
-//    public ResponseDto readIsAnswerQuestionList(@PathVariable UUID lectureId) {
-//        return ResponseDto.success(questionService.findAllByLectureAndIsAnswered(lectureId, true));
-//    }
-
-    @GetMapping("/teachers/questions/{questionId}")
+    @GetMapping("/questions/{questionId}")
     public ResponseDto readQuestion(@PathVariable Long questionId) {
         return ResponseDto.success(questionService.findById(questionId));
     }
 
-    @PostMapping("/students/{lectureId}/questions")
-    public ResponseDto createQuestion(@PathVariable Long lectureId, @ModelAttribute QuestionSaveDto questionSaveDto, Authentication authentication) throws IOException {
-        questionService.saveQuestion(lectureId, questionSaveDto, authentication.getName());
+    @PostMapping("/questions/{questionId}")
+    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto, Authentication authentication) throws IOException {
+        answerService.writeAnswer(questionId, answerSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 
-    @PutMapping("/students/questions/{questionId}")
-    public ResponseDto updateQuestion(@PathVariable Long questionId, @ModelAttribute QuestionSaveDto questionSaveDto) throws IOException {
-        questionService.modifyQuestion(questionId, questionSaveDto);
+    @GetMapping("/questions/{questionId}/answers")
+    public ResponseDto readAnswer(@PathVariable Long questionId) {
+        return ResponseDto.success(answerService.getByQuestion(questionId));
+    }
+
+    @PutMapping("/answers/{answerId}")
+    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) throws IOException {
+        answerService.modifyAnswer(answerId, answerSaveDto);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/students/questions/{questionId}")
-    public ResponseDto deleteQuestion(@PathVariable Long questionId) {
-        questionService.deleteQuestion(questionId);
+    @DeleteMapping("/answers/{answerId}")
+    public ResponseDto deleteAnswer(@PathVariable Long answerId) {
+        answerService.deleteAnswer(answerId);
         return ResponseDto.success();
     }
 }

@@ -35,7 +35,7 @@ public class TeacherService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public void signUp(TeacherSignUpDto signUpDto) {
+    public void signUp(SignUpDto signUpDto) {
         Member teacher = Member.builder()
                 .username(signUpDto.getUsername())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))

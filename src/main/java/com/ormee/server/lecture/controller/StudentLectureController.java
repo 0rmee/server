@@ -1,56 +1,46 @@
 package com.ormee.server.lecture.controller;
 
 import com.ormee.server.global.response.ResponseDto;
+import com.ormee.server.lecture.service.LectureService;
 import com.ormee.server.lecture.service.StudentLectureService;
-import com.ormee.server.lecture.dto.StudentDescriptionRequestDto;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/students/lectures")
 public class StudentLectureController {
     private final StudentLectureService studentLectureService;
+    private final LectureService lectureService;
 
-    public StudentLectureController(StudentLectureService studentLectureService) {
+    public StudentLectureController(StudentLectureService studentLectureService, LectureService lectureService) {
         this.studentLectureService = studentLectureService;
+        this.lectureService = lectureService;
     }
 
-    @PostMapping("/student/lecture/{lectureId}")
+    @GetMapping
+    public ResponseDto getLectures(Authentication authentication) {
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/history")
+    public ResponseDto getMyLectures(Authentication authentication) {
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/{lectureId}")
+    public ResponseDto getLecture(@PathVariable Long lectureId) {
+        return ResponseDto.success();
+    }
+
+    @PostMapping("/{lectureId}")
     public ResponseDto inLecture(@PathVariable Long lectureId, Authentication authentication) {
         studentLectureService.in(lectureId, authentication.getName());
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/student/lecture/{lectureId}")
+    @DeleteMapping("/{lectureId}")
     public ResponseDto outLecture(@PathVariable Long lectureId, Authentication authentication) {
         studentLectureService.out(lectureId, authentication.getName());
         return ResponseDto.success();
-    }
-
-    @GetMapping("/teachers/lectures/{lectureId}/students")
-    public ResponseDto studentsInLecture(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "이름순") String filter, @RequestParam(defaultValue = "1") int page) {
-        return ResponseDto.success(studentLectureService.findAllStudents(lectureId, filter, page - 1));
-    }
-
-    @PutMapping("/teachers/lectures/students")
-    public ResponseDto describeStudent(@RequestBody StudentDescriptionRequestDto studentDescriptionRequestDto) {
-        studentLectureService.updateDescription(studentDescriptionRequestDto);
-        return ResponseDto.success();
-    }
-
-    @PutMapping("/teachers/lectures/students/{studentLectureId}/block")
-    public ResponseDto blockStudent(@PathVariable Long studentLectureId) {
-        studentLectureService.block(studentLectureId, true);
-        return ResponseDto.success();
-    }
-
-    @PutMapping("/teachers/lectures/students/{studentLectureId}/unlock")
-    public ResponseDto unlockStudent(@PathVariable Long studentLectureId) {
-        studentLectureService.block(studentLectureId, false);
-        return ResponseDto.success();
-    }
-
-    @GetMapping("/teachers/lectures/{lectureId}/students/block")
-    public ResponseDto getBlockedStudents(@PathVariable Long lectureId) {
-        return ResponseDto.success(studentLectureService.findBlockedStudentsByLecture(lectureId));
     }
 }

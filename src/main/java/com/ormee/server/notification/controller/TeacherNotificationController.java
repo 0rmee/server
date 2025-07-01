@@ -5,36 +5,37 @@ import com.ormee.server.notification.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class NotificationController {
+@RequestMapping("/teachers")
+public class TeacherNotificationController {
     private final NotificationService notificationService;
-    public NotificationController(NotificationService notificationService) {
+    public TeacherNotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 
-    @GetMapping("/teachers/{lectureId}/notifications")
+    @GetMapping("/{lectureId}/notifications")
     public ResponseDto getNotifications(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter) {
         return ResponseDto.success(notificationService.getNotificationsByLectureIdAndType(lectureId, filter));
     }
 
-    @PutMapping("/teachers/{lectureId}/notifications")
+    @PutMapping("/{lectureId}/notifications")
     public ResponseDto setAllNotificationsAsRead(@PathVariable Long lectureId) {
         notificationService.markAllAsRead(lectureId);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teachers/{lectureId}/notifications")
+    @DeleteMapping("/{lectureId}/notifications")
     public ResponseDto deleteAllNotifications(@PathVariable Long lectureId) {
         notificationService.deleteAll(lectureId);
         return ResponseDto.success();
     }
 
-    @PutMapping("/teachers/notifications/{notificationId}")
+    @PutMapping("/notifications/{notificationId}")
     public ResponseDto setNotificationAsRead(@PathVariable Long notificationId) {
         notificationService.markAsRead(notificationId);
         return ResponseDto.success();
     }
 
-    @DeleteMapping("/teachers/notifications/{notificationId}")
+    @DeleteMapping("/notifications/{notificationId}")
     public ResponseDto deleteNotification(@PathVariable Long notificationId) {
         notificationService.deleteById(notificationId);
         return ResponseDto.success();

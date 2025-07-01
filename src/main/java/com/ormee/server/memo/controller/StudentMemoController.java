@@ -8,22 +8,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class MessageController {
+@RequestMapping("/students")
+public class StudentMemoController {
     private final MessageService messageService;
 
     @Autowired
-    public MessageController(MessageService messageService) {
+    public StudentMemoController(MessageService messageService) {
         this.messageService = messageService;
     }
 
-    @PostMapping("/student/{memoId}/messages")
-    public ResponseDto submitMessage(@PathVariable long memoId, @RequestBody MessageSubmitDto messageSubmitDto, Authentication authentication) {
+    @PostMapping("/memos/{memoId}")
+    public ResponseDto submitMessage(@PathVariable Long memoId, @RequestBody MessageSubmitDto messageSubmitDto, Authentication authentication) {
         messageService.submitMessage(memoId, messageSubmitDto, authentication.getName());
         return ResponseDto.success();
     }
 
-    @GetMapping("/teacher/{memoId}/messages")
-    public ResponseDto getMessages(@PathVariable Long memoId) {
-        return ResponseDto.success(messageService.getMessages(memoId));
+    @GetMapping("/memos/{memoId}")
+    public ResponseDto readMemo(@PathVariable Long memoId) {
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/lectures/{lectureId}/memos")
+    public ResponseDto readMemos(@PathVariable Long lectureId, Authentication authentication) {
+        return ResponseDto.success();
     }
 }

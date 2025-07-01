@@ -9,21 +9,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class ProblemSubmitController {
+@RequestMapping("/students")
+public class StudentQuizController {
     private final ProblemSubmitService problemSubmitService;
 
-    public ProblemSubmitController(ProblemSubmitService problemSubmitService) {
+    public StudentQuizController(ProblemSubmitService problemSubmitService) {
         this.problemSubmitService = problemSubmitService;
     }
 
-    @PostMapping("problems/student")
+    @PostMapping("/quizzes")
     public ResponseDto submitQuiz(@RequestBody List<SubmitDto> submissions, Authentication authentication) {
         problemSubmitService.submit(submissions, authentication);
         return ResponseDto.success();
     }
 
-    @GetMapping("/{quizId}/student/result")
+    @GetMapping("/quizzes/{quizId}")
+    public ResponseDto readQuiz(@PathVariable Long quizId) {
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/quizzes/{quizId}/result")
     public ResponseDto readQuizResult(@PathVariable Long quizId, Authentication authentication) {
         return ResponseDto.success(problemSubmitService.getStudentResult(quizId, authentication));
+    }
+
+    @GetMapping("/lectures/{lectureId}/quizzes")
+    public ResponseDto readQuizzes(@PathVariable Long lectureId, Authentication authentication) {
+        return ResponseDto.success();
     }
 }
