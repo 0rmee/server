@@ -3,6 +3,8 @@ package com.ormee.server.lecture.service;
 import com.ormee.server.global.response.PageResponseDto;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.domain.StudentLecture;
+import com.ormee.server.lecture.dto.LectureListDto;
+import com.ormee.server.lecture.dto.LectureResponseDto;
 import com.ormee.server.lecture.dto.StudentDetailDto;
 import com.ormee.server.lecture.dto.StudentDescriptionRequestDto;
 import com.ormee.server.global.exception.CustomException;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -52,9 +55,9 @@ public class StudentLectureService {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        StudentLecture studentLecture = studentLectureRepository.findByStudentAndLecture(student, lecture).orElseThrow(() -> new CustomException(ExceptionType.STUDENT_LECTURE_NOT_FOUND_EXCEPTION));
+        List<StudentLecture> studentLectures = studentLectureRepository.findByStudentAndLecture(student, lecture);
 
-        delete(studentLecture.getId());
+        studentLectures.forEach(studentLecture -> delete(studentLecture.getId()));
     }
 
     public PageResponseDto<StudentDetailDto> findAllStudents(Long lectureId, String filter, int page) {
@@ -118,5 +121,48 @@ public class StudentLectureService {
                         .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
                         .build())
                 .toList();
+    }
+
+    public List<LectureResponseDto> getInLectures(String username) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        LocalDateTime now = LocalDateTime.now();
+        List<StudentLecture> studentLectures = studentLectureRepository.findAllByStudentAndLecture_StartDateBeforeAndLecture_DueDateAfter(student, now, now);
+
+        List<Lecture> lectures = studentLectures.stream()
+                .map(StudentLecture::getLecture)
+                .toList();
+
+        return lectures.stream()
+                .map(this::entityToDto)
+                .toList();
+    }
+
+    public LectureListDto getMyLectures(String username) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        LocalDateTime now = LocalDateTime.now();
+        List<StudentLecture> studentLectures = studentLectureRepository.findAllByStudentOrderByLecture_StartDateDesc(student);
+
+        return LectureListDto.builder()
+                .openLectures(studentLectures.stream()
+                        .filter(studentLecture -> !studentLecture.getLecture().getDueDate().isBefore(now))
+                        .map(studentLecture -> entityToDto(studentLecture.getLecture()))
+                        .toList())
+                .closedLectures(studentLectures.stream()
+                        .filter(studentLecture -> studentLecture.getLecture().getDueDate().isBefore(now))
+                        .map(studentLecture -> entityToDto(studentLecture.getLecture()))
+                        .toList())
+                .build();
+    }
+
+    public LectureResponseDto entityToDto(Lecture lecture) {
+        return LectureResponseDto.builder()
+                .id(lecture.getId())
+                .title(lecture.getTitle())
+                .startDate(lecture.getStartDate())
+                .dueDate(lecture.getDueDate())
+                .startTime(lecture.getStartTime())
+                .endTime(lecture.getEndTime())
+                .lectureDays(lecture.getLectureDays())
+                .build();
     }
 }
