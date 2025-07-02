@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class HomeController {
+public class TeacherHomeController {
     private final HomeService homeService;
 
-    public HomeController(HomeService homeService) {
+    public TeacherHomeController(HomeService homeService) {
         this.homeService = homeService;
     }
 
