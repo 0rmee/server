@@ -19,17 +19,17 @@ public class StudentLectureController {
 
     @GetMapping
     public ResponseDto getLectures(Authentication authentication) {
-        return ResponseDto.success();
+        return ResponseDto.success(studentLectureService.getInLectures(authentication.getName()));
     }
 
     @GetMapping("/history")
     public ResponseDto getMyLectures(Authentication authentication) {
-        return ResponseDto.success();
+        return ResponseDto.success(studentLectureService.getMyLectures(authentication.getName()));
     }
 
     @GetMapping("/{lectureId}")
     public ResponseDto getLecture(@PathVariable Long lectureId) {
-        return ResponseDto.success();
+        return ResponseDto.success(lectureService.getLecture(lectureId));
     }
 
     @PostMapping("/{lectureId}")

@@ -135,9 +135,10 @@ public class LectureService {
                 .count();
 
         return LectureResponseDto.builder()
-                .id(lecture.getId().toString())
+                .id(lecture.getId())
                 .profileImage(teacher.getImage() == null ? null : teacher.getImage().getFilePath())
-                .name(teacher.getName())
+                .name(teacher.getNickname())
+                .collaborators(lecture.getCollaborators().stream().map(Member::getNickname).toList())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
                 .lectureDays(lecture.getLectureDays())
@@ -177,4 +178,22 @@ public class LectureService {
         lecture.removeCollaborator(collaborator);
         lectureRepository.save(lecture);
     }
+
+    public LectureResponseDto getLecture(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+
+        return LectureResponseDto.builder()
+                .id(lecture.getId())
+                .profileImage(lecture.getTeacher().getImage() == null ? null : lecture.getTeacher().getImage().getFilePath())
+                .name(lecture.getTeacher().getNickname())
+                .collaborators(lecture.getCollaborators().stream().map(Member::getNickname).toList())
+                .title(lecture.getTitle())
+                .description(lecture.getDescription())
+                .lectureDays(lecture.getLectureDays())
+                .startTime(lecture.getStartTime())
+                .endTime(lecture.getEndTime())
+                .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
+                .build();
+    }
+
 }
