@@ -5,6 +5,7 @@ import com.ormee.server.global.config.jwt.JwtTokenProvider;
 import com.ormee.server.global.config.jwt.RefreshToken;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
+import com.ormee.server.member.dto.PasswordDto;
 import com.ormee.server.member.dto.SignInDto;
 import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.member.dto.TokenDto;
@@ -12,6 +13,7 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.member.repository.RefreshTokenRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +71,45 @@ public class StudentService {
     public void delete(String username) {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         memberRepository.delete(student);
+    }
+
+    public void updatePassword(String username, PasswordDto passwordDto) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        if(student.getRole() != Role.STUDENT) {
+            throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
+        }
+
+        checkPassword(username, passwordDto);
+
+        student.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+        memberRepository.save(student);
+    }
+
+    public boolean checkPassword(String username, PasswordDto passwordDto) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        if (!passwordEncoder.matches(passwordDto.getPassword(), student.getPassword())) {
+            throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
+        }
+
+        return true;
+    }
+
+    public void updateEmail(String username, SignUpDto signUpDto) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        checkEmail(signUpDto);
+
+        student.setEmail(signUpDto.getEmail());
+        memberRepository.save(student);
+    }
+
+    public boolean checkEmail(SignUpDto signUpDto) {
+        if(memberRepository.existsByEmail(signUpDto.getEmail())) {
+            throw new CustomException(ExceptionType.EMAIL_ALREADY_EXIST_EXCEPTION);
+        }
+
+        return true;
     }
 }
