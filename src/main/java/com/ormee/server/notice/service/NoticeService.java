@@ -3,6 +3,7 @@ package com.ormee.server.notice.service;
 import com.ormee.server.attachment.repository.AttachmentRepository;
 import com.ormee.server.global.response.PageResponseDto;
 import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.notice.domain.Notice;
 import com.ormee.server.notice.dto.NoticeDto;
@@ -261,6 +262,12 @@ public class NoticeService {
                 .isPinned(notice.getIsPinned())
                 .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
                 .isLiked(notice.getLikes().contains(student))
+                .author(AuthorDto.builder()
+                        .name(notice.getAuthor().getNickname())
+                        .image(Optional.ofNullable(notice.getAuthor().getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null))
+                        .build())
                 .build();
     }
 

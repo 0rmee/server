@@ -1,5 +1,6 @@
 package com.ormee.server.notice.dto;
 
+import com.ormee.server.member.dto.AuthorDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,4 +18,5 @@ public class NoticeDto {
     private Boolean isPinned;
     private Boolean isLiked;
     private int likes;
+    private AuthorDto author;
 }

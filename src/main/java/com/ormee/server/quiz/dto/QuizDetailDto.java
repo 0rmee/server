@@ -1,5 +1,6 @@
 package com.ormee.server.quiz.dto;
 
+import com.ormee.server.member.dto.AuthorDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class QuizDetailDto {
+    private AuthorDto author;
     private String title;
     private String description;
     private boolean isOpened;

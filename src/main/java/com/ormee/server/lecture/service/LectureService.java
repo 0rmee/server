@@ -1,11 +1,13 @@
 package com.ormee.server.lecture.service;
 
+import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.domain.LectureDay;
 import com.ormee.server.lecture.dto.LectureListDto;
 import com.ormee.server.lecture.dto.LectureRequestDto;
 import com.ormee.server.lecture.dto.LectureResponseDto;
 import com.ormee.server.lecture.repository.LectureRepository;
+import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.quiz.dto.QuizListDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
@@ -19,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 
@@ -138,7 +141,12 @@ public class LectureService {
                 .id(lecture.getId())
                 .profileImage(teacher.getImage() == null ? null : teacher.getImage().getFilePath())
                 .name(teacher.getNickname())
-                .collaborators(lecture.getCollaborators().stream().map(Member::getNickname).toList())
+                .coTeachers(lecture.getCollaborators().stream().map(member -> AuthorDto.builder()
+                        .name(member.getNickname())
+                        .image(Optional.ofNullable(member.getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null))
+                        .build()).toList())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
                 .lectureDays(lecture.getLectureDays())
@@ -186,7 +194,12 @@ public class LectureService {
                 .id(lecture.getId())
                 .profileImage(lecture.getTeacher().getImage() == null ? null : lecture.getTeacher().getImage().getFilePath())
                 .name(lecture.getTeacher().getNickname())
-                .collaborators(lecture.getCollaborators().stream().map(Member::getNickname).toList())
+                .coTeachers(lecture.getCollaborators().stream().map(member -> AuthorDto.builder()
+                        .name(member.getNickname())
+                        .image(Optional.ofNullable(member.getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null))
+                        .build()).toList())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
                 .lectureDays(lecture.getLectureDays())
