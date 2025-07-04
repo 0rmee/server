@@ -69,7 +69,7 @@ public class HomeService {
     public List<ListDto> getAssignmentsInfo(Lecture lecture) {
         Long totalStudents = (long) lecture.getStudentLectures().size();
 
-        List<ListDto> quizzes = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true)
+        List<ListDto> quizzes = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByCreatedAtDesc(lecture, false, true)
                 .stream()
                 .map(quiz -> ListDto.builder()
                         .id(quiz.getId())
