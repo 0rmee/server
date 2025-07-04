@@ -51,11 +51,23 @@ public class Notice extends EntityTime {
     @Column
     private Boolean isDraft;
 
-    @Column
-    private Long likes;
+    @ManyToMany
+    @JoinTable(
+            name = "notice_likes",
+            joinColumns = @JoinColumn(name = "notice_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    private List<Member> likes = new ArrayList<>();
 
     public void removeAttachment(Attachment attachment) {
         this.attachments.remove(attachment);
     }
 
+    public void addLikes(Member student) {
+        likes.add(student);
+    }
+
+    public void removeLikes(Member student) {
+        likes.remove(student);
+    }
 }

@@ -17,9 +17,13 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findAllByLectureAndIsPinnedTrueOrderByCreatedAtDesc(Lecture lecture);
     List<Notice> findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(Lecture lecture);
     List<Notice> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
-    @Query("SELECT n FROM Notice n WHERE n.lecture = :lecture AND (n.title LIKE %:keyword% OR n.description LIKE %:keyword%) ORDER BY n.createdAt DESC")
+    @Query("SELECT n FROM Notice n WHERE n.lecture = :lecture AND n.isDraft = false AND (n.title LIKE %:keyword% OR n.description LIKE %:keyword%) ORDER BY n.createdAt DESC")
     Page<Notice> searchByLectureAndKeyword(@Param("lecture") Lecture lecture,
                                            @Param("keyword") String keyword,
                                            Pageable pageable);
+
+    @Query("SELECT n FROM Notice n WHERE n.lecture = :lecture AND n.isDraft = false AND (UPPER(n.title) LIKE UPPER(CONCAT('%', :keyword, '%')) OR UPPER(n.description) LIKE UPPER(CONCAT('%', :keyword, '%'))) ORDER BY n.createdAt DESC")
+    List<Notice> searchByLectureAndKeyword(@Param("lecture") Lecture lecture,
+                                           @Param("keyword") String keyword);
     long countAllByLectureAndIsPinnedTrue(Lecture lecture);
 }

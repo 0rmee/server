@@ -15,5 +15,6 @@ public class NoticeDto {
     private List<String> filePaths;
     private LocalDateTime postDate;
     private Boolean isPinned;
-    private Long likes;
+    private Boolean isLiked;
+    private int likes;
 }

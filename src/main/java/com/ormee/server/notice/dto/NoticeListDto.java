@@ -11,5 +11,5 @@ public class NoticeListDto {
     private String title;
     private LocalDateTime postDate;
     private Boolean isPinned;
-    private Long likes;
+    private int likes;
 }
