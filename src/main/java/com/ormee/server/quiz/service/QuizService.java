@@ -189,7 +189,7 @@ public class QuizService {
 
     public List<QuizListDto> findOpenQuizList(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true);
+        List<Quiz> quizList = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByCreatedAtDesc(lecture, false, true);
 
         return quizListToDtoList(quizList);
     }
@@ -403,5 +403,23 @@ public class QuizService {
                 .answer(problem.getAnswer())
                 .results(results)
                 .build();
+    }
+
+    public List<StudentQuizDto> findQuizzes(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        List<Quiz> quizzes = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByCreatedAtDesc(lecture, false, true);
+
+        return quizzes.stream()
+                .map(quiz -> StudentQuizDto.builder()
+                        .quizId(quiz.getId())
+                        .title(quiz.getTitle())
+                        .author(quiz.getAuthor().getNickname())
+                        .openTime(quiz.getOpenTime())
+                        .dueTime(quiz.getDueTime())
+                        .isSubmitted(problemSubmitRepository.existsByStudentAndProblem_Quiz(student, quiz))
+                        .build())
+                .toList();
     }
 }
