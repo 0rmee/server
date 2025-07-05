@@ -7,6 +7,7 @@ import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.quiz.domain.Problem;
 import com.ormee.server.quiz.domain.ProblemSubmit;
@@ -253,7 +254,15 @@ public class QuizService {
                 .dueTime(quiz.getDueTime())
                 .timeLimit(quiz.getTimeLimit())
                 .problems(problemDtos)
+                .author(AuthorDto.builder()
+                        .name(quiz.getAuthor().getNickname())
+                        .image(Optional.ofNullable(quiz.getAuthor().getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null))
+                        .build())
                 .build();
+
+
     }
 
     public void openQuiz(Long quizId) {

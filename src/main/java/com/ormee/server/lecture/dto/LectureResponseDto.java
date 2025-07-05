@@ -1,6 +1,7 @@
 package com.ormee.server.lecture.dto;
 
 import com.ormee.server.lecture.domain.Lecture;
+import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.quiz.dto.QuizListDto;
 import com.ormee.server.lecture.domain.LectureDay;
 import lombok.Builder;
@@ -14,9 +15,9 @@ import java.util.List;
 @Builder
 public class LectureResponseDto {
     private Long id;
-    private String profileImage;
     private String name;
-    private List<String> collaborators;
+    private String profileImage;
+    private List<AuthorDto> coTeachers;
     private String title;
     private String description;
     private List<LectureDay> lectureDays;
