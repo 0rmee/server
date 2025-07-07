@@ -1,5 +1,6 @@
 package com.ormee.server.homework.service;
 
+import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.homework.domain.Feedback;
 import com.ormee.server.homework.domain.HomeworkSubmit;
 import com.ormee.server.homework.domain.StampType;
@@ -9,9 +10,11 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.homework.repository.FeedbackRepository;
 import com.ormee.server.homework.repository.HomeworkSubmitRepository;
+import com.ormee.server.member.dto.AuthorDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FeedbackService {
@@ -43,6 +46,12 @@ public class FeedbackService {
         return feedbackList.stream()
                 .map(feedback -> FeedbackDto.builder()
                         .id(feedback.getId())
+                        .author(AuthorDto.builder()
+                                .name(feedback.getAuthor().getNickname())
+                                .image(Optional.ofNullable(feedback.getAuthor().getImage())
+                                        .map(Attachment::getFilePath)
+                                        .orElse(null))
+                                .build())
                         .stamp(feedback.getStampType() != null? feedback.getStampType() :null)
                         .content(feedback.getContent() != null? feedback.getContent() : null)
                         .createdAt(feedback.getCreatedAt().toString())

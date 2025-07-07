@@ -9,7 +9,6 @@ import com.ormee.server.homework.dto.FeedbackHomeworkListDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.attachment.domain.Attachment;
-import com.ormee.server.attachment.domain.AttachmentType;
 import com.ormee.server.homework.repository.FeedbackRepository;
 import com.ormee.server.homework.repository.HomeworkRepository;
 import com.ormee.server.homework.repository.HomeworkSubmitRepository;
@@ -19,9 +18,7 @@ import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -245,5 +242,45 @@ public class HomeworkService {
     public void delete(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
         homeworkRepository.delete(homework);
+    }
+
+    public List<HomeworkDto> getHomeworks(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        List<Homework> homeworks = homeworkRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
+
+        return homeworks.stream()
+                .map(homework -> HomeworkDto.builder()
+                        .id(homework.getId())
+                        .author(homework.getAuthor().getNickname())
+                        .title(homework.getTitle())
+                        .openTime(homework.getOpenTime())
+                        .dueTime(homework.getDueTime())
+                        .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
+                        .feedbackCompleted(feedbackRepository.existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(homework, student))
+                        .build())
+                .toList();
+    }
+
+    public HomeworkDto getHomework(Long homeworkId, String username) {
+        Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        return HomeworkDto.builder()
+                .id(homework.getId())
+                .author(homework.getAuthor().getNickname())
+                .authorImage(Optional.ofNullable(homework.getAuthor().getImage())
+                        .map(Attachment::getFilePath)
+                        .orElse(null))
+                .title(homework.getTitle())
+                .description(homework.getDescription())
+                .fileNames(homework.getAttachments().stream()
+                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
+                .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .openTime(homework.getCreatedAt())
+                .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
+                .feedbackCompleted(feedbackRepository.existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(homework, student))
+                .build();
     }
 }

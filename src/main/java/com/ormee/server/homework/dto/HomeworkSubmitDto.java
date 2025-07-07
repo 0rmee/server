@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @Builder
 public class HomeworkSubmitDto {
+    Long id;
     String name;
     String content;
     List<String> filePaths;

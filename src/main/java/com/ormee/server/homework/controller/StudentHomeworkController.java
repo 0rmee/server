@@ -26,17 +26,17 @@ public class StudentHomeworkController {
 
     @GetMapping("/lectures/{lectureId}/homeworks")
     public ResponseDto getHomeworks(@PathVariable Long lectureId, Authentication authentication) {
-        return ResponseDto.success();
+        return ResponseDto.success(homeworkService.getHomeworks(lectureId, authentication.getName()));
     }
 
     @GetMapping("/homeworks/{homeworkId}")
     public ResponseDto getHomework(@PathVariable Long homeworkId, Authentication authentication) {
-        return ResponseDto.success();
+        return ResponseDto.success(homeworkService.getHomework(homeworkId, authentication.getName()));
     }
 
     @PostMapping("/homeworks/{homeworkId}")
-    public ResponseDto createHomeworkSubmit(@PathVariable Long homeworkId, @ModelAttribute HomeworkSubmitSaveDto homeworkSubmitSaveDto, Authentication authentication) throws IOException {
-        homeworkSubmitService.create(homeworkId, homeworkSubmitSaveDto, authentication.getName());
+    public ResponseDto submitHomework(@PathVariable Long homeworkId, @RequestBody HomeworkSubmitSaveDto homeworkSubmitSaveDto, Authentication authentication) {
+        homeworkSubmitService.submit(homeworkId, homeworkSubmitSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 
@@ -47,11 +47,11 @@ public class StudentHomeworkController {
 
     @GetMapping("/homeworks/{homeworkId}/submissions")
     public ResponseDto readHomeworkSubmitByHomework(@PathVariable Long homeworkId, Authentication authentication) {
-        return ResponseDto.success();
+        return ResponseDto.success(homeworkSubmitService.findByStudentAndHomework(homeworkId, authentication.getName()));
     }
 
     @GetMapping("/homeworks/submissions/{submissionId}/feedback")
     public ResponseDto readFeedback(@PathVariable Long submissionId) {
-        return ResponseDto.success();
+        return ResponseDto.success(feedbackService.get(submissionId));
     }
 }

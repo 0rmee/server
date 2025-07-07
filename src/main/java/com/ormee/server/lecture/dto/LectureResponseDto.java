@@ -1,6 +1,5 @@
 package com.ormee.server.lecture.dto;
 
-import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.quiz.dto.QuizListDto;
 import com.ormee.server.lecture.domain.LectureDay;
