@@ -1,5 +1,6 @@
 package com.ormee.server.homework.dto;
 
+import com.ormee.server.member.dto.AuthorDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,9 +12,11 @@ import java.util.List;
 public class HomeworkDto {
     private Long id;
     private String author;
+    private String authorImage;
     private String title;
     private String description;
     private boolean feedbackCompleted;
+    private boolean isSubmitted;
     private List<String> fileNames;
     private List<String> filePaths;
     private LocalDateTime openTime;

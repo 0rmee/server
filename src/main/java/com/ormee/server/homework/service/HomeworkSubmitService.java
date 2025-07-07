@@ -1,7 +1,7 @@
 package com.ormee.server.homework.service;
 
 import com.ormee.server.attachment.domain.Attachment;
-import com.ormee.server.attachment.domain.AttachmentType;
+import com.ormee.server.attachment.repository.AttachmentRepository;
 import com.ormee.server.homework.domain.Homework;
 import com.ormee.server.homework.domain.HomeworkSubmit;
 import com.ormee.server.homework.dto.HomeworkSubmitDto;
@@ -15,32 +15,33 @@ import com.ormee.server.lecture.domain.StudentLecture;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.repository.MemberRepository;
-import com.ormee.server.attachment.service.AttachmentService;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HomeworkSubmitService {
     private final HomeworkSubmitRepository homeworkSubmitRepository;
     private final HomeworkRepository homeworkRepository;
     private final MemberRepository memberRepository;
-    private final AttachmentService attachmentService;
+    private final AttachmentRepository attachmentRepository;
 
-    public HomeworkSubmitService(HomeworkSubmitRepository homeworkSubmitRepository, HomeworkRepository homeworkRepository, MemberRepository memberRepository, AttachmentService attachmentService) {
+    public HomeworkSubmitService(HomeworkSubmitRepository homeworkSubmitRepository, HomeworkRepository homeworkRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository) {
         this.homeworkSubmitRepository = homeworkSubmitRepository;
         this.homeworkRepository = homeworkRepository;
         this.memberRepository = memberRepository;
-        this.attachmentService = attachmentService;
+        this.attachmentRepository = attachmentRepository;
     }
 
-    public void create(Long homeworkId, HomeworkSubmitSaveDto homeworkSubmitSaveDto, String username) throws IOException {
+    public void submit(Long homeworkId, HomeworkSubmitSaveDto homeworkSubmitSaveDto, String username) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        if(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student)) {
+            throw new CustomException(ExceptionType.SUBMISSION_ALREADY_EXIST_EXCEPTION);
+        }
 
         HomeworkSubmit homeworkSubmit = HomeworkSubmit.builder()
                 .homework(homework)
@@ -50,18 +51,19 @@ public class HomeworkSubmitService {
                 .isFeedback(false)
                 .build();
 
-        Long parentId = homeworkSubmitRepository.save(homeworkSubmit).getId();
+        homeworkSubmit = homeworkSubmitRepository.save(homeworkSubmit);
 
-        List<Attachment> attachments = new ArrayList<>();
+        List<Attachment> attachments = homeworkSubmitSaveDto.getFileIds().stream()
+                .map(id -> attachmentRepository.findById(id)
+                        .orElseThrow(() -> new CustomException(ExceptionType.ATTACHMENT_NOT_FOUND_EXCEPTION)))
+                .collect(Collectors.toList());
 
-        if (homeworkSubmitSaveDto.getFiles() != null) {
-            for (MultipartFile multipartFile : homeworkSubmitSaveDto.getFiles()) {
-                attachments.add(attachmentService.save(AttachmentType.HOMEWORK_SUBMIT, parentId, multipartFile));
-            }
+        for (Attachment attachment : attachments) {
+            attachment.setParentId(String.valueOf(homeworkSubmit.getId()));
+            attachmentRepository.save(attachment);
         }
 
         homeworkSubmit.setAttachments(attachments);
-
         homeworkSubmitRepository.save(homeworkSubmit);
     }
 
@@ -143,6 +145,7 @@ public class HomeworkSubmitService {
         checkedByTeacher(member, homeworkSubmit);
 
         return HomeworkSubmitDto.builder()
+                .id(homeworkSubmitId)
                 .name(homeworkSubmit.getStudent().getName() + homeworkSubmit.getStudent().getPhoneNumber().substring(homeworkSubmit.getStudent().getPhoneNumber().length() - 4))
                 .content(homeworkSubmit.getContent())
                 .filePaths(homeworkSubmit.getAttachments().stream().map(Attachment::getFilePath).toList())
@@ -170,5 +173,14 @@ public class HomeworkSubmitService {
                         .build()
                 )
                 .toList();
+    }
+
+    public HomeworkSubmitDto findByStudentAndHomework(Long homeworkId, String username) {
+        Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findByHomeworkAndStudent(homework, student).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
+
+        return get(homeworkSubmit.getId(), username);
     }
 }
