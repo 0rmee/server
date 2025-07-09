@@ -28,7 +28,7 @@ public class HomeworkSubmit extends EntityTime {
     @JoinColumn(name = "student_id")
     private Member student;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

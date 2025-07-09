@@ -36,7 +36,7 @@ public class Notice extends EntityTime {
     @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

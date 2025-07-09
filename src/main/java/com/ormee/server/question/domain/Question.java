@@ -35,7 +35,7 @@ public class Question extends EntityTime {
     @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column

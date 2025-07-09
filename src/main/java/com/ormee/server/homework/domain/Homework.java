@@ -33,7 +33,7 @@ public class Homework extends EntityTime {
     @Column
     private String title;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
