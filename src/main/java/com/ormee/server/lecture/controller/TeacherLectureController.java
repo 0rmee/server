@@ -1,18 +1,24 @@
 package com.ormee.server.lecture.controller;
 
+import com.ormee.server.lecture.dto.StudentDescriptionRequestDto;
 import com.ormee.server.lecture.service.LectureService;
 import com.ormee.server.lecture.dto.LectureRequestDto;
 import com.ormee.server.global.response.ResponseDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ormee.server.lecture.service.StudentLectureService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/teachers/lectures")
-public class LectureController {
+public class TeacherLectureController {
 
-    @Autowired
-    private LectureService lectureService;
+    private final LectureService lectureService;
+    private final StudentLectureService studentLectureService;
+
+    public TeacherLectureController(LectureService lectureService, StudentLectureService studentLectureService) {
+        this.lectureService = lectureService;
+        this.studentLectureService = studentLectureService;
+    }
 
     @PostMapping
     public ResponseDto createLecture(@RequestBody LectureRequestDto lectureRequestDto, Authentication authentication) {
@@ -20,7 +26,7 @@ public class LectureController {
         return ResponseDto.success();
     }
 
-    @PutMapping("/{lectureId}") // 강의 수정 추후 추가
+    @PutMapping("/{lectureId}")
     public ResponseDto updateLecture(@RequestBody LectureRequestDto lectureRequestDto, @PathVariable Long lectureId, Authentication authentication) {
         lectureService.update(lectureRequestDto, lectureId, authentication.getName());
         return ResponseDto.success();
@@ -47,5 +53,33 @@ public class LectureController {
     public ResponseDto removeCollaborator(@PathVariable Long lectureId, @RequestParam("username") String username) {
         lectureService.removeCollaborator(lectureId, username);
         return ResponseDto.success();
+    }
+
+    @GetMapping("/{lectureId}/students")
+    public ResponseDto studentsInLecture(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "이름순") String filter, @RequestParam(defaultValue = "1") int page) {
+        return ResponseDto.success(studentLectureService.findAllStudents(lectureId, filter, page - 1));
+    }
+
+    @PutMapping("/students")
+    public ResponseDto describeStudent(@RequestBody StudentDescriptionRequestDto studentDescriptionRequestDto) {
+        studentLectureService.updateDescription(studentDescriptionRequestDto);
+        return ResponseDto.success();
+    }
+
+    @PutMapping("/students/{studentLectureId}/block")
+    public ResponseDto blockStudent(@PathVariable Long studentLectureId) {
+        studentLectureService.block(studentLectureId, true);
+        return ResponseDto.success();
+    }
+
+    @PutMapping("/students/{studentLectureId}/unlock")
+    public ResponseDto unlockStudent(@PathVariable Long studentLectureId) {
+        studentLectureService.block(studentLectureId, false);
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/{lectureId}/students/block")
+    public ResponseDto getBlockedStudents(@PathVariable Long lectureId) {
+        return ResponseDto.success(studentLectureService.findBlockedStudentsByLecture(lectureId));
     }
 }

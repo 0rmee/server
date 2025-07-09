@@ -28,7 +28,7 @@ public class Problem extends EntityTime {
     @Enumerated(EnumType.STRING)
     private ProblemType type;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column

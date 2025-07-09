@@ -3,6 +3,7 @@ package com.ormee.server.notice.service;
 import com.ormee.server.attachment.repository.AttachmentRepository;
 import com.ormee.server.global.response.PageResponseDto;
 import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.notice.domain.Notice;
 import com.ormee.server.notice.dto.NoticeDto;
@@ -54,7 +55,6 @@ public class NoticeService {
                 .description(noticeSaveDto.getDescription())
                 .isPinned(false)
                 .isDraft(noticeSaveDto.getIsDraft())
-                .likes(0L)
                 .build();
 
         notice = noticeRepository.save(notice);
@@ -92,6 +92,15 @@ public class NoticeService {
                 .build();
     }
 
+    public List<NoticeListDto> getNotices(Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Notice> notices = noticeRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
+
+        return notices.stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+
     public List<NoticeListDto> getPinnedNotices(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         List<Notice> notices = noticeRepository.findAllByLectureAndIsPinnedTrueOrderByCreatedAtDesc(lecture);
@@ -121,6 +130,15 @@ public class NoticeService {
                 .totalElements(noticePage.getTotalElements())
                 .currentPage(noticePage.getNumber() + 1)
                 .build();
+    }
+
+    public List<NoticeListDto> searchNotices(Long lectureId, String keyword) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Notice> notices = noticeRepository.searchByLectureAndKeyword(lecture, keyword);
+
+        return notices.stream()
+                .map(this::convertToDto)
+                .toList();
     }
 
     public List<NoticeListDto> getDraftNotices(Long lectureId) {
@@ -213,7 +231,7 @@ public class NoticeService {
         dto.setTitle(notice.getTitle() != null ? notice.getTitle() : "제목 없음");
         dto.setPostDate(notice.getCreatedAt());
         dto.setIsPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false);
-        dto.setLikes(notice.getLikes());
+        dto.setLikes(notice.getLikes() != null ? notice.getLikes().size() : 0);
         return dto;
     }
 
@@ -226,7 +244,56 @@ public class NoticeService {
                 .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .postDate(notice.getPostDate() != null ? notice.getPostDate() : LocalDateTime.now())
                 .isPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false)
-                .likes(notice.getLikes() != null ? notice.getLikes() : 0L)
+                .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
                 .build();
     }
+
+    public NoticeDto getNotice(Long noticeId, String username) {
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        return NoticeDto.builder()
+                .title(notice.getTitle())
+                .description(notice.getDescription())
+                .fileNames(notice.getAttachments().stream()
+                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
+                .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .postDate(notice.getPostDate())
+                .isPinned(notice.getIsPinned())
+                .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
+                .isLiked(notice.getLikes().contains(student))
+                .author(AuthorDto.builder()
+                        .name(notice.getAuthor().getNickname())
+                        .image(Optional.ofNullable(notice.getAuthor().getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null))
+                        .build())
+                .build();
+    }
+
+    public void like(Long noticeId, String username) {
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        if(notice.getLikes().contains(student)) {
+            throw new CustomException(ExceptionType.LIKE_ALREADY_EXIST_EXCEPTION);
+        }
+
+        notice.addLikes(student);
+        noticeRepository.save(notice);
+    }
+
+    public void unLike(Long noticeId, String username) {
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        if(!notice.getLikes().contains(student)) {
+            throw new CustomException(ExceptionType.LIKE_NOT_FOUND_EXCEPTION);
+        }
+
+        notice.removeLikes(student);
+        noticeRepository.save(notice);
+    }
+
+
 }

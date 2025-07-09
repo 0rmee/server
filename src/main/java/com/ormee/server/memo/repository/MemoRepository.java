@@ -15,5 +15,5 @@ public interface MemoRepository extends JpaRepository<Memo, Long> {
     boolean existsByLectureAndIsOpen(Lecture lecture, Boolean IsOpen);
     Optional<Memo> findFirstByLectureAndIsOpenOrderByCreatedAtDesc(Lecture lecture, boolean IsOpen);
 
-    List<Memo> findAllByDueTimeBeforeAndNotifiedFalse(LocalDateTime now);
+    List<Memo> findAllByNotifiedFalseAndDueTimeBefore(LocalDateTime now);
 }

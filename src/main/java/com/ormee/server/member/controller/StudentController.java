@@ -1,36 +1,66 @@
 package com.ormee.server.member.controller;
 
+import com.ormee.server.member.dto.PasswordDto;
+import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.member.service.StudentService;
 import com.ormee.server.member.dto.SignInDto;
-import com.ormee.server.member.dto.StudentSignUpDto;
 import com.ormee.server.global.response.ResponseDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/students")
 public class StudentController {
+    @Value("${app.version}")
+    private String appVersion;
     private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
 
-    @PostMapping("/student/signup")
-    public ResponseDto signUp(@RequestBody StudentSignUpDto signUpDto) {
+    @PostMapping("/signup")
+    public ResponseDto signUp(@RequestBody SignUpDto signUpDto) {
         studentService.signUp(signUpDto);
         return ResponseDto.success();
     }
 
-    @PostMapping("/student/signin")
+    @PostMapping("/signin")
     public ResponseDto signIn(@RequestBody SignInDto signInDto) {
         return ResponseDto.success(studentService.signIn(signInDto));
     }
 
-    // 학생 화면 완성 후 추가 수정
-
-    @DeleteMapping("/student")
+    @DeleteMapping
     public ResponseDto delete(Authentication authentication) {
         studentService.delete(authentication.getName());
         return ResponseDto.success();
+    }
+
+    @PutMapping("/password")
+    public ResponseDto updatePassword(Authentication authentication, @RequestBody PasswordDto passwordDto) {
+        studentService.updatePassword(authentication.getName(), passwordDto);
+        return ResponseDto.success();
+    }
+
+    @PostMapping("/password")
+    public ResponseDto checkPassword(Authentication authentication, @RequestBody PasswordDto passwordDto) {
+        return ResponseDto.success(studentService.checkPassword(authentication.getName(), passwordDto));
+    }
+
+    @PutMapping("/email")
+    public ResponseDto updateEmail(Authentication authentication, @RequestBody SignUpDto signUpDto) {
+        studentService.updateEmail(authentication.getName(), signUpDto);
+        return ResponseDto.success();
+    }
+
+    @PostMapping("/email")
+    public ResponseDto checkEmail(@RequestBody SignUpDto signUpDto) {
+        return ResponseDto.success(studentService.checkEmail(signUpDto));
+    }
+
+    @GetMapping("/version")
+    public ResponseDto versionCheck() {
+        return ResponseDto.success(appVersion);
     }
 }

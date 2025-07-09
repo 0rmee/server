@@ -10,11 +10,11 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/teachers")
-public class QuizController {
+public class TeacherQuizController {
 
     private final QuizService quizService;
 
-    public QuizController(QuizService quizService) {
+    public TeacherQuizController(QuizService quizService) {
         this.quizService = quizService;
     }
 

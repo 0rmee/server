@@ -11,7 +11,7 @@ public class LectureDto {
     private Long id;
     private String title;
     private String description;
-    private Integer code;
+    private Boolean isOwner;
     private LocalDateTime openTime;
     private LocalDateTime closeTime;
 }

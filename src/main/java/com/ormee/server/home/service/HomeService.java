@@ -9,6 +9,8 @@ import com.ormee.server.homework.repository.HomeworkRepository;
 import com.ormee.server.homework.repository.HomeworkSubmitRepository;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
+import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.notice.repository.NoticeRepository;
 import com.ormee.server.question.repository.QuestionRepository;
 import com.ormee.server.quiz.repository.ProblemRepository;
@@ -25,6 +27,7 @@ import java.util.List;
 
 @Service
 public class HomeService {
+    private final MemberRepository memberRepository;
     private final LectureRepository lectureRepository;
     private final QuizRepository quizRepository;
     private final ProblemRepository problemRepository;
@@ -34,7 +37,8 @@ public class HomeService {
     private final QuestionRepository questionRepository;
     private final NoticeRepository noticeRepository;
 
-    public HomeService(LectureRepository lectureRepository, QuizRepository quizRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, HomeworkRepository homeworkRepository, HomeworkSubmitRepository homeworkSubmitRepository, QuestionRepository questionRepository, NoticeRepository noticeRepository) {
+    public HomeService(MemberRepository memberRepository, LectureRepository lectureRepository, QuizRepository quizRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, HomeworkRepository homeworkRepository, HomeworkSubmitRepository homeworkSubmitRepository, QuestionRepository questionRepository, NoticeRepository noticeRepository) {
+        this.memberRepository = memberRepository;
         this.lectureRepository = lectureRepository;
         this.quizRepository = quizRepository;
         this.problemRepository = problemRepository;
@@ -45,22 +49,24 @@ public class HomeService {
         this.noticeRepository = noticeRepository;
     }
 
-    public HomeDto getInfo(Long lectureId) {
+    public HomeDto getInfo(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         return HomeDto.builder()
-                .lecture(getLectureInfo(lecture))
+                .lecture(getLectureInfo(lecture, teacher))
                 .assignments(getAssignmentsInfo(lecture))
                 .questions(getQuestionsInfo(lecture))
                 .notices(getNoticesInfo(lecture))
                 .build();
     }
 
-    public LectureDto getLectureInfo(Lecture lecture) {
+    public LectureDto getLectureInfo(Lecture lecture, Member teacher) {
         return LectureDto.builder()
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
+                .isOwner(lecture.getTeacher().equals(teacher))
                 .openTime(lecture.getStartDate())
                 .closeTime(lecture.getDueDate())
                 .build();
@@ -69,7 +75,7 @@ public class HomeService {
     public List<ListDto> getAssignmentsInfo(Lecture lecture) {
         Long totalStudents = (long) lecture.getStudentLectures().size();
 
-        List<ListDto> quizzes = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByDueTimeDesc(lecture, false, true)
+        List<ListDto> quizzes = quizRepository.findAllByLectureAndIsDraftAndIsOpenedOrderByCreatedAtDesc(lecture, false, true)
                 .stream()
                 .map(quiz -> ListDto.builder()
                         .id(quiz.getId())
