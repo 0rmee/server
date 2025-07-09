@@ -25,7 +25,7 @@ public class Feedback extends EntityTime {
     @JoinColumn(name = "author_id")
     private Member author;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column

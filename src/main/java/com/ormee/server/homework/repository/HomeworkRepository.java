@@ -12,5 +12,5 @@ import java.util.List;
 public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
     List<Homework> findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(Lecture lecture);
-    List<Homework> findAllByDueTimeBeforeAndNotifiedFalseAndIsDraftFalse(LocalDateTime now);
+    List<Homework> findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(LocalDateTime now);
 }

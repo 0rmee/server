@@ -28,7 +28,7 @@ public class Answer extends EntityTime {
     @JoinColumn(name = "author_id")
     private Member author;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
