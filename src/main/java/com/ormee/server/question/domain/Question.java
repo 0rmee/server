@@ -39,6 +39,9 @@ public class Question extends EntityTime {
     private String content;
 
     @Column
+    private Boolean isLocked;
+
+    @Column
     private Boolean isAnswered;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
