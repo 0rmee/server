@@ -149,7 +149,7 @@ public class NotificationService {
     }
 
     private void createQuizNotifications(LocalDateTime now) {
-        List<Quiz> quizzes = quizRepository.findAllByDueTimeBeforeAndNotifiedFalseAndIsDraftFalse(now);
+        List<Quiz> quizzes = quizRepository.findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(now);
         for(Quiz quiz : quizzes) {
             create(NotificationType.QUIZ, quiz);
             quiz.setNotified(true);
@@ -158,7 +158,7 @@ public class NotificationService {
     }
 
     private void createHomeworkNotifications(LocalDateTime now) {
-        List<Homework> homeworks = homeworkRepository.findAllByDueTimeBeforeAndNotifiedFalseAndIsDraftFalse(now);
+        List<Homework> homeworks = homeworkRepository.findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(now);
         for(Homework homework : homeworks) {
             create(NotificationType.HOMEWORK, homework);
             homework.setNotified(true);
@@ -167,7 +167,7 @@ public class NotificationService {
     }
 
     private void createMemoNotifications(LocalDateTime now) {
-        List<Memo> memos = memoRepository.findAllByDueTimeBeforeAndNotifiedFalse(now);
+        List<Memo> memos = memoRepository.findAllByNotifiedFalseAndDueTimeBefore(now);
         for(Memo memo : memos) {
             create(NotificationType.MEMO, memo);
             memo.setNotified(true);
