@@ -2,6 +2,7 @@ package com.ormee.server.home.controller;
 
 import com.ormee.server.global.response.ResponseDto;
 import com.ormee.server.home.service.HomeService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +16,7 @@ public class TeacherHomeController {
     }
 
     @GetMapping("/home/{lectureId}")
-    public ResponseDto getHomeInfo(@PathVariable Long lectureId) {
-        return ResponseDto.success(homeService.getInfo(lectureId));
+    public ResponseDto getHomeInfo(@PathVariable Long lectureId, Authentication authentication) {
+        return ResponseDto.success(homeService.getInfo(lectureId, authentication.getName()));
     }
 }
