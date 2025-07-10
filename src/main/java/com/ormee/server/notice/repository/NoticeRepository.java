@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -17,6 +18,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findAllByLectureAndIsPinnedTrueOrderByCreatedAtDesc(Lecture lecture);
     List<Notice> findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(Lecture lecture);
     List<Notice> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
+    List<Notice> findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime localDateTime);
     @Query("SELECT n FROM Notice n WHERE n.lecture = :lecture AND n.isDraft = false AND (n.title LIKE %:keyword% OR n.description LIKE %:keyword%) ORDER BY n.createdAt DESC")
     Page<Notice> searchByLectureAndKeyword(@Param("lecture") Lecture lecture,
                                            @Param("keyword") String keyword,

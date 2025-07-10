@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -208,6 +209,11 @@ public class NoticeService {
 
     public void deleteNotice(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+
+        for (Attachment attachment : notice.getAttachments()) {
+            attachmentService.delete(attachment.getId());
+        }
+
         noticeRepository.delete(notice);
     }
 
@@ -295,5 +301,9 @@ public class NoticeService {
         noticeRepository.save(notice);
     }
 
-
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteAllExpiredDrafts() {
+        List<Notice> notices = noticeRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
+        notices.forEach(notice -> deleteNotice(notice.getId()));
+    }
 }

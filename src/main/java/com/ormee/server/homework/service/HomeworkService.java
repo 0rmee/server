@@ -17,6 +17,7 @@ import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -241,6 +242,9 @@ public class HomeworkService {
 
     public void delete(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
+        for (Attachment attachment : homework.getAttachments()) {
+            attachmentService.delete(attachment.getId());
+        }
         homeworkRepository.delete(homework);
     }
 
@@ -282,5 +286,11 @@ public class HomeworkService {
                 .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
                 .feedbackCompleted(feedbackRepository.existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(homework, student))
                 .build();
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteAllExpiredDrafts() {
+        List<Homework> homeworks = homeworkRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
+        homeworks.forEach(homework -> delete(homework.getId()));
     }
 }
