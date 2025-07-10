@@ -11,7 +11,7 @@ public class MemoDto {
     private Long id;
     private String author;
     private String title;
-    private String description;
+    private String submission;
     private LocalDateTime dueTime;
     private Boolean isOpen;
     private Integer submitCount;

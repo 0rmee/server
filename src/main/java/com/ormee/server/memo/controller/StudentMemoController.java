@@ -1,9 +1,9 @@
 package com.ormee.server.memo.controller;
 
+import com.ormee.server.memo.service.MemoService;
 import com.ormee.server.memo.service.MessageService;
 import com.ormee.server.memo.dto.MessageSubmitDto;
 import com.ormee.server.global.response.ResponseDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/students")
 public class StudentMemoController {
     private final MessageService messageService;
+    private final MemoService memoService;
 
-    @Autowired
-    public StudentMemoController(MessageService messageService) {
+    public StudentMemoController(MessageService messageService, MemoService memoService) {
         this.messageService = messageService;
+        this.memoService = memoService;
     }
 
     @PostMapping("/memos/{memoId}")
@@ -24,12 +25,12 @@ public class StudentMemoController {
     }
 
     @GetMapping("/memos/{memoId}")
-    public ResponseDto readMemo(@PathVariable Long memoId) {
-        return ResponseDto.success();
+    public ResponseDto readMemo(@PathVariable Long memoId, Authentication authentication) {
+        return ResponseDto.success(memoService.read(memoId, authentication.getName()));
     }
 
     @GetMapping("/lectures/{lectureId}/memos")
     public ResponseDto readMemos(@PathVariable Long lectureId, Authentication authentication) {
-        return ResponseDto.success();
+        return ResponseDto.success(memoService.getMemosByLecture(lectureId, authentication.getName()));
     }
 }
