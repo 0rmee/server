@@ -2,6 +2,7 @@ package com.ormee.server.quiz.service;
 
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.attachment.repository.AttachmentRepository;
+import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.lecture.domain.Lecture;
@@ -18,6 +19,7 @@ import com.ormee.server.quiz.repository.ProblemRepository;
 import com.ormee.server.quiz.repository.ProblemSubmitRepository;
 import com.ormee.server.quiz.repository.QuizRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,14 +36,16 @@ public class QuizService {
     private final ProblemRepository problemRepository;
     private final ProblemSubmitRepository problemSubmitRepository;
     private final AttachmentRepository attachmentRepository;
+    private final AttachmentService attachmentService;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, MemberRepository memberRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, MemberRepository memberRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.problemRepository = problemRepository;
         this.problemSubmitRepository = problemSubmitRepository;
         this.attachmentRepository = attachmentRepository;
+        this.attachmentService = attachmentService;
     }
 
     public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto, String username) {
@@ -218,12 +222,18 @@ public class QuizService {
     }
 
     public void deleteQuiz(Long quizId) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
 
-        problemRepository.deleteAll(problems);
+        for (Problem problem : problems) {
+            for (Attachment attachment : problem.getAttachments()) {
+                attachmentService.delete(attachment.getId());
+            }
+        }
 
+        problemRepository.deleteAll(problems);
         quizRepository.delete(quiz);
     }
 
@@ -430,5 +440,11 @@ public class QuizService {
                         .isSubmitted(problemSubmitRepository.existsByStudentAndProblem_Quiz(student, quiz))
                         .build())
                 .toList();
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteAllExpiredDrafts() {
+        List<Quiz> quizzes = quizRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
+        quizzes.forEach(quiz -> deleteQuiz(quiz.getId()));
     }
 }
