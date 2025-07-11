@@ -119,6 +119,7 @@ public class NotificationService {
         notifications.forEach(notification -> notification.setIsRead(true));
     }
 
+    @Transactional
     public void deleteAll(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         notificationRepository.deleteAllByLecture(lecture);
