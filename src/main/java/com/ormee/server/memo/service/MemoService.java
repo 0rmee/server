@@ -3,6 +3,7 @@ package com.ormee.server.memo.service;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.memo.domain.Memo;
+import com.ormee.server.memo.domain.Message;
 import com.ormee.server.memo.dto.MemoDto;
 import com.ormee.server.memo.dto.MemoListDto;
 import com.ormee.server.global.exception.CustomException;
@@ -40,8 +41,6 @@ public class MemoService {
         memo.setLecture(lecture);
         memo.setAuthor(author);
         memo.setTitle(memoDto.getTitle());
-//        memo.setDescription(memoDto.getDescription());
-//        memo.setDueTime(memoDto.getDueTime());
         memo.setDueTime(LocalDateTime.now().plusYears(1));
         memo.setIsOpen(true);
         memo.setNotified(false);
@@ -54,7 +53,7 @@ public class MemoService {
     public MemoListDto getAllMemos(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        List<Memo> memoList = memoRepository.findAllByLecture(lecture);
+        List<Memo> memoList = memoRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         List<MemoDto> openMemos = new ArrayList<>();
         List<MemoDto> closeMemos = new ArrayList<>();
 
@@ -65,7 +64,6 @@ public class MemoService {
                                 .map(Member::getNickname)
                                 .orElse(memo.getLecture().getTeacher().getNickname()))
                         .title(memo.getTitle())
-                        .description(memo.getDescription())
                         .dueTime(memo.getDueTime())
                         .isOpen(memo.getIsOpen())
                         .submitCount(getSubmitCount(memo.getId()))
@@ -90,7 +88,7 @@ public class MemoService {
     }
 
     private void closeOpenedMemos(Lecture lecture) {
-        List<Memo> memos = memoRepository.findAllByLecture(lecture);
+        List<Memo> memos = memoRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
         for(Memo memo : memos) {
             memo.setIsOpen(false);
             memo.setDueTime(LocalDateTime.now());
@@ -109,15 +107,35 @@ public class MemoService {
         memoRepository.save(memo);
     }
 
-    public MemoDto getOpenMemo(Long lectureId) {
+    public MemoDto getOpenMemo(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 
+        return read(memo.getId(), username);
+    }
+
+    public MemoDto read(Long memoId, String username) {
+        Memo memo = memoRepository.findById(memoId).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
         return MemoDto.builder()
                 .id(memo.getId())
+                .author(memo.getAuthor().getNickname())
                 .title(memo.getTitle())
+                .submission(messageRepository.findByMemoAndStudent(memo, student)
+                        .map(Message::getContext)
+                        .orElse(null))
                 .dueTime(memo.getDueTime())
                 .isOpen(memo.getIsOpen())
                 .build();
+    }
+
+    public List<MemoDto> getMemosByLecture(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        List<Memo> memos = memoRepository.findAllByLectureOrderByCreatedAtDesc(lecture);
+
+        return memos.stream()
+                .map(memo -> read(memo.getId(), username))
+                .toList();
     }
 }
