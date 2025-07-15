@@ -11,6 +11,7 @@ import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.memo.repository.MemoRepository;
 import com.ormee.server.memo.repository.MessageRepository;
+import com.ormee.server.notification.repository.SseEmitterRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,12 +25,13 @@ public class MemoService {
     private final MessageRepository messageRepository;
     private final LectureRepository lectureRepository;
     private final MemberRepository memberRepository;
-
-    public MemoService(MemoRepository memoRepository, MessageRepository messageRepository, LectureRepository lectureRepository, MemberRepository memberRepository) {
+    private final SseEmitterRepository sseEmitterRepository;
+    public MemoService(MemoRepository memoRepository, MessageRepository messageRepository, LectureRepository lectureRepository, MemberRepository memberRepository, SseEmitterRepository sseEmitterRepository) {
         this.memoRepository = memoRepository;
         this.messageRepository = messageRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
+        this.sseEmitterRepository = sseEmitterRepository;
     }
 
     public void createMemo(Long lectureId, MemoDto memoDto, String username) {
@@ -40,15 +42,15 @@ public class MemoService {
         memo.setLecture(lecture);
         memo.setAuthor(author);
         memo.setTitle(memoDto.getTitle());
-//        memo.setDescription(memoDto.getDescription());
-//        memo.setDueTime(memoDto.getDueTime());
         memo.setDueTime(LocalDateTime.now().plusYears(1));
         memo.setIsOpen(true);
         memo.setNotified(false);
 
         closeOpenedMemos(lecture);
 
-        memoRepository.save(memo);
+        memo = memoRepository.save(memo);
+
+        sseEmitterRepository.sendToLecture(lectureId, memo.getId());
     }
 
     public MemoListDto getAllMemos(Long lectureId) {
