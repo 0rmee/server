@@ -1,5 +1,6 @@
 package com.ormee.server.lecture.service;
 
+import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.global.response.PageResponseDto;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.domain.StudentLecture;
@@ -11,6 +12,7 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.lecture.repository.StudentLectureRepository;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentLectureService {
@@ -133,7 +136,29 @@ public class StudentLectureService {
                 .toList();
 
         return lectures.stream()
-                .map(this::entityToDto)
+                .map(lecture -> LectureResponseDto.builder()
+                        .id(lecture.getId())
+                        .title(lecture.getTitle())
+                        .description(lecture.getDescription())
+                        .name(lecture.getTeacher().getNickname())
+                        .profileImage(
+                                Optional.ofNullable(lecture.getTeacher().getImage())
+                                        .map(Attachment::getFilePath)
+                                        .orElse(null)
+                        )
+                        .coTeachers(lecture.getCollaborators().stream()
+                                .map(member -> AuthorDto.builder()
+                                        .name(member.getNickname())
+                                        .image(
+                                                Optional.ofNullable(member.getImage())
+                                                        .map(Attachment::getFilePath)
+                                                        .orElse(null)
+                                        )
+                                        .build())
+                                .toList())
+                        .startDate(lecture.getStartDate())
+                        .dueDate(lecture.getDueDate())
+                        .build())
                 .toList();
     }
 
