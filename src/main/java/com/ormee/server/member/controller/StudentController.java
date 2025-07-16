@@ -1,5 +1,6 @@
 package com.ormee.server.member.controller;
 
+import com.ormee.server.member.dto.DeviceTokenDto;
 import com.ormee.server.member.dto.PasswordDto;
 import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.member.service.StudentService;
@@ -62,5 +63,11 @@ public class StudentController {
     @GetMapping("/version")
     public ResponseDto versionCheck() {
         return ResponseDto.success(appVersion);
+    }
+
+    @PostMapping("/device")
+    public ResponseDto registerDeviceToken(@RequestBody DeviceTokenDto deviceTokenDto, Authentication authentication) {
+        studentService.saveOrUpdateDeviceToken(authentication.getName(), deviceTokenDto.getDeviceToken());
+        return ResponseDto.success();
     }
 }
