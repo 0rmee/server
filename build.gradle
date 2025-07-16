@@ -28,14 +28,17 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-// AWS S3
+	// AWS S3
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.233'
 
-//JWT
+	//JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// FCM
+	implementation 'com.google.auth:google-auth-library-oauth2-http:1.21.0'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
