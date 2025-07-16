@@ -1,16 +1,16 @@
 package com.ormee.server.notification.controller;
 
 import com.ormee.server.global.response.ResponseDto;
-import com.ormee.server.notification.service.NotificationService;
+import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/students/notifications")
 public class StudentNotificationController {
-    private final NotificationService notificationService;
+    private final StudentNotificationService studentNotificationService;
 
-    public StudentNotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
+    public StudentNotificationController(StudentNotificationService studentNotificationService) {
+        this.studentNotificationService = studentNotificationService;
     }
 
     @GetMapping
