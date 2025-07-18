@@ -2,6 +2,9 @@ package com.ormee.server.question.service;
 
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
+import com.ormee.server.notification.domain.NotificationType;
+import com.ormee.server.notification.dto.StudentNotificationRequestDto;
+import com.ormee.server.notification.service.StudentNotificationService;
 import com.ormee.server.question.domain.Answer;
 import com.ormee.server.question.repository.AnswerRepository;
 import com.ormee.server.question.domain.Question;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,15 +31,17 @@ public class AnswerService {
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
     private final AttachmentService attachmentService;
+    private final StudentNotificationService studentNotificationService;
 
-    public AnswerService(AnswerRepository answerRepository, MemberRepository memberRepository, QuestionRepository questionRepository, AttachmentService attachmentService) {
+    public AnswerService(AnswerRepository answerRepository, MemberRepository memberRepository, QuestionRepository questionRepository, AttachmentService attachmentService, StudentNotificationService studentNotificationService) {
         this.answerRepository = answerRepository;
         this.memberRepository = memberRepository;
         this.questionRepository = questionRepository;
         this.attachmentService = attachmentService;
+        this.studentNotificationService = studentNotificationService;
     }
 
-    public void writeAnswer(Long questionId, AnswerSaveDto answerSaveDto, String username) throws IOException {
+    public void writeAnswer(Long questionId, AnswerSaveDto answerSaveDto, String username) throws Exception {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
@@ -59,6 +65,16 @@ public class AnswerService {
         questionRepository.save(question);
 
         answerRepository.save(answer);
+
+        studentNotificationService.create(Collections.singletonList(question.getStudent().getId()),
+                StudentNotificationRequestDto.builder()
+                        .type(NotificationType.QUESTION)
+                        .parentId(questionId)
+                        .header(question.getLecture().getTitle())
+                        .title(question.getTitle())
+                        .body("선생님이 질문에 답변을 남겼어요!")
+                        .content(answer.getContent())
+                        .build());
     }
 
     public void modifyAnswer(Long answerId, AnswerSaveDto answerSaveDto) throws IOException {

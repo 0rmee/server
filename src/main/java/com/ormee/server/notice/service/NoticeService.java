@@ -16,6 +16,9 @@ import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.notice.repository.NoticeRepository;
+import com.ormee.server.notification.domain.NotificationType;
+import com.ormee.server.notification.dto.StudentNotificationRequestDto;
+import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,16 +39,18 @@ public class NoticeService {
     private final MemberRepository memberRepository;
     private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
+    private final StudentNotificationService studentNotificationService;
 
-    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
+    public NoticeService(NoticeRepository noticeRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, StudentNotificationService studentNotificationService) {
         this.noticeRepository = noticeRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.attachmentRepository = attachmentRepository;
         this.attachmentService = attachmentService;
+        this.studentNotificationService = studentNotificationService;
     }
 
-    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto, String username) {
+    public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto, String username) throws Exception {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
@@ -71,7 +76,16 @@ public class NoticeService {
         }
 
         notice.setAttachments(attachments);
-        noticeRepository.save(notice);
+        notice = noticeRepository.save(notice);
+
+        studentNotificationService.create(lecture.getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
+                StudentNotificationRequestDto.builder()
+                        .parentId(notice.getId())
+                        .type(NotificationType.NOTICE)
+                        .header(lecture.getTitle())
+                        .body("새 공지가 등록되었어요. 지금 확인해 보세요!")
+                        .content(notice.getDescription())
+                .build());
     }
 
     public PageResponseDto<NoticeListDto> findAllByLectureId(Long lectureId, int page) {

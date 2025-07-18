@@ -25,8 +25,17 @@ public class StudentNotification {
     private NotificationType type;
 
     @Column
+    private String header;
+
+    @Column
     private String title;
 
     @Column
     private String body;
+
+    @Column
+    private String content;
+
+    @Column
+    private Boolean isRead;
 }

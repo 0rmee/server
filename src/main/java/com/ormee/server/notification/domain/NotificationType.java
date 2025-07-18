@@ -8,6 +8,7 @@ public enum NotificationType {
     MEMO("쪽지"),
     HOMEWORK("숙제"),
     QUESTION("질문"),
+    NOTICE("공지"),
     ORMEE("오르미");
 
     private final String korean;

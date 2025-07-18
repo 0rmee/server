@@ -54,7 +54,7 @@ public class FcmService {
         Map<String, Object> messageContent = new HashMap<>();
 
         Map<String, String> notification = new HashMap<>();
-        notification.put("title", studentNotification.getTitle());
+        notification.put("title", studentNotification.getHeader());
         notification.put("body", studentNotification.getBody());
 
         Map<String, String> data = new HashMap<>();

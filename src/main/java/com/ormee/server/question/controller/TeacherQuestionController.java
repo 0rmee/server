@@ -37,7 +37,7 @@ public class TeacherQuestionController {
     }
 
     @PostMapping("/questions/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto, Authentication authentication) throws IOException {
+    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto, Authentication authentication) throws Exception {
         answerService.writeAnswer(questionId, answerSaveDto, authentication.getName());
         return ResponseDto.success();
     }
