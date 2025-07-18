@@ -117,6 +117,14 @@ public class StudentService {
         return true;
     }
 
+    public boolean checkUsername(SignInDto signInDto) {
+        if(memberRepository.existsByUsernameAndRole(signInDto.getUsername(), Role.STUDENT)) {
+            throw new CustomException(ExceptionType.USERNAME_ALREADY_EXIST_EXCEPTION);
+        }
+
+        return true;
+    }
+
     public void saveOrUpdateDeviceToken(String username, String token) {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         Optional<DeviceToken> existingToken = deviceTokenRepository.findByMemberIdAndDeviceToken(student.getId(), token);

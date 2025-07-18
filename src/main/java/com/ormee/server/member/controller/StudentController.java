@@ -60,6 +60,11 @@ public class StudentController {
         return ResponseDto.success(studentService.checkEmail(signUpDto));
     }
 
+    @PostMapping("/username")
+    public ResponseDto checkUsername(@RequestBody SignInDto signInDto) {
+        return ResponseDto.success(studentService.checkUsername(signInDto));
+    }
+
     @GetMapping("/version")
     public ResponseDto versionCheck() {
         return ResponseDto.success(appVersion);
