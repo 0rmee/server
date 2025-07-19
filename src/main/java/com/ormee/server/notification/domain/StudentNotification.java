@@ -1,5 +1,6 @@
 package com.ormee.server.notification.domain;
 
+import com.ormee.server.global.config.EntityTime;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentNotification {
+public class StudentNotification extends EntityTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +34,7 @@ public class StudentNotification {
     @Column
     private String body;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column

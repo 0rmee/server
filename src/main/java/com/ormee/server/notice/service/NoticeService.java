@@ -83,6 +83,7 @@ public class NoticeService {
                         .parentId(notice.getId())
                         .type(NotificationType.NOTICE)
                         .header(lecture.getTitle())
+                        .title(notice.getTitle())
                         .body("새 공지가 등록되었어요. 지금 확인해 보세요!")
                         .content(notice.getDescription())
                 .build());
