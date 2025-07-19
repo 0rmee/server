@@ -287,14 +287,18 @@ public class QuizService {
         quiz.setOpenTime(now);
         quizRepository.save(quiz);
 
+        sendNotification(quiz, "퀴즈가 등록되었어요.");
+    }
+
+    public void sendNotification(Quiz quiz, String body) throws Exception {
         studentNotificationService.create(quiz.getLecture().getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
                 StudentNotificationRequestDto.builder()
                         .parentId(quiz.getId())
                         .type(NotificationType.QUIZ)
                         .header(quiz.getLecture().getTitle())
                         .title(quiz.getTitle())
-                        .body("퀴즈가 등록되었어요.")
-                .build());
+                        .body(body)
+                        .build());
     }
 
     public void closeQuiz(Long quizId) {

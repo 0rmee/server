@@ -84,22 +84,10 @@ public class HomeworkService {
         homework.setAttachments(attachments);
 
         if(!homeworkSaveDto.getIsDraft()) {
-            sentNotification(lecture, homework);
+            sendNotification(lecture, homework, "숙제가 등록되었어요.");
         }
 
         homeworkRepository.save(homework);
-    }
-
-    private void sentNotification(Lecture lecture, Homework homework) throws Exception {
-        studentNotificationService.create(lecture.getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
-                StudentNotificationRequestDto.builder()
-                        .parentId(homework.getId())
-                        .type(NotificationType.HOMEWORK)
-                        .header(lecture.getTitle())
-                        .title(homework.getTitle())
-                        .body("숙제가 등록되었어요.")
-                        .content(homework.getDescription())
-                        .build());
     }
 
     public HomeworkListDto getList(Long lectureId) {
@@ -257,7 +245,7 @@ public class HomeworkService {
         }
 
         if(homework.getIsDraft() && !homeworkSaveDto.getIsDraft()) {
-            sentNotification(homework.getLecture(), homework);
+            sendNotification(homework.getLecture(), homework, "숙제가 등록되었어요.");
         }
         homework.setIsDraft(homeworkSaveDto.getIsDraft());
 
@@ -310,6 +298,18 @@ public class HomeworkService {
                 .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
                 .feedbackCompleted(feedbackRepository.existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(homework, student))
                 .build();
+    }
+
+    public void sendNotification(Lecture lecture, Homework homework, String body) throws Exception {
+        studentNotificationService.create(lecture.getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
+                StudentNotificationRequestDto.builder()
+                        .parentId(homework.getId())
+                        .type(NotificationType.HOMEWORK)
+                        .header(lecture.getTitle())
+                        .title(homework.getTitle())
+                        .body(body)
+                        .content(homework.getDescription())
+                        .build());
     }
 
     @Scheduled(cron = "0 0 0 * * *")
