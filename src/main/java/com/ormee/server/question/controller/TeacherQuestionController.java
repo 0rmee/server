@@ -9,8 +9,6 @@ import com.ormee.server.question.service.QuestionService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/teachers")
 public class TeacherQuestionController {
@@ -31,13 +29,19 @@ public class TeacherQuestionController {
         };
     }
 
+    @GetMapping("/{lectureId}/questions/search")
+    public ResponseDto searchQuestions(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter, @RequestParam String keyword, @RequestParam(defaultValue = "1") int page) {
+        return ResponseDto.success(questionService.searchByFilterAndKeyword(lectureId, filter, keyword, page - 1));
+    }
+
+
     @GetMapping("/questions/{questionId}")
     public ResponseDto readQuestion(@PathVariable Long questionId) {
         return ResponseDto.success(questionService.findById(questionId));
     }
 
     @PostMapping("/questions/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto, Authentication authentication) throws IOException {
+    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto, Authentication authentication) throws Exception {
         answerService.writeAnswer(questionId, answerSaveDto, authentication.getName());
         return ResponseDto.success();
     }
@@ -48,7 +52,7 @@ public class TeacherQuestionController {
     }
 
     @PutMapping("/answers/{answerId}")
-    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) throws IOException {
+    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) {
         answerService.modifyAnswer(answerId, answerSaveDto);
         return ResponseDto.success();
     }

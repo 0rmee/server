@@ -12,7 +12,10 @@ import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.memo.repository.MemoRepository;
 import com.ormee.server.memo.repository.MessageRepository;
+import com.ormee.server.notification.domain.NotificationType;
+import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.repository.SseEmitterRepository;
+import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,15 +30,17 @@ public class MemoService {
     private final LectureRepository lectureRepository;
     private final MemberRepository memberRepository;
     private final SseEmitterRepository sseEmitterRepository;
-    public MemoService(MemoRepository memoRepository, MessageRepository messageRepository, LectureRepository lectureRepository, MemberRepository memberRepository, SseEmitterRepository sseEmitterRepository) {
+    private final StudentNotificationService studentNotificationService;
+    public MemoService(MemoRepository memoRepository, MessageRepository messageRepository, LectureRepository lectureRepository, MemberRepository memberRepository, SseEmitterRepository sseEmitterRepository, StudentNotificationService studentNotificationService) {
         this.memoRepository = memoRepository;
         this.messageRepository = messageRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.sseEmitterRepository = sseEmitterRepository;
+        this.studentNotificationService = studentNotificationService;
     }
 
-    public void createMemo(Long lectureId, MemoDto memoDto, String username) {
+    public void createMemo(Long lectureId, MemoDto memoDto, String username) throws Exception {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
@@ -52,6 +57,14 @@ public class MemoService {
         memo = memoRepository.save(memo);
 
         sseEmitterRepository.sendToLecture(lectureId, memo.getId());
+        studentNotificationService.create(lecture.getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
+                StudentNotificationRequestDto.builder()
+                        .parentId(memo.getId())
+                        .type(NotificationType.MEMO)
+                        .header(lecture.getTitle())
+                        .title(memo.getTitle())
+                        .body("쪽지를 제출해 주세요.")
+                .build());
     }
 
     public MemoListDto getAllMemos(Long lectureId) {

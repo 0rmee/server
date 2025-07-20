@@ -17,7 +17,7 @@ public class TeacherNoticeController {
     }
 
     @PostMapping("/{lectureId}/notices")
-    public ResponseDto createNotice(@PathVariable Long lectureId, @RequestBody NoticeSaveDto noticeSaveDto, Authentication authentication) throws IOException {
+    public ResponseDto createNotice(@PathVariable Long lectureId, @RequestBody NoticeSaveDto noticeSaveDto, Authentication authentication) throws Exception {
         noticeService.saveNotice(lectureId, noticeSaveDto, authentication.getName());
         return ResponseDto.success();
     }

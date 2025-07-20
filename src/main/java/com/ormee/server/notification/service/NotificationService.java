@@ -1,5 +1,6 @@
 package com.ormee.server.notification.service;
 
+import com.ormee.server.homework.service.HomeworkService;
 import com.ormee.server.notification.domain.Notification;
 import com.ormee.server.notification.domain.NotificationType;
 import com.ormee.server.notification.dto.NotificationDto;
@@ -15,6 +16,7 @@ import com.ormee.server.notification.repository.NotificationRepository;
 import com.ormee.server.question.domain.Question;
 import com.ormee.server.quiz.domain.Quiz;
 import com.ormee.server.quiz.repository.QuizRepository;
+import com.ormee.server.quiz.service.QuizService;
 import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,13 +31,17 @@ public class NotificationService {
     private final QuizRepository quizRepository;
     private final HomeworkRepository homeworkRepository;
     private final MemoRepository memoRepository;
+    private final QuizService quizService;
+    private final HomeworkService homeworkService;
 
-    public NotificationService(NotificationRepository notificationRepository, LectureRepository lectureRepository, QuizRepository quizRepository, HomeworkRepository homeworkRepository, MemoRepository memoRepository) {
+    public NotificationService(NotificationRepository notificationRepository, LectureRepository lectureRepository, QuizRepository quizRepository, HomeworkRepository homeworkRepository, MemoRepository memoRepository, QuizService quizService, HomeworkService homeworkService) {
         this.notificationRepository = notificationRepository;
         this.lectureRepository = lectureRepository;
         this.quizRepository = quizRepository;
         this.homeworkRepository = homeworkRepository;
         this.memoRepository = memoRepository;
+        this.quizService = quizService;
+        this.homeworkService = homeworkService;
     }
 
     public void create(NotificationType type, Object parent) {
@@ -142,28 +148,31 @@ public class NotificationService {
     }
 
     @Scheduled(cron = "0 * * * * *")
-    public void createAllNotifications() {
+    @Transactional
+    public void createAllNotifications() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         createQuizNotifications(now);
         createHomeworkNotifications(now);
         createMemoNotifications(now);
     }
 
-    private void createQuizNotifications(LocalDateTime now) {
+    private void createQuizNotifications(LocalDateTime now) throws Exception {
         List<Quiz> quizzes = quizRepository.findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(now);
         for(Quiz quiz : quizzes) {
             create(NotificationType.QUIZ, quiz);
             quiz.setNotified(true);
             quizRepository.save(quiz);
+            quizService.sendNotification(quiz, "퀴즈가 마감되었어요.");
         }
     }
 
-    private void createHomeworkNotifications(LocalDateTime now) {
+    private void createHomeworkNotifications(LocalDateTime now) throws Exception {
         List<Homework> homeworks = homeworkRepository.findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(now);
         for(Homework homework : homeworks) {
             create(NotificationType.HOMEWORK, homework);
             homework.setNotified(true);
             homeworkRepository.save(homework);
+            homeworkService.sendNotification(homework.getLecture(), homework, "숙제가 마감되었어요.");
         }
     }
 
