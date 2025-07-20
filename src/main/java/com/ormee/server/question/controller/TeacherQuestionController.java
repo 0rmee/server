@@ -29,6 +29,12 @@ public class TeacherQuestionController {
         };
     }
 
+    @GetMapping("/{lectureId}/questions/search")
+    public ResponseDto searchQuestions(@PathVariable Long lectureId, @RequestParam(required = false, defaultValue = "전체") String filter, @RequestParam String keyword, @RequestParam(defaultValue = "1") int page) {
+        return ResponseDto.success(questionService.searchByFilterAndKeyword(lectureId, filter, keyword, page - 1));
+    }
+
+
     @GetMapping("/questions/{questionId}")
     public ResponseDto readQuestion(@PathVariable Long questionId) {
         return ResponseDto.success(questionService.findById(questionId));

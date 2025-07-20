@@ -208,6 +208,29 @@ public class QuestionService {
                 .build();
     }
 
+    public PageResponseDto<QuestionDto> searchByFilterAndKeyword(Long lectureId, String filter, String keyword, int page) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
+        Page<Question> questionPage;
+        switch (filter) {
+            case "전체" -> questionPage = questionRepository.searchAll(lecture, keyword, pageable);
+            case "제목" -> questionPage = questionRepository.findAllByLectureAndTitleContainingOrderByCreatedAtDesc(lecture, keyword, pageable);
+            case "내용" -> questionPage = questionRepository.findAllByLectureAndContentContainingOrderByCreatedAtDesc(lecture, keyword, pageable);
+            case "작성자" -> questionPage = questionRepository.findAllByLectureAndStudent_NameContainingOrderByCreatedAtDesc(lecture, keyword, pageable);
+            default -> throw new CustomException(ExceptionType.FILTER_INVALID_EXCEPTION);
+        }
+
+        List<QuestionDto> content = questionPage.stream().map(this::convertToDto).toList();
+
+        return PageResponseDto.<QuestionDto>builder()
+                .content(content)
+                .totalPages(questionPage.getTotalPages())
+                .totalElements(questionPage.getTotalElements())
+                .currentPage(questionPage.getNumber() + 1)
+                .build();
+    }
+
     public List<QuestionDto> getMyQuestions(String username) {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         List<Question> questions = questionRepository.findAllByStudentOrderByCreatedAtDesc(student);

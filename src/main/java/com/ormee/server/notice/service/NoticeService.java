@@ -132,9 +132,7 @@ public class NoticeService {
 
         Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
 
-        Page<Notice> noticePage = noticeRepository
-                .searchByLectureAndKeyword(
-                        lecture, keyword, pageable);
+        Page<Notice> noticePage = noticeRepository.searchByLectureAndKeyword(lecture, keyword, pageable);
 
         List<NoticeListDto> content = noticePage.stream()
                 .map(this::convertToDto)

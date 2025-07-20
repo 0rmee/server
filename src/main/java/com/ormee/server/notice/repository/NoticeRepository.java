@@ -19,11 +19,20 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(Lecture lecture);
     List<Notice> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
     List<Notice> findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime localDateTime);
-    @Query("SELECT n FROM Notice n WHERE n.lecture = :lecture AND n.isDraft = false AND (n.title LIKE %:keyword% OR n.description LIKE %:keyword%) ORDER BY n.createdAt DESC")
+    @Query("""
+    SELECT n FROM Notice n
+    WHERE n.lecture = :lecture
+      AND n.isDraft = false
+      AND (
+            LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+            LOWER(n.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+            LOWER(n.author.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+          )
+    ORDER BY n.createdAt DESC
+    """)
     Page<Notice> searchByLectureAndKeyword(@Param("lecture") Lecture lecture,
                                            @Param("keyword") String keyword,
                                            Pageable pageable);
-
     @Query("SELECT n FROM Notice n WHERE n.lecture = :lecture AND n.isDraft = false AND (UPPER(n.title) LIKE UPPER(CONCAT('%', :keyword, '%')) OR UPPER(n.description) LIKE UPPER(CONCAT('%', :keyword, '%'))) ORDER BY n.createdAt DESC")
     List<Notice> searchByLectureAndKeyword(@Param("lecture") Lecture lecture,
                                            @Param("keyword") String keyword);
