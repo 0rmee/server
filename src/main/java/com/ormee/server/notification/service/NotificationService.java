@@ -147,8 +147,7 @@ public class NotificationService {
         notificationRepository.deleteAllByCreatedAtBefore(LocalDateTime.now().minusDays(30));
     }
 
-    @Scheduled(cron = "0 * * * * *")
-    @Transactional
+    @Scheduled(cron = "0 0 * * * *")
     public void createAllNotifications() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         createQuizNotifications(now);
