@@ -24,6 +24,7 @@ public enum ExceptionType {
     LIKE_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "좋아요 한 적 없는 글입니다."),
     COLLABORATOR_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "공동작업자가 존재하지 않습니다."),
     SUBMISSION_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 제출했습니다."),
+    USERNAME_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
     EMAIL_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     LIKE_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 좋아요 했습니다."),
     ACCOUNT_LOCKED_EXCEPTION(HttpStatus.LOCKED, "계정이 잠겼습니다."),

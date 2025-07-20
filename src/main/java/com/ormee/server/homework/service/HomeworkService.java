@@ -17,6 +17,9 @@ import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
+import com.ormee.server.notification.domain.NotificationType;
+import com.ormee.server.notification.dto.StudentNotificationRequestDto;
+import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +39,9 @@ public class HomeworkService {
     private final FeedbackRepository feedbackRepository;
     private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
+    private final StudentNotificationService studentNotificationService;
 
-    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
+    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, StudentNotificationService studentNotificationService) {
         this.homeworkRepository = homeworkRepository;
         this.memberRepository = memberRepository;
         this.lectureRepository = lectureRepository;
@@ -45,9 +49,10 @@ public class HomeworkService {
         this.feedbackRepository = feedbackRepository;
         this.attachmentRepository = attachmentRepository;
         this.attachmentService = attachmentService;
+        this.studentNotificationService = studentNotificationService;
     }
 
-    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto, String username) {
+    public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto, String username) throws Exception {
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username)
@@ -77,6 +82,10 @@ public class HomeworkService {
         }
 
         homework.setAttachments(attachments);
+
+        if(!homeworkSaveDto.getIsDraft()) {
+            sendNotification(lecture, homework, "숙제가 등록되었어요.");
+        }
 
         homeworkRepository.save(homework);
     }
@@ -196,7 +205,7 @@ public class HomeworkService {
                 .build();
     }
 
-    public void update(Long homeworkId, HomeworkSaveDto homeworkSaveDto) {
+    public void update(Long homeworkId, HomeworkSaveDto homeworkSaveDto) throws Exception {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
 
@@ -235,6 +244,9 @@ public class HomeworkService {
             }
         }
 
+        if(homework.getIsDraft() && !homeworkSaveDto.getIsDraft()) {
+            sendNotification(homework.getLecture(), homework, "숙제가 등록되었어요.");
+        }
         homework.setIsDraft(homeworkSaveDto.getIsDraft());
 
         homeworkRepository.save(homework);
@@ -286,6 +298,18 @@ public class HomeworkService {
                 .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
                 .feedbackCompleted(feedbackRepository.existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(homework, student))
                 .build();
+    }
+
+    public void sendNotification(Lecture lecture, Homework homework, String body) throws Exception {
+        studentNotificationService.create(lecture.getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
+                StudentNotificationRequestDto.builder()
+                        .parentId(homework.getId())
+                        .type(NotificationType.HOMEWORK)
+                        .header(lecture.getTitle())
+                        .title(homework.getTitle())
+                        .body(body)
+                        .content(homework.getDescription())
+                        .build());
     }
 
     @Scheduled(cron = "0 0 0 * * *")

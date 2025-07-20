@@ -129,7 +129,7 @@ public class HomeService {
                         .id(notice.getId())
                         .type("고정")
                         .title(notice.getTitle())
-                        .openTime(notice.getPostDate())
+                        .openTime(notice.getCreatedAt())
                         .build()
                 ).toList());
 
@@ -138,8 +138,9 @@ public class HomeService {
             notices.addAll(noticeRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture, pageable)
                     .stream()
                     .map(notice -> ListDto.builder()
+                            .id(notice.getId())
                             .title(notice.getTitle())
-                            .openTime(notice.getPostDate())
+                            .openTime(notice.getCreatedAt())
                             .build())
                     .toList());
         }

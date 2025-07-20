@@ -10,6 +10,9 @@ import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
+import com.ormee.server.notification.domain.NotificationType;
+import com.ormee.server.notification.dto.StudentNotificationRequestDto;
+import com.ormee.server.notification.service.StudentNotificationService;
 import com.ormee.server.quiz.domain.Problem;
 import com.ormee.server.quiz.domain.ProblemSubmit;
 import com.ormee.server.quiz.domain.ProblemType;
@@ -37,8 +40,9 @@ public class QuizService {
     private final ProblemSubmitRepository problemSubmitRepository;
     private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
+    private final StudentNotificationService studentNotificationService;
 
-    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, MemberRepository memberRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
+    public QuizService(QuizRepository quizRepository, LectureRepository lectureRepository, MemberRepository memberRepository, ProblemRepository problemRepository, ProblemSubmitRepository problemSubmitRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, StudentNotificationService studentNotificationService) {
         this.quizRepository = quizRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
@@ -46,6 +50,7 @@ public class QuizService {
         this.problemSubmitRepository = problemSubmitRepository;
         this.attachmentRepository = attachmentRepository;
         this.attachmentService = attachmentService;
+        this.studentNotificationService = studentNotificationService;
     }
 
     public void saveQuiz(Long lectureId, QuizSaveDto quizSaveDto, String username) {
@@ -275,12 +280,26 @@ public class QuizService {
 
     }
 
-    public void openQuiz(Long quizId) {
+    public void openQuiz(Long quizId) throws Exception {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         LocalDateTime now = LocalDateTime.now();
         quiz.setIsOpened(true);
         quiz.setOpenTime(now);
         quizRepository.save(quiz);
+
+        sendNotification(quiz, "퀴즈가 등록되었어요.");
+    }
+
+    public void sendNotification(Quiz quiz, String body) throws Exception {
+        studentNotificationService.create(quiz.getLecture().getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
+                StudentNotificationRequestDto.builder()
+                        .parentId(quiz.getId())
+                        .type(NotificationType.QUIZ)
+                        .header(quiz.getLecture().getTitle())
+                        .title(quiz.getTitle())
+                        .body(body)
+                        .content(quiz.getDescription())
+                        .build());
     }
 
     public void closeQuiz(Long quizId) {

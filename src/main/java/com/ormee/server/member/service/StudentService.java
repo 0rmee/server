@@ -3,6 +3,7 @@ package com.ormee.server.member.service;
 import com.ormee.server.global.config.jwt.JwtToken;
 import com.ormee.server.global.config.jwt.JwtTokenProvider;
 import com.ormee.server.global.config.jwt.RefreshToken;
+import com.ormee.server.member.domain.DeviceToken;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.PasswordDto;
@@ -11,24 +12,27 @@ import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.member.dto.TokenDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
+import com.ormee.server.member.repository.DeviceTokenRepository;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.member.repository.RefreshTokenRepository;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentService {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final DeviceTokenRepository deviceTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public StudentService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public StudentService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, DeviceTokenRepository deviceTokenRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.memberRepository = memberRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.deviceTokenRepository = deviceTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -111,5 +115,25 @@ public class StudentService {
         }
 
         return true;
+    }
+
+    public boolean checkUsername(SignInDto signInDto) {
+        if(memberRepository.existsByUsernameAndRole(signInDto.getUsername(), Role.STUDENT)) {
+            throw new CustomException(ExceptionType.USERNAME_ALREADY_EXIST_EXCEPTION);
+        }
+
+        return true;
+    }
+
+    public void saveOrUpdateDeviceToken(String username, String token) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        Optional<DeviceToken> existingToken = deviceTokenRepository.findByMemberIdAndDeviceToken(student.getId(), token);
+
+        DeviceToken deviceToken = existingToken.orElseGet(DeviceToken::new);
+
+        deviceToken.setMemberId(student.getId());
+        deviceToken.setDeviceToken(token);
+
+        deviceTokenRepository.save(deviceToken);
     }
 }

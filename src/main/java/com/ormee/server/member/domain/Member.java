@@ -13,6 +13,11 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"role", "username"}),
+        @UniqueConstraint(columnNames = {"role", "phone_number"})
+})
 @Builder
 @Getter
 @Setter

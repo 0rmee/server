@@ -57,7 +57,7 @@ public class TeacherQuizController {
     }
 
     @PutMapping("/quizzes/{quizId}/open")
-    public ResponseDto openQuiz(@PathVariable Long quizId) {
+    public ResponseDto openQuiz(@PathVariable Long quizId) throws Exception {
         quizService.openQuiz(quizId);
         return ResponseDto.success();
     }

@@ -19,7 +19,7 @@ public class TeacherMemoController {
     }
 
     @PostMapping("/{lectureId}/memos")
-    public ResponseDto createMemo(@PathVariable Long lectureId, @RequestBody MemoDto memoDto, Authentication authentication) {
+    public ResponseDto createMemo(@PathVariable Long lectureId, @RequestBody MemoDto memoDto, Authentication authentication) throws Exception {
         memoService.createMemo(lectureId, memoDto, authentication.getName());
         return ResponseDto.success();
     }

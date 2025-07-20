@@ -20,4 +20,6 @@ public interface StudentLectureRepository extends JpaRepository<StudentLecture, 
     List<StudentLecture> findAllByLectureAndBlockedTrueOrderByStudent_Name(Lecture lecture);
     List<StudentLecture> findAllByStudentAndLecture_StartDateBeforeAndLecture_DueDateAfter(Member student, LocalDateTime now1, LocalDateTime now2);
     List<StudentLecture> findAllByStudentOrderByLecture_StartDateDesc(Member student);
+
+    List<StudentLecture> findAllByLecture(Lecture lecture);
 }
