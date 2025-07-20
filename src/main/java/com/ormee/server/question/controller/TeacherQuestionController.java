@@ -9,8 +9,6 @@ import com.ormee.server.question.service.QuestionService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/teachers")
 public class TeacherQuestionController {
@@ -37,7 +35,7 @@ public class TeacherQuestionController {
     }
 
     @PostMapping("/questions/{questionId}")
-    public ResponseDto createAnswer(@PathVariable Long questionId, @ModelAttribute AnswerSaveDto answerSaveDto, Authentication authentication) throws Exception {
+    public ResponseDto createAnswer(@PathVariable Long questionId, @RequestBody AnswerSaveDto answerSaveDto, Authentication authentication) throws Exception {
         answerService.writeAnswer(questionId, answerSaveDto, authentication.getName());
         return ResponseDto.success();
     }
@@ -48,7 +46,7 @@ public class TeacherQuestionController {
     }
 
     @PutMapping("/answers/{answerId}")
-    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) throws IOException {
+    public ResponseDto updateAnswer(@PathVariable Long answerId, @RequestBody AnswerSaveDto answerSaveDto) {
         answerService.modifyAnswer(answerId, answerSaveDto);
         return ResponseDto.success();
     }
