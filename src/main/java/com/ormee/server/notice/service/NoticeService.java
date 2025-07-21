@@ -261,7 +261,7 @@ public class NoticeService {
                 .fileNames(notice.getAttachments().stream()
                         .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
                 .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
-                .postDate(notice.getPostDate() != null ? notice.getPostDate() : LocalDateTime.now())
+                .postDate(notice.getCreatedAt())
                 .isPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false)
                 .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
                 .build();
@@ -277,7 +277,7 @@ public class NoticeService {
                 .fileNames(notice.getAttachments().stream()
                         .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
                 .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
-                .postDate(notice.getPostDate())
+                .postDate(notice.getCreatedAt())
                 .isPinned(notice.getIsPinned())
                 .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
                 .isLiked(notice.getLikes().contains(student))

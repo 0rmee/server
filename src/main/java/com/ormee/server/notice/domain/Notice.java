@@ -43,9 +43,6 @@ public class Notice extends EntityTime {
     private List<Attachment> attachments = new ArrayList<>();
 
     @Column
-    private LocalDateTime postDate;
-
-    @Column
     private Boolean isPinned;
 
     @Column
