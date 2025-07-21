@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,6 +106,18 @@ public class LectureService {
 
         teacher.removeLecture(lecture);
         memberRepository.save(teacher);
+    }
+
+    public List<LectureResponseDto> getAllLectures(String username) {
+        Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        List<Lecture> lectures = lectureRepository.findAllByTeacherOrCollaboratorsInOrderByCreatedAtDesc(teacher, List.of(teacher));
+
+        return lectures.stream().map(lecture -> LectureResponseDto.builder()
+                .id(lecture.getId())
+                .name(lecture.getTitle())
+                .build())
+                .toList();
     }
 
     public LectureListDto findAllLectures(String username) {
@@ -208,5 +221,4 @@ public class LectureService {
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
                 .build();
     }
-
 }

@@ -38,6 +38,11 @@ public class TeacherLectureController {
         return ResponseDto.success();
     }
 
+    @GetMapping("/load")
+    public ResponseDto getAllLectures(Authentication authentication) {
+        return ResponseDto.success(lectureService.getAllLectures(authentication.getName()));
+    }
+
     @GetMapping
     public ResponseDto getLectureList(Authentication authentication) {
         return ResponseDto.success(lectureService.findAllLectures(authentication.getName()));

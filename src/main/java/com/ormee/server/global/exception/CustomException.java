@@ -1,10 +1,19 @@
 package com.ormee.server.global.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class CustomException extends RuntimeException {
-    ExceptionType exceptionType;
+    private final ExceptionType exceptionType;
+    private final String message;
+
+    public CustomException(ExceptionType exceptionType) {
+        this(exceptionType, exceptionType.getMessage());
+    }
+
+    public CustomException(ExceptionType exceptionType, String message) {
+        super(message);
+        this.exceptionType = exceptionType;
+        this.message = message;
+    }
 }

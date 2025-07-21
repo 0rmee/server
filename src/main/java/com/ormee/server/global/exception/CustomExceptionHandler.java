@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CustomExceptionHandler {
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity handleException(CustomException e) {
-        return ResponseEntity.status(e.exceptionType.getHttpStatus()).body(ResponseDto.fail(e.exceptionType.getHttpStatus().value(), e.exceptionType.getMessage()));
+        return ResponseEntity.status(e.getExceptionType().getHttpStatus()).body(ResponseDto.fail(e.getExceptionType().getHttpStatus().value(), e.getMessage()));
     }
 }
