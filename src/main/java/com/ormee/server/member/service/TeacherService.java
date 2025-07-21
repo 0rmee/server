@@ -81,7 +81,7 @@ public class TeacherService {
                 throw new CustomException(ExceptionType.ACCOUNT_LOCKED_EXCEPTION);
             }
 
-            throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
+            throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION, "로그인 정보를 다시 확인해 주세요. (잠금까지 " + (5-failCount) + "회 남음)");
         }
     }
 
