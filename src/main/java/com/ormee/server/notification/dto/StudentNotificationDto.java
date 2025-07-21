@@ -4,10 +4,13 @@ import com.ormee.server.notification.domain.StudentNotification;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 public class StudentNotificationDto {
     private Long id;
+    private String authorImage;
     private String type;
     private Long parentId;
     private String header;
@@ -15,10 +18,12 @@ public class StudentNotificationDto {
     private String body;
     private String content;
     private Boolean isRead;
+    private LocalDateTime createdAt;
 
-    public static StudentNotificationDto toDto(StudentNotification studentNotification) {
+    public static StudentNotificationDto toDto(StudentNotification studentNotification, String authorImage) {
         return StudentNotificationDto.builder()
                 .id(studentNotification.getId())
+                .authorImage(authorImage)
                 .type(studentNotification.getType().getKorean())
                 .parentId(studentNotification.getParentId())
                 .header(studentNotification.getHeader())
@@ -26,6 +31,7 @@ public class StudentNotificationDto {
                 .body(studentNotification.getBody())
                 .content(studentNotification.getContent())
                 .isRead(studentNotification.getIsRead())
+                .createdAt(studentNotification.getCreatedAt())
                 .build();
     }
 }

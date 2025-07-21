@@ -1,33 +1,56 @@
 package com.ormee.server.notification.service;
 
+import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
+import com.ormee.server.homework.domain.Homework;
+import com.ormee.server.homework.repository.HomeworkRepository;
 import com.ormee.server.member.domain.DeviceToken;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.repository.DeviceTokenRepository;
 import com.ormee.server.member.repository.MemberRepository;
+import com.ormee.server.memo.domain.Memo;
+import com.ormee.server.memo.repository.MemoRepository;
+import com.ormee.server.notice.domain.Notice;
+import com.ormee.server.notice.repository.NoticeRepository;
 import com.ormee.server.notification.domain.NotificationType;
 import com.ormee.server.notification.domain.StudentNotification;
 import com.ormee.server.notification.dto.StudentNotificationDto;
 import com.ormee.server.notification.dto.StudentNotificationListDto;
 import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.repository.StudentNotificationRepository;
+import com.ormee.server.question.domain.Answer;
+import com.ormee.server.question.domain.Question;
+import com.ormee.server.question.repository.AnswerRepository;
+import com.ormee.server.quiz.domain.Quiz;
+import com.ormee.server.quiz.repository.QuizRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentNotificationService {
     private final StudentNotificationRepository studentNotificationRepository;
     private final MemberRepository memberRepository;
     private final DeviceTokenRepository deviceTokenRepository;
+    private final QuizRepository quizRepository;
+    private final HomeworkRepository homeworkRepository;
+    private final NoticeRepository noticeRepository;
+    private final MemoRepository memoRepository;
+    private final AnswerRepository answerRepository;
     private final FcmService fcmService;
-    public StudentNotificationService(StudentNotificationRepository studentNotificationRepository, MemberRepository memberRepository, DeviceTokenRepository deviceTokenRepository, FcmService fcmService) {
+    public StudentNotificationService(StudentNotificationRepository studentNotificationRepository, MemberRepository memberRepository, DeviceTokenRepository deviceTokenRepository, QuizRepository quizRepository, HomeworkRepository homeworkRepository, NoticeRepository noticeRepository, MemoRepository memoRepository, AnswerRepository answerRepository, FcmService fcmService) {
         this.studentNotificationRepository = studentNotificationRepository;
         this.memberRepository = memberRepository;
         this.deviceTokenRepository = deviceTokenRepository;
+        this.quizRepository = quizRepository;
+        this.homeworkRepository = homeworkRepository;
+        this.noticeRepository = noticeRepository;
+        this.memoRepository = memoRepository;
+        this.answerRepository = answerRepository;
         this.fcmService = fcmService;
     }
 
@@ -84,7 +107,7 @@ public class StudentNotificationService {
 
         return StudentNotificationListDto.builder()
                 .count(unreadCount)
-                .notifications(notifications.stream().map(StudentNotificationDto::toDto).toList())
+                .notifications(notifications.stream().map(studentNotification -> StudentNotificationDto.toDto(studentNotification, getAuthorImage(studentNotification.getType(), studentNotification.getParentId()))).toList())
                 .build();
     }
 
@@ -92,7 +115,38 @@ public class StudentNotificationService {
         Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         List<StudentNotification> notifications = studentNotificationRepository.findAllByMemberIdAndKeyword(student.getId(), keyword);
 
-        return notifications.stream().map(StudentNotificationDto::toDto).toList();
+        return notifications.stream().map(studentNotification -> StudentNotificationDto.toDto(studentNotification, getAuthorImage(studentNotification.getType(), studentNotification.getParentId()))).toList();
+    }
+
+    public String getAuthorImage(NotificationType type, Long parentId) {
+        switch (type) {
+            case QUIZ:
+                Quiz quiz = quizRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
+                return Optional.ofNullable(quiz.getAuthor().getImage())
+                        .map(Attachment::getFilePath)
+                        .orElse(null);
+            case MEMO:
+                Memo memo = memoRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
+                return Optional.ofNullable(memo.getAuthor().getImage())
+                        .map(Attachment::getFilePath)
+                        .orElse(null);
+            case HOMEWORK:
+                Homework homework = homeworkRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
+                return Optional.ofNullable(homework.getAuthor().getImage())
+                        .map(Attachment::getFilePath)
+                        .orElse(null);
+            case NOTICE:
+                Notice notice = noticeRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
+                return Optional.ofNullable(notice.getAuthor().getImage())
+                        .map(Attachment::getFilePath)
+                        .orElse(null);
+            case QUESTION:
+                Answer answer = answerRepository.findByQuestion_Id(parentId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
+                return Optional.ofNullable(answer.getAuthor().getImage())
+                        .map(Attachment::getFilePath)
+                        .orElse(null);
+            default: return null;
+        }
     }
 
     public void read(Long notificationId) {
