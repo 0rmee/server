@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
     List<Lecture> findAllByTeacherOrCollaboratorsIn(Member teacher, Collection<Member> collaborators);
+    List<Lecture> findAllByTeacherOrCollaboratorsInOrderByCreatedAtDesc(Member teacher, Collection<Member> collaborators);
 }
