@@ -22,4 +22,5 @@ public interface StudentLectureRepository extends JpaRepository<StudentLecture, 
     List<StudentLecture> findAllByStudentOrderByLecture_StartDateDesc(Member student);
 
     List<StudentLecture> findAllByLecture(Lecture lecture);
+    List<StudentLecture> findAllByStudent(Member student);
 }
