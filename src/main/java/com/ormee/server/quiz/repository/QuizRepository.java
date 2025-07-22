@@ -1,6 +1,7 @@
 package com.ormee.server.quiz.repository;
 
 import com.ormee.server.lecture.domain.Lecture;
+import com.ormee.server.member.domain.Member;
 import com.ormee.server.quiz.domain.Quiz;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     List<Quiz> findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(LocalDateTime now);
     List<Quiz> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
     List<Quiz> findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime localDateTime);
+    List<Quiz> findAllByIsDraftFalseAndIsOpenedTrueAndLectureInOrderByCreatedAtAsc(List<Lecture> lectures);
+
+
 }
