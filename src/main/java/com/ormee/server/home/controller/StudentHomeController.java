@@ -19,4 +19,8 @@ public class StudentHomeController {
         return ResponseDto.success(studentHomeService.findAllQuiz(authentication));
     }
 
+    @GetMapping("/homeworks")
+    public ResponseDto getHomeHomeworkList(Authentication authentication) {
+        return ResponseDto.success(studentHomeService.findAllHomework(authentication));
+    }
 }

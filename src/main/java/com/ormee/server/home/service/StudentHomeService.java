@@ -2,7 +2,11 @@ package com.ormee.server.home.service;
 
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
+import com.ormee.server.home.dto.HomeworkDto;
 import com.ormee.server.home.dto.QuizDto;
+import com.ormee.server.homework.domain.Homework;
+import com.ormee.server.homework.repository.HomeworkRepository;
+import com.ormee.server.homework.repository.HomeworkSubmitRepository;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.domain.StudentLecture;
 import com.ormee.server.lecture.repository.StudentLectureRepository;
@@ -24,11 +28,15 @@ public class StudentHomeService {
     private final QuizRepository quizRepository;
     private final StudentLectureRepository studentLectureRepository;
     private final ProblemSubmitRepository problemSubmitRepository;
-    public StudentHomeService(MemberRepository memberRepository,QuizRepository quizRepository, StudentLectureRepository studentLectureRepository, ProblemSubmitRepository problemSubmitRepository) {
+    private final HomeworkRepository homeworkRepository;
+    private final HomeworkSubmitRepository homeworkSubmitRepository;
+    public StudentHomeService(MemberRepository memberRepository,QuizRepository quizRepository, StudentLectureRepository studentLectureRepository, ProblemSubmitRepository problemSubmitRepository, HomeworkRepository homeworkRepository, HomeworkSubmitRepository homeworkSubmitRepository) {
         this.memberRepository = memberRepository;
         this.quizRepository = quizRepository;
         this.studentLectureRepository = studentLectureRepository;
         this.problemSubmitRepository = problemSubmitRepository;
+        this.homeworkRepository = homeworkRepository;
+        this.homeworkSubmitRepository = homeworkSubmitRepository;
     }
 
     public List<QuizDto> findAllQuiz(Authentication authentication) {
@@ -60,6 +68,35 @@ public class StudentHomeService {
         }
 
         return quizListDtos;
+    }
+
+    public List<HomeworkDto> findAllHomework(Authentication authentication) {
+        Member student = memberRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        List<StudentLecture> enrolledLectures = studentLectureRepository.findAllByStudent(student);
+        List<Lecture> lectures = enrolledLectures.stream()
+                .filter(l -> !Boolean.TRUE.equals(l.getBlocked()))
+                .map(StudentLecture::getLecture)
+                .toList();
+
+        List<Homework> homeworkList = homeworkRepository.findAllByIsDraftFalseAndLectureInOrderByCreatedAtAsc(lectures);
+
+        List<HomeworkDto> homeworkListDtos = new ArrayList<>();
+        for (Homework homework : homeworkList) {
+            boolean isSubmitted = homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student);
+            if (isSubmitted) continue;
+
+            homeworkListDtos.add(HomeworkDto.builder()
+                    .id(homework.getId())
+                    .homeworkTitle(homework.getTitle())
+                    .homeworkDueTime(
+                            homework.getDueTime() == null
+                                    ? null
+                                    : homework.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"))
+                    ).build());
+        }
+        return homeworkListDtos;
     }
 
 }
