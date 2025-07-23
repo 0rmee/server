@@ -303,6 +303,7 @@ public class HomeworkService {
                         .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
                 .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .openTime(homework.getCreatedAt())
+                .dueTime(homework.getDueTime())
                 .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
                 .feedbackCompleted(feedbackRepository.existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(homework, student))
                 .build();
