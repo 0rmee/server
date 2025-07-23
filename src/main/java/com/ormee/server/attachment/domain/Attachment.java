@@ -31,7 +31,7 @@ public class Attachment extends EntityTime {
     @Column
     private String fileName;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String filePath;
 
     @Column
