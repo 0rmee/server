@@ -79,4 +79,8 @@ public class ProblemSubmitService {
                 .problemDtos(problemDtos)
                 .build();
     }
+
+    public void deleteAllByQuiz(Quiz quiz) {
+        problemSubmitRepository.deleteAllByProblem_Quiz(quiz);
+    }
 }

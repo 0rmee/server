@@ -34,4 +34,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Page<Question> findAllByLectureAndStudent_NameContainingOrderByCreatedAtDesc(Lecture lecture, String keyword, Pageable pageable);
     List<Question> findAllByLectureOrderByCreatedAtDesc(Lecture lecture);
     List<Question> findAllByStudentOrderByCreatedAtDesc(Member student);
+    List<Question> findAllByLecture(Lecture lecture);
 }

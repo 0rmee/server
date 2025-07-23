@@ -16,4 +16,5 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime localDateTime);
     List<Homework> findAllByIsDraftFalseAndDueTimeBetween(LocalDateTime start, LocalDateTime end);
     List<Homework> findAllByIsDraftFalseAndLectureInOrderByCreatedAtAsc(List<Lecture> lectures);
+    List<Homework> findAllByLecture(Lecture lecture);
 }

@@ -37,4 +37,5 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> searchByLectureAndKeyword(@Param("lecture") Lecture lecture,
                                            @Param("keyword") String keyword);
     long countAllByLectureAndIsPinnedTrue(Lecture lecture);
+    List<Notice> findAllByLecture(Lecture lecture);
 }

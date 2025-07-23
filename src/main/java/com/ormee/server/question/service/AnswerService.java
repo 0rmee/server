@@ -122,7 +122,13 @@ public class AnswerService {
     public void deleteAnswer(Long answerId) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(()->new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
         Question question = answer.getQuestion();
+
+        for (Attachment attachment : answer.getAttachments()) {
+            attachmentService.delete(attachment.getId());
+        }
+
         answerRepository.delete(answer);
+
         question.setIsAnswered(false);
         questionRepository.save(question);
     }
@@ -142,5 +148,10 @@ public class AnswerService {
                     .createdAt(answer.getCreatedAt().toString())
                     .filePaths(answer.getAttachments().stream().map(Attachment::getFilePath).toList())
                     .build();
+    }
+
+    public void deleteByQuestion(Question question) {
+        List<Answer> answers = answerRepository.findAllByQuestion(question);
+        answers.forEach(answer -> deleteAnswer(answer.getId()));
     }
 }

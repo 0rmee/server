@@ -2,6 +2,7 @@ package com.ormee.server.homework.service;
 
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.homework.domain.Feedback;
+import com.ormee.server.homework.domain.Homework;
 import com.ormee.server.homework.domain.HomeworkSubmit;
 import com.ormee.server.homework.domain.StampType;
 import com.ormee.server.homework.dto.FeedbackDto;
@@ -74,5 +75,10 @@ public class FeedbackService {
         feedbackRepository.delete(feedback);
         homeworkSubmit.setIsFeedback(false);
         homeworkSubmitRepository.save(homeworkSubmit);
+    }
+
+    public void deleteAllByHomework(Homework homework) {
+        List<Feedback> feedbacks = feedbackRepository.findAllByHomeworkSubmit_Homework(homework);
+        feedbacks.forEach(feedback -> delete(feedback.getId()));
     }
 }

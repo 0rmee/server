@@ -2,6 +2,7 @@ package com.ormee.server.homework.service;
 
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.attachment.repository.AttachmentRepository;
+import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.homework.domain.Homework;
 import com.ormee.server.homework.domain.HomeworkSubmit;
 import com.ormee.server.homework.dto.HomeworkSubmitDto;
@@ -27,12 +28,14 @@ public class HomeworkSubmitService {
     private final HomeworkRepository homeworkRepository;
     private final MemberRepository memberRepository;
     private final AttachmentRepository attachmentRepository;
+    private final AttachmentService attachmentService;
 
-    public HomeworkSubmitService(HomeworkSubmitRepository homeworkSubmitRepository, HomeworkRepository homeworkRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository) {
+    public HomeworkSubmitService(HomeworkSubmitRepository homeworkSubmitRepository, HomeworkRepository homeworkRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
         this.homeworkSubmitRepository = homeworkSubmitRepository;
         this.homeworkRepository = homeworkRepository;
         this.memberRepository = memberRepository;
         this.attachmentRepository = attachmentRepository;
+        this.attachmentService = attachmentService;
     }
 
     public void submit(Long homeworkId, HomeworkSubmitSaveDto homeworkSubmitSaveDto, String username) {
@@ -182,5 +185,18 @@ public class HomeworkSubmitService {
         HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findByHomeworkAndStudent(homework, student).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
 
         return get(homeworkSubmit.getId(), username);
+    }
+
+    public void deleteAllByHomework(Homework homework) {
+        List<HomeworkSubmit> submissions = homeworkSubmitRepository.findAllByHomework(homework);
+        submissions.forEach(this::delete);
+    }
+
+    public void delete(HomeworkSubmit homeworkSubmit) {
+        for (Attachment attachment : homeworkSubmit.getAttachments()) {
+            attachmentService.delete(attachment.getId());
+        }
+
+        homeworkSubmitRepository.delete(homeworkSubmit);
     }
 }
