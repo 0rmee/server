@@ -86,7 +86,7 @@ public class LectureService {
     }
 
     private void checkAuth(Lecture lecture, Member teacher) {
-        if(teacher != lecture.getTeacher() || !lecture.getCollaborators().contains(teacher)) {
+        if(teacher != lecture.getTeacher() && !lecture.getCollaborators().contains(teacher)) {
             throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
         }
     }
