@@ -39,7 +39,7 @@ public class JwtTokenProvider {
         String authorities = String.join(",", roles);
 
         long now = new Date().getTime();
-        Date accessTokenExpiresIn = new Date(now + 1000 * 60 * 30); // 30분
+        Date accessTokenExpiresIn = new Date(now + 1000 * 60 * 90); // 90분
 
         String accessToken = Jwts.builder()
                 .setSubject(username)
