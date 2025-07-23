@@ -155,4 +155,17 @@ public class MemoService {
                 .map(memo -> read(memo.getId(), username))
                 .toList();
     }
+
+    public void deleteByLecture(Lecture lecture) {
+        List<Memo> memos = memoRepository.findAllByLecture(lecture);
+        memos.forEach(memo -> delete(memo.getId()));
+    }
+
+    private void delete(Long memoId) {
+        Memo memo = memoRepository.findById(memoId)
+                .orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
+
+        messageRepository.deleteAllByMemo(memo);
+        memoRepository.delete(memo);
+    }
 }

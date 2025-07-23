@@ -227,6 +227,7 @@ public class NoticeService {
             attachmentService.delete(attachment.getId());
         }
 
+        notice.getLikes().clear();
         noticeRepository.delete(notice);
     }
 
@@ -317,6 +318,11 @@ public class NoticeService {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAllExpiredDrafts() {
         List<Notice> notices = noticeRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
+        notices.forEach(notice -> deleteNotice(notice.getId()));
+    }
+
+    public void deleteByLecture(Lecture lecture) {
+        List<Notice> notices = noticeRepository.findAllByLecture(lecture);
         notices.forEach(notice -> deleteNotice(notice.getId()));
     }
 }

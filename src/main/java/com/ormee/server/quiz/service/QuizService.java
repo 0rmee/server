@@ -230,6 +230,8 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
+        problemSubmitRepository.deleteAllByProblem_Quiz(quiz);
+
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
 
         for (Problem problem : problems) {
@@ -464,6 +466,11 @@ public class QuizService {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAllExpiredDrafts() {
         List<Quiz> quizzes = quizRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
+        quizzes.forEach(quiz -> deleteQuiz(quiz.getId()));
+    }
+
+    public void deleteByLecture(Lecture lecture) {
+        List<Quiz> quizzes = quizRepository.findAllByLecture(lecture);
         quizzes.forEach(quiz -> deleteQuiz(quiz.getId()));
     }
 }

@@ -31,14 +31,16 @@ public class QuestionService {
     private final LectureRepository lectureRepository;
     private final MemberRepository memberRepository;
     private final AttachmentRepository attachmentRepository;
+    private final AnswerService answerService;
     private final AttachmentService attachmentService;
     private final NotificationService notificationService;
 
-    public QuestionService(QuestionRepository questionRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, NotificationService notificationService) {
+    public QuestionService(QuestionRepository questionRepository, LectureRepository lectureRepository, MemberRepository memberRepository, AttachmentRepository attachmentRepository, AnswerService answerService, AttachmentService attachmentService, NotificationService notificationService) {
         this.questionRepository = questionRepository;
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.attachmentRepository = attachmentRepository;
+        this.answerService = answerService;
         this.attachmentService = attachmentService;
         this.notificationService = notificationService;
     }
@@ -116,6 +118,12 @@ public class QuestionService {
 
     public void deleteQuestion(Long questionId) {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
+
+        answerService.deleteByQuestion(question);
+
+        for (Attachment attachment : question.getAttachments()) {
+            attachmentService.delete(attachment.getId());
+        }
         questionRepository.delete(question);
     }
 
@@ -244,5 +252,10 @@ public class QuestionService {
                 .createdAt(question.getCreatedAt().toString())
                 .build())
                 .toList();
+    }
+
+    public void deleteByLecture(Lecture lecture) {
+        List<Question> questions = questionRepository.findAllByLecture(lecture);
+        questions.forEach(question -> deleteQuestion(question.getId()));
     }
 }

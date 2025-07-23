@@ -15,4 +15,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findAllByLectureAndTypeOrderByCreatedAtDesc(Lecture lecture, NotificationType type);
     void deleteAllByLecture(Lecture lecture);
     void deleteAllByCreatedAtBefore(LocalDateTime cutoff);
+
+    List<Notification> findAllByLecture(Lecture lecture);
 }

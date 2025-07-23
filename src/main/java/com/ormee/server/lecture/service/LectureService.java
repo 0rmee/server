@@ -1,6 +1,7 @@
 package com.ormee.server.lecture.service;
 
 import com.ormee.server.attachment.domain.Attachment;
+import com.ormee.server.homework.service.HomeworkService;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.domain.LectureDay;
 import com.ormee.server.lecture.dto.LectureListDto;
@@ -8,6 +9,10 @@ import com.ormee.server.lecture.dto.LectureRequestDto;
 import com.ormee.server.lecture.dto.LectureResponseDto;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.member.dto.AuthorDto;
+import com.ormee.server.memo.service.MemoService;
+import com.ormee.server.notice.service.NoticeService;
+import com.ormee.server.notification.service.NotificationService;
+import com.ormee.server.question.service.QuestionService;
 import com.ormee.server.quiz.dto.QuizListDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
@@ -15,6 +20,7 @@ import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.memo.repository.MemoRepository;
 import com.ormee.server.quiz.service.QuizService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,12 +37,22 @@ public class LectureService {
     private final LectureRepository lectureRepository;
     private final MemberRepository memberRepository;
     private final QuizService quizService;
+    private final MemoService memoService;
+    private final HomeworkService homeworkService;
+    private final QuestionService questionService;
+    private final NoticeService noticeService;
+    private final NotificationService notificationService;
     private final MemoRepository memoRepository;
 
-    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoRepository memoRepository) {
+    public LectureService(LectureRepository lectureRepository, MemberRepository memberRepository, QuizService quizService, MemoService memoService, HomeworkService homeworkService, QuestionService questionService, NoticeService noticeService, NotificationService notificationService, MemoRepository memoRepository) {
         this.lectureRepository = lectureRepository;
         this.memberRepository = memberRepository;
         this.quizService = quizService;
+        this.memoService = memoService;
+        this.homeworkService = homeworkService;
+        this.questionService = questionService;
+        this.noticeService = noticeService;
+        this.notificationService = notificationService;
         this.memoRepository = memoRepository;
     }
 
@@ -96,6 +112,7 @@ public class LectureService {
             throw new CustomException(ExceptionType.LECTURE_MODIFY_FORBIDDEN_EXCEPTION);
     }
 
+    @Transactional
     public void delete(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
@@ -103,6 +120,13 @@ public class LectureService {
         checkAuth(lecture, teacher);
 
         isModifiable(lecture);
+
+        quizService.deleteByLecture(lecture);
+        memoService.deleteByLecture(lecture);
+        homeworkService.deleteByLecture(lecture);
+        questionService.deleteByLecture(lecture);
+        noticeService.deleteByLecture(lecture);
+        notificationService.deleteAll(lectureId);
 
         teacher.removeLecture(lecture);
         memberRepository.save(teacher);

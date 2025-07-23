@@ -16,4 +16,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByMemo_Id(Long memoId);
 
     Optional<Message> findByMemoAndStudent(Memo memo, Member student);
+
+    void deleteAllByMemo(Memo memo);
 }

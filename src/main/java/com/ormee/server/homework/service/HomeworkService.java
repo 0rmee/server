@@ -38,16 +38,20 @@ public class HomeworkService {
     private final HomeworkSubmitRepository homeworkSubmitRepository;
     private final FeedbackRepository feedbackRepository;
     private final AttachmentRepository attachmentRepository;
+    private final HomeworkSubmitService homeworkSubmitService;
+    private final FeedbackService feedbackService;
     private final AttachmentService attachmentService;
     private final StudentNotificationService studentNotificationService;
 
-    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, StudentNotificationService studentNotificationService) {
+    public HomeworkService(HomeworkRepository homeworkRepository, MemberRepository memberRepository, LectureRepository lectureRepository, HomeworkSubmitRepository homeworkSubmitRepository, FeedbackRepository feedbackRepository, AttachmentRepository attachmentRepository, HomeworkSubmitService homeworkSubmitService, FeedbackService feedbackService, AttachmentService attachmentService, StudentNotificationService studentNotificationService) {
         this.homeworkRepository = homeworkRepository;
         this.memberRepository = memberRepository;
         this.lectureRepository = lectureRepository;
         this.homeworkSubmitRepository = homeworkSubmitRepository;
         this.feedbackRepository = feedbackRepository;
         this.attachmentRepository = attachmentRepository;
+        this.homeworkSubmitService = homeworkSubmitService;
+        this.feedbackService = feedbackService;
         this.attachmentService = attachmentService;
         this.studentNotificationService = studentNotificationService;
     }
@@ -254,6 +258,10 @@ public class HomeworkService {
 
     public void delete(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
+
+        feedbackService.deleteAllByHomework(homework);
+        homeworkSubmitService.deleteAllByHomework(homework);
+
         for (Attachment attachment : homework.getAttachments()) {
             attachmentService.delete(attachment.getId());
         }
@@ -315,6 +323,11 @@ public class HomeworkService {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAllExpiredDrafts() {
         List<Homework> homeworks = homeworkRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
+        homeworks.forEach(homework -> delete(homework.getId()));
+    }
+
+    public void deleteByLecture(Lecture lecture) {
+        List<Homework> homeworks = homeworkRepository.findAllByLecture(lecture);
         homeworks.forEach(homework -> delete(homework.getId()));
     }
 }
