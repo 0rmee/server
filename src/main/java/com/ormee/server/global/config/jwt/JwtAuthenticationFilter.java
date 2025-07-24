@@ -1,6 +1,7 @@
 package com.ormee.server.global.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.global.response.ResponseDto;
 import com.ormee.server.global.exception.CustomException;
 import jakarta.servlet.*;
@@ -29,11 +30,17 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             // 1. Request Header에서 JWT 토큰 추출
             String token = resolveToken(httpRequest);
 
+            if (!StringUtils.hasText(token)) {
+                throw new CustomException(ExceptionType.INVALID_JWT_EXCEPTION);
+            }
+
             // 2. validateToken으로 토큰 유효성 검사
-            if (token != null && jwtTokenProvider.validateToken(token)) {
+            if (jwtTokenProvider.validateToken(token)) {
                 // 토큰이 유효할 경우 Authentication 객체를 가져와 SecurityContext에 저장
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                throw new CustomException(ExceptionType.INVALID_JWT_EXCEPTION);
             }
 
             chain.doFilter(request, response);
@@ -56,7 +63,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     // Request Header에서 토큰 정보 추출
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer") && bearerToken.length() >= 8) {
             return bearerToken.substring(7);
         }
         return null;
