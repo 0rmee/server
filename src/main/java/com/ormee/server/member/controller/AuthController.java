@@ -38,11 +38,11 @@ public class AuthController {
             throw new CustomException(ExceptionType.INVALID_JWT_EXCEPTION);
         }
 
-        // 저장된 Refresh Token과 비교
-        Optional<RefreshToken> storedToken = refreshTokenRepository.findByRefreshToken(refreshToken);
-        if (storedToken.isEmpty() || !storedToken.get().getRefreshToken().equals(refreshToken)) {
-            throw new CustomException(ExceptionType.INVALID_JWT_EXCEPTION);
-        }
+//        // 저장된 Refresh Token과 비교
+//        Optional<RefreshToken> storedToken = refreshTokenRepository.findByRefreshToken(refreshToken);
+//        if (storedToken.isEmpty() || !storedToken.get().getRefreshToken().equals(refreshToken)) {
+//            throw new CustomException(ExceptionType.INVALID_JWT_EXCEPTION);
+//        }
 
         // 새로운 Access Token 생성
         JwtToken newToken = jwtTokenProvider.reissueAccessToken(refreshToken);
