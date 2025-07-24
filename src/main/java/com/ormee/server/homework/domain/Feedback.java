@@ -17,7 +17,7 @@ public class Feedback extends EntityTime {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "homework_submit_id")
     private HomeworkSubmit homeworkSubmit;
 

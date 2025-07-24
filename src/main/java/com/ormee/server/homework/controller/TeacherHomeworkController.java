@@ -86,8 +86,8 @@ public class TeacherHomeworkController {
     }
 
     @PostMapping("/homeworks/submissions/{submissionId}")
-    public ResponseDto createFeedback(@PathVariable Long submissionId, @RequestBody FeedbackSaveDto feedbackSaveDto) {
-        feedbackService.save(submissionId, feedbackSaveDto);
+    public ResponseDto createFeedback(@PathVariable Long submissionId, @RequestBody FeedbackSaveDto feedbackSaveDto, Authentication authentication) {
+        feedbackService.save(submissionId, feedbackSaveDto, authentication.getName());
         return ResponseDto.success();
     }
 

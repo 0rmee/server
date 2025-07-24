@@ -11,7 +11,10 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.homework.repository.FeedbackRepository;
 import com.ormee.server.homework.repository.HomeworkSubmitRepository;
+import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.AuthorDto;
+import com.ormee.server.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,17 +23,22 @@ import java.util.Optional;
 @Service
 public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
+    private final MemberRepository memberRepository;
     private final HomeworkSubmitRepository homeworkSubmitRepository;
 
-    public FeedbackService(FeedbackRepository feedbackRepository, HomeworkSubmitRepository homeworkSubmitRepository) {
+    public FeedbackService(FeedbackRepository feedbackRepository, MemberRepository memberRepository, HomeworkSubmitRepository homeworkSubmitRepository) {
         this.feedbackRepository = feedbackRepository;
+        this.memberRepository = memberRepository;
         this.homeworkSubmitRepository = homeworkSubmitRepository;
     }
 
-    public void save(Long homeworkSubmitId, FeedbackSaveDto feedbackSaveDto) {
+    public void save(Long homeworkSubmitId, FeedbackSaveDto feedbackSaveDto, String username) {
         HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findById(homeworkSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
+        Member author = memberRepository.findByUsernameAndRole(username, Role.TEACHER).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
         Feedback feedback = Feedback.builder()
                 .homeworkSubmit(homeworkSubmit)
+                .author(author)
                 .stampType(feedbackSaveDto.getStamp() != null ? StampType.valueOf(feedbackSaveDto.getStamp()) :null)
                 .content(feedbackSaveDto.getContent() != null ? feedbackSaveDto.getContent() : null)
                 .build();
