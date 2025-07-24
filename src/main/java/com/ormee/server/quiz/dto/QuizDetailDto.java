@@ -16,6 +16,7 @@ public class QuizDetailDto {
     private boolean isOpened;
     private LocalDateTime openTime;
     private LocalDateTime dueTime;
+    private LocalDateTime createdAt;
     private Long timeLimit;
     private List<ProblemDto> problems;
 }

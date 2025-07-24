@@ -269,6 +269,7 @@ public class QuizService {
                 .isOpened(quiz.getIsOpened())
                 .openTime(quiz.getOpenTime())
                 .dueTime(quiz.getDueTime())
+                .createdAt(quiz.getCreatedAt())
                 .timeLimit(quiz.getTimeLimit())
                 .problems(problemDtos)
                 .author(AuthorDto.builder()
