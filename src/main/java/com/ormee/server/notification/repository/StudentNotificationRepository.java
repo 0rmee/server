@@ -21,4 +21,6 @@ public interface StudentNotificationRepository extends JpaRepository<StudentNoti
     List<StudentNotification> findAllByMemberIdAndKeyword(@Param("memberId") Long memberId, @Param("keyword") String keyword);
     List<StudentNotification> findAllByMemberIdAndTypeInOrderByCreatedAtDesc(Long memberId, List<NotificationType> types);
     long countAllByMemberIdAndTypeInAndIsReadFalse(Long memberId, List<NotificationType> types);
+
+    Long countAllByMemberIdAndIsReadFalse(Long id);
 }

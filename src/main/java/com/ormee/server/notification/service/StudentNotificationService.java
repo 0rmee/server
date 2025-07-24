@@ -158,4 +158,9 @@ public class StudentNotificationService {
     public void delete(Long notificationId) {
         studentNotificationRepository.deleteById(notificationId);
     }
+
+    public Long getCount(String username) {
+        Member student = memberRepository.findByUsername(username).orElseThrow(() -> new  CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        return studentNotificationRepository.countAllByMemberIdAndIsReadFalse(student.getId());
+    }
 }

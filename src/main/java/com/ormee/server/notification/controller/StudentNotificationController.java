@@ -19,6 +19,10 @@ public class StudentNotificationController {
         return ResponseDto.success(studentNotificationService.getByType(type, authentication.getName()));
     }
 
+    @GetMapping("/count")
+    public ResponseDto getUnreadNotificationCount(Authentication authentication) {
+        return ResponseDto.success(studentNotificationService.getCount(authentication.getName()));
+    }
     @GetMapping("/search")
     public ResponseDto searchNotifications(@RequestParam String keyword, Authentication authentication) {
         return ResponseDto.success(studentNotificationService.search(keyword, authentication.getName()));
