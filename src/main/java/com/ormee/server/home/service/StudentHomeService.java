@@ -58,6 +58,7 @@ public class StudentHomeService {
 
             quizListDtos.add(QuizDto.builder()
                     .id(quiz.getId())
+                    .lectureTitle(quiz.getLecture().getTitle())
                     .quizTitle(quiz.getTitle())
                     .quizDueTime(
                             quiz.getDueTime() == null
@@ -89,6 +90,7 @@ public class StudentHomeService {
 
             homeworkListDtos.add(HomeworkDto.builder()
                     .id(homework.getId())
+                    .lectureTitle(homework.getLecture().getTitle())
                     .homeworkTitle(homework.getTitle())
                     .homeworkDueTime(
                             homework.getDueTime() == null

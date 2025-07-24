@@ -242,6 +242,8 @@ public class LectureService {
                 .lectureDays(lecture.getLectureDays())
                 .startTime(lecture.getStartTime())
                 .endTime(lecture.getEndTime())
+                .startDate(lecture.getStartDate())
+                .dueDate(lecture.getDueDate())
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
                 .build();
     }
