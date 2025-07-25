@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class MemoDto {
     private Long id;
     private String author;
+    private String authorImage;
     private String title;
     private String submission;
     private LocalDateTime dueTime;
