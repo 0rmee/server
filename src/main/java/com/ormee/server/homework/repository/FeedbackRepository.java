@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
-    List<Feedback> findAllByHomeworkSubmit(HomeworkSubmit homeworkSubmit);
+    List<Feedback> findAllByHomeworkSubmitOrderByCreatedAtAsc(HomeworkSubmit homeworkSubmit);
     boolean existsByHomeworkSubmit_HomeworkAndHomeworkSubmit_Student(Homework homework, Member student);
     Long countAllByHomeworkSubmit_Homework(Homework homework);
     List<Feedback> findAllByHomeworkSubmit_Homework(Homework homework);

@@ -50,7 +50,7 @@ public class FeedbackService {
 
     public List<FeedbackDto> get(Long homeworkSubmitId) {
         HomeworkSubmit homeworkSubmit = homeworkSubmitRepository.findById(homeworkSubmitId).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
-        List<Feedback> feedbackList = feedbackRepository.findAllByHomeworkSubmit(homeworkSubmit);
+        List<Feedback> feedbackList = feedbackRepository.findAllByHomeworkSubmitOrderByCreatedAtAsc(homeworkSubmit);
 
         return feedbackList.stream()
                 .map(feedback -> FeedbackDto.builder()
