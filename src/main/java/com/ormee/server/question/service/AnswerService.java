@@ -120,7 +120,7 @@ public class AnswerService {
 
 
     public void deleteAnswer(Long answerId) {
-        Answer answer = answerRepository.findById(answerId).orElseThrow(()->new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
+        Answer answer = answerRepository.findById(answerId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
         Question question = answer.getQuestion();
 
         for (Attachment attachment : answer.getAttachments()) {
@@ -138,16 +138,17 @@ public class AnswerService {
         Answer answer = answerRepository.findByQuestion(question).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
 
         return AnswerDto.builder()
-                    .teacherName(Optional.ofNullable(answer.getAuthor())
-                            .map(Member::getNickname)
-                            .orElse(answer.getQuestion().getLecture().getTeacher().getNickname()))
+                .id(answer.getId())
+                .teacherName(Optional.ofNullable(answer.getAuthor())
+                        .map(Member::getNickname)
+                        .orElse(answer.getQuestion().getLecture().getTeacher().getNickname()))
                 .teacherImage(Optional.ofNullable(answer.getAuthor().getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null))
-                    .content(answer.getContent())
-                    .createdAt(answer.getCreatedAt().toString())
-                    .filePaths(answer.getAttachments().stream().map(Attachment::getFilePath).toList())
-                    .build();
+                .content(answer.getContent())
+                .createdAt(answer.getCreatedAt().toString())
+                .filePaths(answer.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .build();
     }
 
     public void deleteByQuestion(Question question) {
