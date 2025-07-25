@@ -14,6 +14,7 @@ public class QuizDetailDto {
     private String title;
     private String description;
     private boolean isOpened;
+    private boolean isSubmitted;
     private LocalDateTime openTime;
     private LocalDateTime dueTime;
     private LocalDateTime createdAt;

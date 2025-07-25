@@ -27,8 +27,8 @@ public class StudentQuizController {
     }
 
     @GetMapping("/quizzes/{quizId}")
-    public ResponseDto readQuiz(@PathVariable Long quizId) {
-        return ResponseDto.success(quizService.findQuiz(quizId));
+    public ResponseDto readQuiz(@PathVariable Long quizId, Authentication authentication) {
+        return ResponseDto.success(quizService.findQuiz(quizId, authentication.getName()));
     }
 
     @GetMapping("/quizzes/{quizId}/result")

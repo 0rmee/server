@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @Builder
 public class AnswerDto {
+    private Long id;
     private String teacherName;
     private String teacherImage;
     private String content;
