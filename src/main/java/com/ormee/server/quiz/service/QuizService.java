@@ -8,6 +8,7 @@ import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.member.domain.Member;
+import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.notification.domain.NotificationType;
@@ -24,6 +25,7 @@ import com.ormee.server.quiz.repository.QuizRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -279,8 +281,45 @@ public class QuizService {
                                 .orElse(null))
                         .build())
                 .build();
+    }
 
+    public QuizDetailDto findQuiz(Long quizId, String username) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
+        Member member = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
+        List<Problem> problems = problemRepository.findAllByQuiz(quiz);
+        List<ProblemDto> problemDtos = new ArrayList<>();
+
+        for(Problem problem : problems) {
+            ProblemDto problemDto = ProblemDto.builder()
+                    .id(problem.getId())
+                    .type(problem.getType().toString())
+                    .content(problem.getContent())
+                    .answer(problem.getAnswer())
+                    .items(problem.getItems())
+                    .fileIds(problem.getAttachments().stream().map(Attachment::getId).toList())
+                    .filePaths(problem.getAttachments().stream().map(Attachment::getFilePath).toList())
+                    .build();
+            problemDtos.add(problemDto);
+        }
+
+        return QuizDetailDto.builder()
+                .title(quiz.getTitle())
+                .description(quiz.getDescription())
+                .isOpened(quiz.getIsOpened())
+                .isSubmitted(problemSubmitRepository.existsByStudentAndProblem_Quiz(member, quiz))
+                .openTime(quiz.getOpenTime())
+                .dueTime(quiz.getDueTime())
+                .createdAt(quiz.getCreatedAt())
+                .timeLimit(quiz.getTimeLimit())
+                .problems(problemDtos)
+                .author(AuthorDto.builder()
+                        .name(quiz.getAuthor().getNickname())
+                        .image(Optional.ofNullable(quiz.getAuthor().getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null))
+                        .build())
+                .build();
     }
 
     public void openQuiz(Long quizId) throws Exception {
