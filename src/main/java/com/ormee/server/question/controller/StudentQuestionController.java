@@ -34,8 +34,8 @@ public class StudentQuestionController {
     }
 
     @GetMapping("/questions/{questionId}")
-    public ResponseDto getQuestion(@PathVariable Long questionId) {
-        return ResponseDto.success(questionService.findById(questionId));
+    public ResponseDto getQuestion(@PathVariable Long questionId, Authentication authentication) {
+        return ResponseDto.success(questionService.findById(questionId, authentication.getName()));
     }
 
     @PutMapping("/questions/{questionId}")
