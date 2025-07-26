@@ -1,5 +1,6 @@
 package com.ormee.server.memo.service;
 
+import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.memo.domain.Memo;
@@ -138,6 +139,11 @@ public class MemoService {
         return MemoDto.builder()
                 .id(memo.getId())
                 .author(memo.getAuthor().getNickname())
+                .authorImage(
+                        Optional.ofNullable(memo.getAuthor().getImage())
+                                .map(Attachment::getFilePath)
+                                .orElse(null)
+                )
                 .title(memo.getTitle())
                 .submission(messageRepository.findByMemoAndStudent(memo, student)
                         .map(Message::getContext)
