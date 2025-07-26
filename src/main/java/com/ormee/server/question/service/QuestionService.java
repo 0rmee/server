@@ -2,6 +2,7 @@ package com.ormee.server.question.service;
 
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.attachment.repository.AttachmentRepository;
+import com.ormee.server.member.domain.Role;
 import com.ormee.server.question.domain.Question;
 import com.ormee.server.question.repository.QuestionRepository;
 import com.ormee.server.question.dto.QuestionDto;
@@ -141,9 +142,28 @@ public class QuestionService {
                 .build();
     }
 
+    private QuestionDto convertToDto(Question question, Member student) {
+        return QuestionDto.builder()
+                .id(question.getId())
+                .title(question.getTitle())
+                .content(question.getContent())
+                .isMine(student.equals(question.getStudent()))
+                .isAnswered(question.getIsAnswered())
+                .author(question.getStudent().getName())
+                .filePaths(question.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .createdAt(question.getCreatedAt().toString())
+                .build();
+    }
+
     public QuestionDto findById(Long questionId) {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
         return convertToDto(question);
+    }
+
+    public QuestionDto findById(Long questionId, String username) {
+        Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
+        Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        return convertToDto(question, student);
     }
 
     public PageResponseDto<QuestionDto> getQuestions(Long lectureId, int page) {
