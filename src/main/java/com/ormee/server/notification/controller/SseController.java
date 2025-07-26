@@ -1,6 +1,8 @@
 package com.ormee.server.notification.controller;
 
+import com.ormee.server.memo.service.MemoService;
 import com.ormee.server.notification.repository.SseEmitterRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,9 +13,11 @@ import java.io.IOException;
 @RestController
 public class SseController {
     private final SseEmitterRepository sseEmitterRepository;
+    private final MemoService memoService;
 
-    public SseController(SseEmitterRepository sseEmitterRepository) {
+    public SseController(SseEmitterRepository sseEmitterRepository, MemoService memoService) {
         this.sseEmitterRepository = sseEmitterRepository;
+        this.memoService = memoService;
     }
 
     @GetMapping("/subscribe/lectures/{lectureId}/memos")
@@ -26,7 +30,7 @@ public class SseController {
         emitter.onError(e -> sseEmitterRepository.removeEmitter(lectureId, emitter));
 
         try {
-            emitter.send(SseEmitter.event().name("connect").data("connected"));
+            emitter.send(SseEmitter.event().name("connect").data(memoService.getOpenMemo(lectureId)));
         } catch (IOException e) {
             emitter.complete();
         }

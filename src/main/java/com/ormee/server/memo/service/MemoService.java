@@ -125,11 +125,11 @@ public class MemoService {
         memoRepository.save(memo);
     }
 
-    public MemoDto getOpenMemo(Long lectureId, String username) {
+    public Long getOpenMemo(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
 
-        return read(memo.getId(), username);
+        return memo.getId();
     }
 
     public MemoDto read(Long memoId, String username) {
