@@ -15,8 +15,11 @@ import com.ormee.server.quiz.repository.ProblemSubmitRepository;
 import com.ormee.server.quiz.repository.QuizRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ProblemSubmitService {
@@ -51,15 +54,23 @@ public class ProblemSubmitService {
         }
     }
 
+    @Transactional(readOnly = true)
     public StudentQuizResultDto getStudentResult(Long quizId, Authentication authentication) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         Member student = studentRepository.findByUsername(authentication.getName()).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
+        List<ProblemSubmit> submissions = problemSubmitRepository.findAllByProblem_QuizAndStudent(quiz, student);
+        Map<Long, ProblemSubmit> submitMap = submissions.stream()
+                .collect(Collectors.toMap(problemSubmit -> problemSubmit.getProblem().getId(), Function.identity()));
+
         List<ProblemDto> problemDtos = new ArrayList<>();
         Integer correct = 0;
         for(Problem problem : problems) {
-            ProblemSubmit problemSubmit = problemSubmitRepository.findByProblemAndStudent(problem, student).orElseThrow(() -> new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION));
+            ProblemSubmit problemSubmit = submitMap.get(problem.getId());
+            if (problemSubmit == null) {
+                throw new CustomException(ExceptionType.SUBMIT_NOT_FOUND_EXCEPTION);
+            }
             ProblemDto problemDto = ProblemDto.builder()
                     .id(problem.getId())
                     .content(problem.getContent())
@@ -74,6 +85,7 @@ public class ProblemSubmitService {
             }
             problemDtos.add(problemDto);
         }
+
         return StudentQuizResultDto.builder()
                 .correct(correct)
                 .problemDtos(problemDtos)

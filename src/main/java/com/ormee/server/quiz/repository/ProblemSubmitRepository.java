@@ -19,4 +19,6 @@ public interface ProblemSubmitRepository extends JpaRepository<ProblemSubmit, Lo
     boolean existsByProblemAndStudent(Problem problem, Member student);
     boolean existsByStudentAndProblem_Quiz(Member student, Quiz quiz);
     void deleteAllByProblem_Quiz(Quiz quiz);
+
+    List<ProblemSubmit> findAllByProblem_QuizAndStudent(Quiz quiz, Member student);
 }
