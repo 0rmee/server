@@ -15,6 +15,7 @@ import com.ormee.server.quiz.repository.ProblemSubmitRepository;
 import com.ormee.server.quiz.repository.QuizRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Function;
@@ -53,6 +54,7 @@ public class ProblemSubmitService {
         }
     }
 
+    @Transactional(readOnly = true)
     public StudentQuizResultDto getStudentResult(Long quizId, Authentication authentication) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
         Member student = studentRepository.findByUsername(authentication.getName()).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
