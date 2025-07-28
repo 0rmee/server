@@ -32,7 +32,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeRequests()
 //                .requestMatchers(HttpMethod.GET, "/teacher/users/**").authenticated() // GET 요청에 대해 인증 필요
-                  .requestMatchers("/members", "/teachers/signup", "/teachers/signin", "/students/signup", "/students/signin", "/students/email", "/students/username", "auth/reissue").permitAll()
+                  .requestMatchers(
+                          "/members",
+                          "/teachers/signup",
+                          "/teachers/signin",
+                          "/students/signup",
+                          "/students/signin",
+                          "/students/email",
+                          "/students/username",
+                          "/auth/reissue",
+                          "/students/home/banners",
+                          "/health").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(

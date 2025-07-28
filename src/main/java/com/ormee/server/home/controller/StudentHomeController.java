@@ -1,11 +1,10 @@
 package com.ormee.server.home.controller;
 
 import com.ormee.server.global.response.ResponseDto;
+import com.ormee.server.home.dto.BannerRequestDto;
 import com.ormee.server.home.service.StudentHomeService;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/students/home")
@@ -22,5 +21,16 @@ public class StudentHomeController {
     @GetMapping("/homeworks")
     public ResponseDto getHomeHomeworkList(Authentication authentication) {
         return ResponseDto.success(studentHomeService.findAllHomework(authentication));
+    }
+
+    @GetMapping("/banners")
+    public ResponseDto getBannerList(){
+        return ResponseDto.success(studentHomeService.findAllBanner());
+    }
+
+    @PostMapping("/banners")
+    public ResponseDto createBanner(@RequestBody BannerRequestDto request) {
+        studentHomeService.saveBanner(request);
+        return ResponseDto.success();
     }
 }
