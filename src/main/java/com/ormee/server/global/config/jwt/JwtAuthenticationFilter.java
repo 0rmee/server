@@ -30,7 +30,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             "/students/signin",
             "/students/email/**",
             "/students/username/**",
-            "/auth/reissue"
+            "/auth/reissue",
+            "/students/home/banners",
+            "/health"
     );
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
