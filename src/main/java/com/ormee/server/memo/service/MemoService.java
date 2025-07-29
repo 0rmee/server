@@ -18,6 +18,7 @@ import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.repository.SseEmitterRepository;
 import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -125,6 +126,7 @@ public class MemoService {
         memoRepository.save(memo);
     }
 
+    @Transactional(readOnly = true)
     public Long getOpenMemo(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
