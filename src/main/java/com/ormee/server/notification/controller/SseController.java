@@ -30,7 +30,8 @@ public class SseController {
         emitter.onError(e -> sseEmitterRepository.removeEmitter(lectureId, emitter));
 
         try {
-            emitter.send(SseEmitter.event().name("connect").data(memoService.getOpenMemo(lectureId)));
+            Long memoId = memoService.getOpenMemo(lectureId);
+            emitter.send(SseEmitter.event().name("connect").data(memoId));
         } catch (IOException e) {
             emitter.complete();
         }
