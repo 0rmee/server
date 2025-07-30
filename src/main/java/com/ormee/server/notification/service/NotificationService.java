@@ -2,6 +2,7 @@ package com.ormee.server.notification.service;
 
 import com.ormee.server.homework.service.HomeworkService;
 import com.ormee.server.notification.domain.Notification;
+import com.ormee.server.notification.domain.NotificationDetailType;
 import com.ormee.server.notification.domain.NotificationType;
 import com.ormee.server.notification.dto.NotificationDto;
 import com.ormee.server.global.exception.CustomException;
@@ -161,7 +162,7 @@ public class NotificationService {
             create(NotificationType.QUIZ, quiz);
             quiz.setNotified(true);
             quizRepository.save(quiz);
-            quizService.sendNotification(quiz, "퀴즈가 마감되었어요.");
+            quizService.sendNotification(quiz, "퀴즈가 마감되었어요.", NotificationDetailType.DEADLINE);
         }
     }
 
@@ -171,7 +172,7 @@ public class NotificationService {
             create(NotificationType.HOMEWORK, homework);
             homework.setNotified(true);
             homeworkRepository.save(homework);
-            homeworkService.sendNotification(homework.getLecture(), homework, "숙제가 마감되었어요.");
+            homeworkService.sendNotification(homework.getLecture(), homework, NotificationDetailType.DEADLINE, "숙제가 마감되었어요.");
         }
     }
 

@@ -1,6 +1,8 @@
 package com.ormee.server.notification.controller;
 
 import com.ormee.server.global.response.ResponseDto;
+import com.ormee.server.notification.dto.NotificationSettingDto;
+import com.ormee.server.notification.service.NotificationSettingService;
 import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -9,9 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/students/notifications")
 public class StudentNotificationController {
     private final StudentNotificationService studentNotificationService;
+    private final NotificationSettingService settingService;
 
-    public StudentNotificationController(StudentNotificationService studentNotificationService) {
+    public StudentNotificationController(StudentNotificationService studentNotificationService, NotificationSettingService settingService) {
         this.studentNotificationService = studentNotificationService;
+        this.settingService = settingService;
     }
 
     @GetMapping
@@ -37,6 +41,17 @@ public class StudentNotificationController {
     @DeleteMapping("/{notificationId}")
     public ResponseDto deleteNotification(@PathVariable Long notificationId) {
         studentNotificationService.delete(notificationId);
+        return ResponseDto.success();
+    }
+
+    @GetMapping("/settings")
+    public ResponseDto getNotificationSettings(Authentication authentication) {
+        return ResponseDto.success(settingService.getSetting(authentication.getName()));
+    }
+
+    @PutMapping("/settings")
+    public ResponseDto updateNotificationSettings(Authentication authentication, @RequestBody NotificationSettingDto settingDto) {
+        settingService.updateSetting(authentication.getName(), settingDto);
         return ResponseDto.success();
     }
 }

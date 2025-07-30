@@ -3,7 +3,7 @@ package com.ormee.server.member.service;
 import com.ormee.server.global.config.jwt.JwtToken;
 import com.ormee.server.global.config.jwt.JwtTokenProvider;
 import com.ormee.server.global.config.jwt.RefreshToken;
-import com.ormee.server.member.domain.DeviceToken;
+import com.ormee.server.notification.domain.NotificationSetting;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.PasswordDto;
@@ -12,9 +12,9 @@ import com.ormee.server.member.dto.SignUpDto;
 import com.ormee.server.member.dto.TokenDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
-import com.ormee.server.member.repository.DeviceTokenRepository;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.member.repository.RefreshTokenRepository;
+import com.ormee.server.notification.repository.NotificationSettingRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,14 +25,14 @@ import java.util.Optional;
 public class StudentService {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final DeviceTokenRepository deviceTokenRepository;
+    private final NotificationSettingRepository settingRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public StudentService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, DeviceTokenRepository deviceTokenRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public StudentService(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, NotificationSettingRepository settingRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.memberRepository = memberRepository;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.deviceTokenRepository = deviceTokenRepository;
+        this.settingRepository = settingRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -127,14 +127,14 @@ public class StudentService {
 
     public void saveOrUpdateDeviceToken(String username, String token) {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        Optional<DeviceToken> existingToken = deviceTokenRepository.findByMemberIdAndDeviceToken(student.getId(), token);
+        Optional<NotificationSetting> existingToken = settingRepository.findByMemberIdAndDeviceToken(student.getId(), token);
 
-        DeviceToken deviceToken = existingToken.orElseGet(DeviceToken::new);
+        NotificationSetting notificationSetting = existingToken.orElseGet(NotificationSetting::new);
 
-        deviceToken.setMemberId(student.getId());
-        deviceToken.setDeviceToken(token);
+        notificationSetting.setMemberId(student.getId());
+        notificationSetting.setDeviceToken(token);
 
-        deviceTokenRepository.save(deviceToken);
+        settingRepository.save(notificationSetting);
     }
 
     public String getName(String username) {
