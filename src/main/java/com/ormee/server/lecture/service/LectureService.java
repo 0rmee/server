@@ -56,7 +56,7 @@ public class LectureService {
         this.memoRepository = memoRepository;
     }
 
-    public void save(LectureRequestDto lectureRequestDto, String username) {
+    public LectureResponseDto save(LectureRequestDto lectureRequestDto, String username) {
         Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         Lecture lecture = Lecture.builder()
@@ -80,6 +80,11 @@ public class LectureService {
         Lecture savedLecture = lectureRepository.save(lecture);
         teacher.addLecture(savedLecture);
         memberRepository.save(teacher);
+
+        return LectureResponseDto.builder()
+                .id(savedLecture.getId())
+                .title(savedLecture.getTitle())
+                .build();
     }
 
     public void update(LectureRequestDto lectureRequestDto, Long lectureId, String username) {

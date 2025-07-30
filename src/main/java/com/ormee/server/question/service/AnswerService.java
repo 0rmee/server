@@ -147,6 +147,7 @@ public class AnswerService {
                         .orElse(null))
                 .content(answer.getContent())
                 .createdAt(answer.getCreatedAt().toString())
+                .fileIds(answer.getAttachments().stream().map(Attachment::getId).toList())
                 .filePaths(answer.getAttachments().stream().map(Attachment::getFilePath).toList())
                 .build();
     }
