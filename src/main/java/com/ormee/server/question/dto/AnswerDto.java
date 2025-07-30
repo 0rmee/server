@@ -13,5 +13,6 @@ public class AnswerDto {
     private String teacherImage;
     private String content;
     private String createdAt;
+    private List<Long> fileIds;
     private List<String> filePaths;
 }

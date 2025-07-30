@@ -1,5 +1,6 @@
 package com.ormee.server.notification.dto;
 
+import com.ormee.server.notification.domain.NotificationDetailType;
 import com.ormee.server.notification.domain.NotificationType;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Data;
 public class StudentNotificationRequestDto {
     private Long parentId;
     private NotificationType type;
+    private NotificationDetailType detailType;
     private String header;
     private String title;
     private String body;

@@ -5,10 +5,9 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.homework.domain.Homework;
 import com.ormee.server.homework.repository.HomeworkRepository;
-import com.ormee.server.member.domain.DeviceToken;
+import com.ormee.server.notification.domain.NotificationSetting;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
-import com.ormee.server.member.repository.DeviceTokenRepository;
 import com.ormee.server.member.repository.MemberRepository;
 import com.ormee.server.memo.domain.Memo;
 import com.ormee.server.memo.repository.MemoRepository;
@@ -19,9 +18,9 @@ import com.ormee.server.notification.domain.StudentNotification;
 import com.ormee.server.notification.dto.StudentNotificationDto;
 import com.ormee.server.notification.dto.StudentNotificationListDto;
 import com.ormee.server.notification.dto.StudentNotificationRequestDto;
+import com.ormee.server.notification.repository.NotificationSettingRepository;
 import com.ormee.server.notification.repository.StudentNotificationRepository;
 import com.ormee.server.question.domain.Answer;
-import com.ormee.server.question.domain.Question;
 import com.ormee.server.question.repository.AnswerRepository;
 import com.ormee.server.quiz.domain.Quiz;
 import com.ormee.server.quiz.repository.QuizRepository;
@@ -35,17 +34,17 @@ import java.util.Optional;
 public class StudentNotificationService {
     private final StudentNotificationRepository studentNotificationRepository;
     private final MemberRepository memberRepository;
-    private final DeviceTokenRepository deviceTokenRepository;
+    private final NotificationSettingRepository notificationSettingRepository;
     private final QuizRepository quizRepository;
     private final HomeworkRepository homeworkRepository;
     private final NoticeRepository noticeRepository;
     private final MemoRepository memoRepository;
     private final AnswerRepository answerRepository;
     private final FcmService fcmService;
-    public StudentNotificationService(StudentNotificationRepository studentNotificationRepository, MemberRepository memberRepository, DeviceTokenRepository deviceTokenRepository, QuizRepository quizRepository, HomeworkRepository homeworkRepository, NoticeRepository noticeRepository, MemoRepository memoRepository, AnswerRepository answerRepository, FcmService fcmService) {
+    public StudentNotificationService(StudentNotificationRepository studentNotificationRepository, MemberRepository memberRepository, NotificationSettingRepository notificationSettingRepository, QuizRepository quizRepository, HomeworkRepository homeworkRepository, NoticeRepository noticeRepository, MemoRepository memoRepository, AnswerRepository answerRepository, FcmService fcmService) {
         this.studentNotificationRepository = studentNotificationRepository;
         this.memberRepository = memberRepository;
-        this.deviceTokenRepository = deviceTokenRepository;
+        this.notificationSettingRepository = notificationSettingRepository;
         this.quizRepository = quizRepository;
         this.homeworkRepository = homeworkRepository;
         this.noticeRepository = noticeRepository;
@@ -61,6 +60,7 @@ public class StudentNotificationService {
                     .memberId(memberId)
                     .parentId(studentNotificationRequestDto.getParentId())
                     .type(studentNotificationRequestDto.getType())
+                    .detailType(studentNotificationRequestDto.getDetailType())
                     .header(studentNotificationRequestDto.getHeader())
                     .title(studentNotificationRequestDto.getTitle())
                     .body(studentNotificationRequestDto.getBody())
@@ -69,11 +69,52 @@ public class StudentNotificationService {
                     .build();
             studentNotificationRepository.save(studentNotification);
 
-            List<String> targetTokens = deviceTokenRepository.findAllByMemberId(studentNotification.getMemberId()).stream().map(DeviceToken::getDeviceToken).toList();
+            // 사용자 알림 설정 조회
+            NotificationSetting setting = notificationSettingRepository.findByMemberId(memberId).orElse(null);
+
+            // 푸시 알림 설정 확인
+            if (setting == null || !isPushAllowed(setting, studentNotification)) {
+                continue;
+            }
+
+            // 허용된 경우만 푸시 전송
+            List<String> targetTokens = notificationSettingRepository.findAllByMemberId(memberId)
+                    .stream()
+                    .map(NotificationSetting::getDeviceToken)
+                    .toList();
+
             for(String targetToken : targetTokens) {
                 fcmService.sendMessageTo(targetToken, studentNotification);
             }
         }
+    }
+
+    private boolean isPushAllowed(NotificationSetting setting, StudentNotification notification) {
+        switch (notification.getType()) {
+            case QUIZ:
+                switch (notification.getDetailType()) {
+                    case REGISTER: return setting.isQuizRegister();
+                    case REMIND: return setting.isQuizRemind();
+                    case DEADLINE: return setting.isQuizDeadline();
+                }
+                break;
+            case HOMEWORK:
+                switch (notification.getDetailType()) {
+                    case REGISTER: return setting.isHomeworkRegister();
+                    case REMIND: return setting.isHomeworkRemind();
+                    case DEADLINE: return setting.isHomeworkDeadline();
+                }
+                break;
+            case MEMO:
+                return setting.isMemo();
+            case QUESTION:
+                return setting.isQuestion();
+            case NOTICE:
+                return setting.isNotice();
+            default:
+                return false;
+        }
+        return false;
     }
 
     public StudentNotificationListDto getByType(String type, String username) {

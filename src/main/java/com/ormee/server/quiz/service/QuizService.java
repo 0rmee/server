@@ -11,6 +11,7 @@ import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.member.repository.MemberRepository;
+import com.ormee.server.notification.domain.NotificationDetailType;
 import com.ormee.server.notification.domain.NotificationType;
 import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.service.StudentNotificationService;
@@ -329,14 +330,15 @@ public class QuizService {
         quiz.setOpenTime(now);
         quizRepository.save(quiz);
 
-        sendNotification(quiz, "퀴즈가 등록되었어요.");
+        sendNotification(quiz, "퀴즈가 등록되었어요.", NotificationDetailType.REGISTER);
     }
 
-    public void sendNotification(Quiz quiz, String body) throws Exception {
+    public void sendNotification(Quiz quiz, String body, NotificationDetailType detailType) throws Exception {
         studentNotificationService.create(quiz.getLecture().getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
                 StudentNotificationRequestDto.builder()
                         .parentId(quiz.getId())
                         .type(NotificationType.QUIZ)
+                        .detailType(detailType)
                         .header(quiz.getLecture().getTitle())
                         .title(quiz.getTitle())
                         .body(body)

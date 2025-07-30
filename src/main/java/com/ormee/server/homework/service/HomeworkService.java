@@ -17,6 +17,7 @@ import com.ormee.server.lecture.repository.LectureRepository;
 import com.ormee.server.attachment.service.AttachmentService;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.repository.MemberRepository;
+import com.ormee.server.notification.domain.NotificationDetailType;
 import com.ormee.server.notification.domain.NotificationType;
 import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.service.StudentNotificationService;
@@ -88,7 +89,7 @@ public class HomeworkService {
         homework.setAttachments(attachments);
 
         if(!homeworkSaveDto.getIsDraft()) {
-            sendNotification(lecture, homework, "숙제가 등록되었어요.");
+            sendNotification(lecture, homework, NotificationDetailType.REGISTER, "숙제가 등록되었어요.");
         }
 
         homeworkRepository.save(homework);
@@ -249,7 +250,7 @@ public class HomeworkService {
         }
 
         if(homework.getIsDraft() && !homeworkSaveDto.getIsDraft()) {
-            sendNotification(homework.getLecture(), homework, "숙제가 등록되었어요.");
+            sendNotification(homework.getLecture(), homework, NotificationDetailType.REGISTER, "숙제가 등록되었어요.");
         }
         homework.setIsDraft(homeworkSaveDto.getIsDraft());
 
@@ -309,11 +310,12 @@ public class HomeworkService {
                 .build();
     }
 
-    public void sendNotification(Lecture lecture, Homework homework, String body) throws Exception {
+    public void sendNotification(Lecture lecture, Homework homework, NotificationDetailType detailType, String body) throws Exception {
         studentNotificationService.create(lecture.getStudentLectures().stream().map(studentLecture -> studentLecture.getStudent().getId()).toList(),
                 StudentNotificationRequestDto.builder()
                         .parentId(homework.getId())
                         .type(NotificationType.HOMEWORK)
+                        .detailType(detailType)
                         .header(lecture.getTitle())
                         .title(homework.getTitle())
                         .body(body)

@@ -26,6 +26,10 @@ public class StudentNotification extends EntityTime {
     private NotificationType type;
 
     @Column
+    @Enumerated(EnumType.STRING)
+    private NotificationDetailType detailType;
+
+    @Column
     private String header;
 
     @Column

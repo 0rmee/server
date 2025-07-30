@@ -22,8 +22,7 @@ public class TeacherLectureController {
 
     @PostMapping
     public ResponseDto createLecture(@RequestBody LectureRequestDto lectureRequestDto, Authentication authentication) {
-        lectureService.save(lectureRequestDto, authentication.getName());
-        return ResponseDto.success();
+        return ResponseDto.success(lectureService.save(lectureRequestDto, authentication.getName()));
     }
 
     @PutMapping("/{lectureId}")
