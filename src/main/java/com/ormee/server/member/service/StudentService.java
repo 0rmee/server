@@ -141,4 +141,22 @@ public class StudentService {
         Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         return student.getName();
     }
+
+    public void updateInfo(String username, SignUpDto signUpDto) {
+        Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        if(signUpDto.getName() != null) {
+            student.setName(signUpDto.getName());
+        }
+
+        if(signUpDto.getEmail() != null) {
+            student.setName(signUpDto.getEmail());
+        }
+
+        if(signUpDto.getPassword() != null) {
+            student.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
+        }
+
+        memberRepository.save(student);
+    }
 }
