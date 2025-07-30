@@ -136,4 +136,9 @@ public class StudentService {
 
         deviceTokenRepository.save(deviceToken);
     }
+
+    public String getName(String username) {
+        Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        return student.getName();
+    }
 }

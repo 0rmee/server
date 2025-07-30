@@ -32,6 +32,11 @@ public class StudentController {
         return ResponseDto.success(studentService.signIn(signInDto));
     }
 
+    @GetMapping("/profile")
+    public ResponseDto getName(Authentication authentication) {
+        return ResponseDto.success(studentService.getName(authentication.getName()));
+    }
+
     @DeleteMapping
     public ResponseDto delete(Authentication authentication) {
         studentService.delete(authentication.getName());
