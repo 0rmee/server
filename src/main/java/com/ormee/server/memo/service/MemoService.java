@@ -42,6 +42,7 @@ public class MemoService {
         this.studentNotificationService = studentNotificationService;
     }
 
+    @Transactional
     public void createMemo(Long lectureId, MemoDto memoDto, String username) throws Exception {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
