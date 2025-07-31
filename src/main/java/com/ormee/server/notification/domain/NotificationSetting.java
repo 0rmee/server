@@ -33,4 +33,7 @@ public class NotificationSetting extends EntityTime {
     private boolean memo = true;
     private boolean question = true;
     private boolean notice = true;
+
+    // 마케팅 / 이벤트
+    private boolean event = true;
 }
