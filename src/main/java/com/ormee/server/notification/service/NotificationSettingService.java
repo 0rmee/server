@@ -11,6 +11,8 @@ import com.ormee.server.notification.repository.NotificationSettingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class NotificationSettingService {
     private final NotificationSettingRepository notificationSettingRepository;
@@ -24,7 +26,7 @@ public class NotificationSettingService {
     @Transactional(readOnly = true)
     public NotificationSettingDto getSetting(String username) {
         Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        NotificationSetting setting = notificationSettingRepository.findByMemberId(student.getId()).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));
+        NotificationSetting setting = notificationSettingRepository.findFirstByMemberId(student.getId()).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));
 
         return NotificationSettingDto.builder()
                 .quizRegister(setting.isQuizRegister())
@@ -36,23 +38,33 @@ public class NotificationSettingService {
                 .memo(setting.isMemo())
                 .question(setting.isQuestion())
                 .notice(setting.isNotice())
+                .event(setting.isEvent())
                 .build();
     }
 
     @Transactional
     public void updateSetting(String username, NotificationSettingDto requestDto) {
         Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        NotificationSetting setting = notificationSettingRepository.findByMemberId(student.getId()).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));
+        List<NotificationSetting> settings = notificationSettingRepository.findAllByMemberId(student.getId());
 
-        setting.setQuizRegister(requestDto.isQuizRegister());
-        setting.setQuizRemind(requestDto.isQuizRemind());
-        setting.setQuizDeadline(requestDto.isQuizDeadline());
-        setting.setHomeworkRegister(requestDto.isHomeworkRegister());
-        setting.setHomeworkRemind(requestDto.isHomeworkRemind());
-        setting.setHomeworkDeadline(requestDto.isHomeworkDeadline());
-        setting.setMemo(requestDto.isMemo());
-        setting.setQuestion(requestDto.isQuestion());
-        setting.setNotice(requestDto.isNotice());
+        if (settings.isEmpty()) {
+            throw new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION);
+        }
+
+        for (NotificationSetting setting : settings) {
+            if (requestDto.getQuizRegister() != null) setting.setQuizRegister(requestDto.getQuizRegister());
+            if (requestDto.getQuizRemind() != null) setting.setQuizRemind(requestDto.getQuizRemind());
+            if (requestDto.getQuizDeadline() != null) setting.setQuizDeadline(requestDto.getQuizDeadline());
+
+            if (requestDto.getHomeworkRegister() != null) setting.setHomeworkRegister(requestDto.getHomeworkRegister());
+            if (requestDto.getHomeworkRemind() != null) setting.setHomeworkRemind(requestDto.getHomeworkRemind());
+            if (requestDto.getHomeworkDeadline() != null) setting.setHomeworkDeadline(requestDto.getHomeworkDeadline());
+
+            if (requestDto.getMemo() != null) setting.setMemo(requestDto.getMemo());
+            if (requestDto.getQuestion() != null) setting.setQuestion(requestDto.getQuestion());
+            if (requestDto.getNotice() != null) setting.setNotice(requestDto.getNotice());
+            if (requestDto.getEvent() != null) setting.setEvent(requestDto.getEvent());
+        }
     }
 }
 
