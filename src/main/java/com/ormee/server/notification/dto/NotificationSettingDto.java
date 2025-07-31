@@ -6,14 +6,15 @@ import lombok.Data;
 @Data
 @Builder
 public class NotificationSettingDto {
-    private boolean quizRegister;
-    private boolean quizRemind;
-    private boolean quizDeadline;
-    private boolean homeworkRegister;
-    private boolean homeworkRemind;
-    private boolean homeworkDeadline;
-    private boolean memo;
-    private boolean question;
-    private boolean notice;
+    private Boolean quizRegister;
+    private Boolean quizRemind;
+    private Boolean quizDeadline;
+    private Boolean homeworkRegister;
+    private Boolean homeworkRemind;
+    private Boolean homeworkDeadline;
+    private Boolean memo;
+    private Boolean question;
+    private Boolean notice;
+    private Boolean event;
 }
 
