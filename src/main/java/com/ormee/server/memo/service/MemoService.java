@@ -151,7 +151,7 @@ public class MemoService {
                 .submission(messageRepository.findByMemoAndStudent(memo, student)
                         .map(Message::getContext)
                         .orElse(null))
-                .dueTime(memo.getDueTime())
+                .dueTime(memo.getCreatedAt())
                 .isOpen(memo.getIsOpen())
                 .build();
     }
