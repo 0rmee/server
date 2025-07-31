@@ -120,12 +120,17 @@ public class StudentHomeService {
         return bannerListDtos;
     }
 
-    public void saveBanner(BannerRequestDto request) {
-        Banner banner = Banner.builder()
-                .image(request.getImage())
-                .path(request.getPath())
-                .build();
+    public void replaceAllBanners(List<BannerRequestDto> requests) {
+        bannerRepository.deleteAll();
 
-        bannerRepository.save(banner);
+        List<Banner> newBanners = requests.stream()
+                .map(req -> Banner.builder()
+                        .image(req.getImage())
+                        .path(req.getPath())
+                        .build())
+                .toList();
+
+        bannerRepository.saveAll(newBanners);
     }
+
 }
