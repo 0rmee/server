@@ -34,6 +34,7 @@ public class SseController {
             emitter.send(SseEmitter.event().name("connect").data(memoId));
         } catch (IOException e) {
             emitter.complete();
+            sseEmitterRepository.removeEmitter(lectureId, emitter);
         }
 
         return emitter;
