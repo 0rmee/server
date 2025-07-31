@@ -160,34 +160,39 @@ public class StudentNotificationService {
     }
 
     public String getAuthorImage(NotificationType type, Long parentId) {
-        switch (type) {
-            case QUIZ:
+        return switch (type) {
+            case QUIZ -> {
                 Quiz quiz = quizRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
-                return Optional.ofNullable(quiz.getAuthor().getImage())
+                yield Optional.ofNullable(quiz.getAuthor().getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null);
-            case MEMO:
+            }
+            case MEMO -> {
                 Memo memo = memoRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
-                return Optional.ofNullable(memo.getAuthor().getImage())
+                yield Optional.ofNullable(memo.getAuthor().getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null);
-            case HOMEWORK:
+            }
+            case HOMEWORK -> {
                 Homework homework = homeworkRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
-                return Optional.ofNullable(homework.getAuthor().getImage())
+                yield Optional.ofNullable(homework.getAuthor().getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null);
-            case NOTICE:
+            }
+            case NOTICE -> {
                 Notice notice = noticeRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
-                return Optional.ofNullable(notice.getAuthor().getImage())
+                yield Optional.ofNullable(notice.getAuthor().getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null);
-            case QUESTION:
+            }
+            case QUESTION -> {
                 Answer answer = answerRepository.findByQuestion_Id(parentId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
-                return Optional.ofNullable(answer.getAuthor().getImage())
+                yield Optional.ofNullable(answer.getAuthor().getImage())
                         .map(Attachment::getFilePath)
                         .orElse(null);
-            default: return null;
-        }
+            }
+            default -> null;
+        };
     }
 
     public void read(Long notificationId) {
@@ -202,6 +207,6 @@ public class StudentNotificationService {
 
     public Long getCount(String username) {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new  CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
-        return studentNotificationRepository.countAllByMemberIdAndIsReadFalse(student.getId());
+        return studentNotificationRepository.countAllByMemberIdAndIsReadFalseAndTypeIn(student.getId(), List.of(NotificationType.QUIZ, NotificationType.HOMEWORK, NotificationType.NOTICE, NotificationType.QUESTION));
     }
 }

@@ -23,4 +23,6 @@ public interface StudentNotificationRepository extends JpaRepository<StudentNoti
     long countAllByMemberIdAndTypeInAndIsReadFalse(Long memberId, List<NotificationType> types);
 
     Long countAllByMemberIdAndIsReadFalse(Long id);
+
+    Long countAllByMemberIdAndIsReadFalseAndTypeIn(Long id, List<NotificationType> types);
 }
