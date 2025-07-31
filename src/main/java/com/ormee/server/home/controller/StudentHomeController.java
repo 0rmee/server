@@ -6,6 +6,8 @@ import com.ormee.server.home.service.StudentHomeService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/students/home")
 public class StudentHomeController {
@@ -29,8 +31,9 @@ public class StudentHomeController {
     }
 
     @PostMapping("/banners")
-    public ResponseDto createBanner(@RequestBody BannerRequestDto request) {
-        studentHomeService.saveBanner(request);
+    public ResponseDto createBanners(@RequestBody List<BannerRequestDto> requests) {
+        studentHomeService.replaceAllBanners(requests);
         return ResponseDto.success();
     }
+
 }
