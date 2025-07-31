@@ -70,7 +70,7 @@ public class StudentNotificationService {
             studentNotificationRepository.save(studentNotification);
 
             // 사용자 알림 설정 조회
-            NotificationSetting setting = notificationSettingRepository.findFirstByMemberId(memberId).orElseThrow(() -> new CustomException(ExceptionType.NOTIFICATION_NOT_FOUND_EXCEPTION));
+            NotificationSetting setting = notificationSettingRepository.findFirstByMemberId(memberId).orElse(null);
 
             // 푸시 알림 설정 확인
             if (setting == null || !isPushAllowed(setting, studentNotification)) {
