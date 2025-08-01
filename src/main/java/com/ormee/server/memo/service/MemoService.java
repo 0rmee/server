@@ -130,9 +130,9 @@ public class MemoService {
     @Transactional(readOnly = true)
     public Long getOpenMemo(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
+        Memo memo = memoRepository.findFirstByLectureAndIsOpenOrderByCreatedAtDesc(lecture, true).orElse(null);
 
-        return memo.getId();
+        return memo == null ? null : memo.getId();
     }
 
     public MemoDto read(Long memoId, String username) {
