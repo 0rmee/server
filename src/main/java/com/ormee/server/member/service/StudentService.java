@@ -3,13 +3,10 @@ package com.ormee.server.member.service;
 import com.ormee.server.global.config.jwt.JwtToken;
 import com.ormee.server.global.config.jwt.JwtTokenProvider;
 import com.ormee.server.global.config.jwt.RefreshToken;
+import com.ormee.server.member.dto.*;
 import com.ormee.server.notification.domain.NotificationSetting;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.member.domain.Role;
-import com.ormee.server.member.dto.PasswordDto;
-import com.ormee.server.member.dto.SignInDto;
-import com.ormee.server.member.dto.SignUpDto;
-import com.ormee.server.member.dto.TokenDto;
 import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.member.repository.MemberRepository;
@@ -158,5 +155,16 @@ public class StudentService {
         }
 
         memberRepository.save(student);
+    }
+
+    public StudentDto getInfo(String username) {
+        Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        return StudentDto.builder()
+                .name(student.getName())
+                .username(student.getUsername())
+                .phoneNumber(student.getPhoneNumber())
+                .email(student.getEmail())
+                .build();
     }
 }
