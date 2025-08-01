@@ -58,20 +58,17 @@ public class LectureService {
     }
 
     public LectureResponseDto save(LectureRequestDto lectureRequestDto, String username) {
-        Member teacher = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        Member teacher = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
         Lecture lecture = Lecture.builder()
                 .teacher(teacher)
                 .title(lectureRequestDto.getTitle())
                 .description(lectureRequestDto.getDescription())
-                .lectureDays(
-                        new ArrayList<>(
-                                lectureRequestDto.getLectureDays()
-                                        .stream()
-                                        .map(LectureDay::fromKorean)
-                                        .toList()
-                        )
-                )
+                .lectureDays(new ArrayList<>(lectureRequestDto.getLectureDays()
+                        .stream()
+                        .map(LectureDay::fromKorean)
+                        .toList()))
                 .startTime(lectureRequestDto.getStartTime())
                 .endTime(lectureRequestDto.getEndTime())
                 .startDate(lectureRequestDto.getStartDate())
@@ -80,7 +77,6 @@ public class LectureService {
 
         Lecture savedLecture = lectureRepository.save(lecture);
         teacher.addLecture(savedLecture);
-        memberRepository.save(teacher);
 
         return LectureResponseDto.builder()
                 .id(savedLecture.getId())
