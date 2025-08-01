@@ -43,6 +43,11 @@ public class StudentController {
         return ResponseDto.success();
     }
 
+    @GetMapping("/info")
+    public ResponseDto getInfo(Authentication authentication) {
+        return ResponseDto.success(studentService.getInfo(authentication.getName()));
+    }
+
     @PutMapping("/info")
     public ResponseDto updateInfo(Authentication authentication, SignUpDto signUpDto) {
         studentService.updateInfo(authentication.getName(), signUpDto);
