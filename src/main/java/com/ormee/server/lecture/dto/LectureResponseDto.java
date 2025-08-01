@@ -17,6 +17,7 @@ public class LectureResponseDto {
     private String name;
     private String profileImage;
     private List<AuthorDto> coTeachers;
+    private String coTeacher;
     private String title;
     private String description;
     private List<LectureDay> lectureDays;
@@ -28,4 +29,5 @@ public class LectureResponseDto {
     private List<QuizListDto> quizList;
     private Long activeQuizCount;
     private boolean messageAvailable;
+    private boolean isOwner;
 }

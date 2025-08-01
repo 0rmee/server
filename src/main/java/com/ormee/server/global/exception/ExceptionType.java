@@ -34,6 +34,7 @@ public enum ExceptionType {
     COLLABORATOR_CHANGE_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "공동 작업자 변경은 1번만 가능합니다."),
     LECTURE_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 개강한 강의는 수정 및 삭제가 불가능합니다."),
     QUIZ_MODIFY_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 공개된 퀴즈는 수정 불가능합니다."),
+    ANSWER_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 답변을 등록했습니다."),
     SUBMIT_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "이미 제출하였습니다."),
     PASSWORD_INVALID_EXCEPTION(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다."),
     ACCESS_FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "접근 권한 없습니다."),

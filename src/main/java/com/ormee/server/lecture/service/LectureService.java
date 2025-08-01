@@ -8,6 +8,7 @@ import com.ormee.server.lecture.dto.LectureListDto;
 import com.ormee.server.lecture.dto.LectureRequestDto;
 import com.ormee.server.lecture.dto.LectureResponseDto;
 import com.ormee.server.lecture.repository.LectureRepository;
+import com.ormee.server.member.domain.Role;
 import com.ormee.server.member.dto.AuthorDto;
 import com.ormee.server.memo.service.MemoService;
 import com.ormee.server.notice.service.NoticeService;
@@ -250,6 +251,24 @@ public class LectureService {
                 .startDate(lecture.getStartDate())
                 .dueDate(lecture.getDueDate())
                 .messageAvailable(memoRepository.existsByLectureAndIsOpen(lecture, true))
+                .build();
+    }
+
+    public LectureResponseDto getLecture(Long lectureId, String username) {
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member teacher = memberRepository.findByUsernameAndRole(username, Role.TEACHER).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+
+        return LectureResponseDto.builder()
+                .id(lecture.getId())
+                .coTeacher(lecture.getCollaborators().get(0).getUsername())
+                .title(lecture.getTitle())
+                .description(lecture.getDescription())
+                .lectureDays(lecture.getLectureDays())
+                .startTime(lecture.getStartTime())
+                .endTime(lecture.getEndTime())
+                .startDate(lecture.getStartDate())
+                .dueDate(lecture.getDueDate())
+                .isOwner(lecture.getTeacher().equals(teacher))
                 .build();
     }
 }
