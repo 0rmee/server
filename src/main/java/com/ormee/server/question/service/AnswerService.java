@@ -45,6 +45,10 @@ public class AnswerService {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
+        if(question.getIsAnswered()) {
+            throw new CustomException(ExceptionType.ANSWER_FORBIDDEN_EXCEPTION);
+        }
+
         Answer answer = Answer.builder()
                 .author(author)
                 .question(question)
