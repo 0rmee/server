@@ -256,7 +256,10 @@ public class LectureService {
 
         return LectureResponseDto.builder()
                 .id(lecture.getId())
-                .coTeacher(lecture.getCollaborators().get(0).getUsername())
+                .coTeacher(Optional.ofNullable(lecture.getCollaborators())
+                        .filter(list -> !list.isEmpty())
+                        .map(list -> list.get(0).getUsername())
+                        .orElse(null))
                 .title(lecture.getTitle())
                 .description(lecture.getDescription())
                 .lectureDays(lecture.getLectureDays())
