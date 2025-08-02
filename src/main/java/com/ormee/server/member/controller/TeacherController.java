@@ -47,6 +47,11 @@ public class TeacherController {
         return ResponseDto.success(teacherService.getInfo(authentication.getName()));
     }
 
+    @GetMapping("/username")
+    public ResponseDto checkUsername(@RequestParam String username) {
+        return ResponseDto.success(teacherService.checkUsername(username));
+    }
+
     @PutMapping("/info")
     public ResponseDto teacherInfoUpdate(Authentication authentication, @RequestBody TeacherDto teacherDto) {
         teacherService.updateInfo(authentication.getName(), teacherDto);

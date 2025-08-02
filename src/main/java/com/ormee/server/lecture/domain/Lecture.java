@@ -55,7 +55,7 @@ public class Lecture extends EntityTime {
     @Column
     private LocalDateTime dueDate;
 
-
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "lecture_collaborators",

@@ -176,4 +176,8 @@ public class TeacherService {
             throw new CustomException(ExceptionType.PASSWORD_INVALID_EXCEPTION);
         }
     }
+
+    public boolean checkUsername(String username) {
+        return memberRepository.existsByUsernameAndRole(username, Role.TEACHER);
+    }
 }

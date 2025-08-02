@@ -10,6 +10,7 @@ import java.util.List;
 public class LectureRequestDto {
     private String title;
     private String description;
+    private String collaborator;
     private List<String> lectureDays;
     private LocalTime startTime;
     private LocalTime endTime;
