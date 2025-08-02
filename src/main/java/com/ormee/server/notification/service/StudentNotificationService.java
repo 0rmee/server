@@ -161,36 +161,26 @@ public class StudentNotificationService {
 
     public String getAuthorImage(NotificationType type, Long parentId) {
         return switch (type) {
-            case QUIZ -> {
-                Quiz quiz = quizRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
-                yield Optional.ofNullable(quiz.getAuthor().getImage())
-                        .map(Attachment::getFilePath)
-                        .orElse(null);
-            }
-            case MEMO -> {
-                Memo memo = memoRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.MEMO_NOT_FOUND_EXCEPTION));
-                yield Optional.ofNullable(memo.getAuthor().getImage())
-                        .map(Attachment::getFilePath)
-                        .orElse(null);
-            }
-            case HOMEWORK -> {
-                Homework homework = homeworkRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
-                yield Optional.ofNullable(homework.getAuthor().getImage())
-                        .map(Attachment::getFilePath)
-                        .orElse(null);
-            }
-            case NOTICE -> {
-                Notice notice = noticeRepository.findById(parentId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
-                yield Optional.ofNullable(notice.getAuthor().getImage())
-                        .map(Attachment::getFilePath)
-                        .orElse(null);
-            }
-            case QUESTION -> {
-                Answer answer = answerRepository.findByQuestion_Id(parentId).orElseThrow(() -> new CustomException(ExceptionType.ANSWER_NOT_FOUND_EXCEPTION));
-                yield Optional.ofNullable(answer.getAuthor().getImage())
-                        .map(Attachment::getFilePath)
-                        .orElse(null);
-            }
+            case QUIZ -> quizRepository.findById(parentId).flatMap(quiz -> Optional.ofNullable(quiz.getAuthor().getImage())
+                            .map(Attachment::getFilePath))
+                    .orElse(null);
+
+            case MEMO -> memoRepository.findById(parentId).flatMap(memo -> Optional.ofNullable(memo.getAuthor().getImage())
+                            .map(Attachment::getFilePath))
+                    .orElse(null);
+
+            case HOMEWORK -> homeworkRepository.findById(parentId).flatMap(homework -> Optional.ofNullable(homework.getAuthor().getImage())
+                            .map(Attachment::getFilePath))
+                    .orElse(null);
+
+            case NOTICE -> noticeRepository.findById(parentId).flatMap(notice -> Optional.ofNullable(notice.getAuthor().getImage())
+                            .map(Attachment::getFilePath))
+                    .orElse(null);
+
+            case QUESTION -> answerRepository.findByQuestion_Id(parentId).flatMap(answer -> Optional.ofNullable(answer.getAuthor().getImage())
+                            .map(Attachment::getFilePath))
+                    .orElse(null);
+
             default -> null;
         };
     }
