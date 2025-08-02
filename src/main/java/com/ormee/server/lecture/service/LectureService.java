@@ -77,6 +77,7 @@ public class LectureService {
 
         Lecture savedLecture = lectureRepository.save(lecture);
         teacher.addLecture(savedLecture);
+        addCollaborator(savedLecture.getId(), lectureRequestDto.getCollaborator());
 
         return LectureResponseDto.builder()
                 .id(savedLecture.getId())
@@ -203,7 +204,7 @@ public class LectureService {
     public void addCollaborator(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        if(!lecture.getCollaborators().isEmpty())
+        if(lecture.getCollaborators() != null && !lecture.getCollaborators().isEmpty())
             throw new CustomException(ExceptionType.COLLABORATOR_ADD_FORBIDDEN_EXCEPTION);
 
         if(lecture.getCollaboratorChangeCount() != null && lecture.getCollaboratorChangeCount() > 1) {
