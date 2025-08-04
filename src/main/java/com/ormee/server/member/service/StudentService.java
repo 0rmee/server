@@ -147,7 +147,7 @@ public class StudentService {
         }
 
         if(signUpDto.getEmail() != null) {
-            student.setName(signUpDto.getEmail());
+            student.setEmail(signUpDto.getEmail());
         }
 
         if(signUpDto.getPassword() != null) {
