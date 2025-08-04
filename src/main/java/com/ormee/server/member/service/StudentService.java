@@ -142,8 +142,6 @@ public class StudentService {
     public void updateInfo(String username, SignUpDto signUpDto) {
         Member student = memberRepository.findByUsernameAndRole(username, Role.STUDENT).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
-        System.out.println(signUpDto.getEmail() + signUpDto.getName() + signUpDto.getPassword());
-
         if(signUpDto.getName() != null) {
             student.setName(signUpDto.getName());
         }

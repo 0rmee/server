@@ -49,7 +49,7 @@ public class StudentController {
     }
 
     @PutMapping("/info")
-    public ResponseDto updateInfo(Authentication authentication, SignUpDto signUpDto) {
+    public ResponseDto updateInfo(Authentication authentication, @RequestBody SignUpDto signUpDto) {
         studentService.updateInfo(authentication.getName(), signUpDto);
         return ResponseDto.success();
     }
