@@ -50,8 +50,6 @@ public class StudentLectureService {
 
         lecture.addStudentLecture(savedStudentLecture);
         student.addStudentLecture(savedStudentLecture);
-        lectureRepository.save(lecture);
-        memberRepository.save(student);
     }
 
     public void out(Long lectureId, String username) {
