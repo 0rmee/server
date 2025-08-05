@@ -26,10 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 
@@ -268,7 +265,7 @@ public class LectureService {
                 .endTime(lecture.getEndTime())
                 .startDate(lecture.getStartDate())
                 .dueDate(lecture.getDueDate())
-                .isOwner(lecture.getTeacher().equals(teacher))
+                .isOwner(Objects.equals(lecture.getTeacher().getId(), teacher.getId()))
                 .build();
     }
 }
