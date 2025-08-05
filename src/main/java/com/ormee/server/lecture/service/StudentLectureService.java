@@ -44,6 +44,7 @@ public class StudentLectureService {
         StudentLecture studentLecture = StudentLecture.builder()
                 .student(student)
                 .lecture(lecture)
+                .blocked(false)
                 .build();
 
         StudentLecture savedStudentLecture = studentLectureRepository.save(studentLecture);
