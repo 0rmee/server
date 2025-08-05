@@ -213,15 +213,13 @@ public class LectureService {
         lectureRepository.save(lecture);
     }
 
+    @Transactional
     public void removeCollaborator(Long lectureId, String username) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        if(lecture.getCollaborators().isEmpty()) {
-            throw new CustomException(ExceptionType.COLLABORATOR_NOT_FOUND_EXCEPTION);
-        }
-
-        Member collaborator = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
+        Member collaborator = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         lecture.removeCollaborator(collaborator);
-        lectureRepository.save(lecture);
     }
 
     public LectureResponseDto getLecture(Long lectureId) {
