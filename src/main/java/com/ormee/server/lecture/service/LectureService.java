@@ -90,13 +90,32 @@ public class LectureService {
 
         isModifiable(lecture);
 
-        lecture.setTitle(lectureRequestDto.getTitle());
-        lecture.setDescription(lectureRequestDto.getDescription());
-        lecture.setLectureDays(lectureRequestDto.getLectureDays().stream().map(LectureDay::fromKorean).toList());
-        lecture.setStartTime(lectureRequestDto.getStartTime());
-        lecture.setEndTime(lectureRequestDto.getEndTime());
-        lecture.setStartDate(lectureRequestDto.getStartDate());
-        lecture.setDueDate(lectureRequestDto.getDueDate());
+        if (lectureRequestDto.getTitle() != null) {
+            lecture.setTitle(lectureRequestDto.getTitle());
+        }
+        if (lectureRequestDto.getDescription() != null) {
+            lecture.setDescription(lectureRequestDto.getDescription());
+        }
+        if (lectureRequestDto.getLectureDays() != null) {
+            lecture.setLectureDays(
+                    lectureRequestDto.getLectureDays().stream()
+                            .map(String::toUpperCase)
+                            .map(LectureDay::valueOf)
+                            .toList()
+            );
+        }
+        if (lectureRequestDto.getStartTime() != null) {
+            lecture.setStartTime(lectureRequestDto.getStartTime());
+        }
+        if (lectureRequestDto.getEndTime() != null) {
+            lecture.setEndTime(lectureRequestDto.getEndTime());
+        }
+        if (lectureRequestDto.getStartDate() != null) {
+            lecture.setStartDate(lectureRequestDto.getStartDate());
+        }
+        if (lectureRequestDto.getDueDate() != null) {
+            lecture.setDueDate(lectureRequestDto.getDueDate());
+        }
 
         lectureRepository.save(lecture);
     }
@@ -113,7 +132,7 @@ public class LectureService {
     }
 
     private void isModifiable(Lecture lecture) {
-        if(lecture.getStartDate().toLocalDate().isBefore(LocalDate.now()))
+        if (lecture.getStartDate().toLocalDate().isBefore(LocalDate.now()))
             throw new CustomException(ExceptionType.LECTURE_MODIFY_FORBIDDEN_EXCEPTION);
     }
 
@@ -143,9 +162,9 @@ public class LectureService {
         List<Lecture> lectures = lectureRepository.findAllByTeacherOrCollaboratorsInOrderByCreatedAtDesc(teacher, List.of(teacher));
 
         return lectures.stream().map(lecture -> LectureResponseDto.builder()
-                .id(lecture.getId())
-                .name(lecture.getTitle())
-                .build())
+                        .id(lecture.getId())
+                        .name(lecture.getTitle())
+                        .build())
                 .toList();
     }
 
@@ -206,10 +225,10 @@ public class LectureService {
     public void addCollaborator(Long lectureId, String username) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
-        if(lecture.getCollaborators() != null && !lecture.getCollaborators().isEmpty())
+        if (lecture.getCollaborators() != null && !lecture.getCollaborators().isEmpty())
             throw new CustomException(ExceptionType.COLLABORATOR_ADD_FORBIDDEN_EXCEPTION);
 
-        if(lecture.getCollaboratorChangeCount() != null && lecture.getCollaboratorChangeCount() > 1) {
+        if (lecture.getCollaboratorChangeCount() != null && lecture.getCollaboratorChangeCount() > 1) {
             throw new CustomException(ExceptionType.COLLABORATOR_CHANGE_FORBIDDEN_EXCEPTION);
         }
 
