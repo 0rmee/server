@@ -98,5 +98,6 @@ public class Lecture extends EntityTime {
 
     public void removeCollaborator(Member collaborator) {
         collaborators.remove(collaborator);
+        collaborator.getLectures().remove(this);
     }
 }
