@@ -102,7 +102,12 @@ public class LectureService {
     }
 
     private void checkAuth(Lecture lecture, Member teacher) {
-        if(teacher != lecture.getTeacher() && !lecture.getCollaborators().contains(teacher)) {
+        Long teacherId = teacher.getId();
+        boolean isOwner = teacherId.equals(lecture.getTeacher().getId());
+        boolean isCollaborator = lecture.getCollaborators().stream()
+                .anyMatch(c -> teacherId.equals(c.getId()));
+
+        if (!isOwner && !isCollaborator) {
             throw new CustomException(ExceptionType.ACCESS_FORBIDDEN_EXCEPTION);
         }
     }
