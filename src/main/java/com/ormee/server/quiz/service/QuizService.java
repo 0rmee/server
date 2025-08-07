@@ -342,7 +342,7 @@ public class QuizService {
                         .header(quiz.getLecture().getTitle())
                         .title(quiz.getTitle())
                         .body(body)
-                        .content(quiz.getDescription())
+                        .content((detailType.equals(NotificationDetailType.REGISTER))? quiz.getDescription() : null)
                         .build());
     }
 
