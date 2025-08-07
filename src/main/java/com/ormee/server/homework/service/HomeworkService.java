@@ -319,7 +319,7 @@ public class HomeworkService {
                         .header(lecture.getTitle())
                         .title(homework.getTitle())
                         .body(body)
-                        .content(homework.getDescription())
+                        .content(detailType.equals(NotificationDetailType.REGISTER)? homework.getDescription() : null)
                         .build());
     }
 
