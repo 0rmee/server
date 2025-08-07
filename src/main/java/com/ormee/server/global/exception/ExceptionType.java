@@ -27,6 +27,7 @@ public enum ExceptionType {
     USERNAME_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
     EMAIL_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     LIKE_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 좋아요 했습니다."),
+    STUDENT_LECTURE_ALREADY_EXIST_EXCEPTION(HttpStatus.CONFLICT, "이미 참여 중인 강의입니다."),
     ACCOUNT_LOCKED_EXCEPTION(HttpStatus.LOCKED, "계정이 잠겼습니다."),
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     S3_REQUEST_FAILED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S3 요청에 실패했습니다."),

@@ -41,6 +41,10 @@ public class StudentLectureService {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
+        if(studentLectureRepository.existsByStudentAndLecture(student, lecture)) {
+            throw new CustomException(ExceptionType.STUDENT_LECTURE_ALREADY_EXIST_EXCEPTION);
+        }
+
         StudentLecture studentLecture = StudentLecture.builder()
                 .student(student)
                 .lecture(lecture)
@@ -116,12 +120,13 @@ public class StudentLectureService {
 
     public List<StudentDetailDto> findBlockedStudentsByLecture(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLectureAndBlockedTrueOrderByStudent_Name(lecture);
+        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLectureAndBlockedTrueOrderByUpdatedAtDesc(lecture);
 
         return studentLectures.stream()
                 .map(studentLecture -> StudentDetailDto.builder()
                         .id(studentLecture.getId())
                         .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
+                        .blockDate(studentLecture.getUpdatedAt().toLocalDate())
                         .build())
                 .toList();
     }

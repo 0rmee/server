@@ -11,5 +11,6 @@ public class StudentDetailDto {
     private Long id;
     private String name;
     private LocalDate enrolDate;
+    private LocalDate blockDate;
     private String description;
 }

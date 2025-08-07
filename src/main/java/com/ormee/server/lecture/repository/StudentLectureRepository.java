@@ -17,10 +17,12 @@ public interface StudentLectureRepository extends JpaRepository<StudentLecture, 
     List<StudentLecture> findByStudentAndLecture(Member student, Lecture lecture);
     Page<StudentLecture> findAllByLectureAndBlockedFalseOrderByStudent_Name(Lecture lecture, Pageable pageable);
     Page<StudentLecture> findAllByLectureAndBlockedFalseOrderByCreatedAtDesc(Lecture lecture, Pageable pageable);
-    List<StudentLecture> findAllByLectureAndBlockedTrueOrderByStudent_Name(Lecture lecture);
+    List<StudentLecture> findAllByLectureAndBlockedTrueOrderByUpdatedAtDesc(Lecture lecture);
     List<StudentLecture> findAllByStudentAndLecture_StartDateBeforeAndLecture_DueDateAfter(Member student, LocalDateTime now1, LocalDateTime now2);
     List<StudentLecture> findAllByStudentOrderByLecture_StartDateDesc(Member student);
 
     List<StudentLecture> findAllByLecture(Lecture lecture);
     List<StudentLecture> findAllByStudent(Member student);
+
+    boolean existsByStudentAndLecture(Member student, Lecture lecture);
 }
