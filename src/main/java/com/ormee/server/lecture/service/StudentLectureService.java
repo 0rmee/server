@@ -120,6 +120,7 @@ public class StudentLectureService {
 
         return studentLectures.stream()
                 .map(studentLecture -> StudentDetailDto.builder()
+                        .id(studentLecture.getId())
                         .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
                         .build())
                 .toList();
