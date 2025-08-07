@@ -116,12 +116,13 @@ public class StudentLectureService {
 
     public List<StudentDetailDto> findBlockedStudentsByLecture(Long lectureId) {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLectureAndBlockedTrueOrderByStudent_Name(lecture);
+        List<StudentLecture> studentLectures = studentLectureRepository.findAllByLectureAndBlockedTrueOrderByUpdatedAtDesc(lecture);
 
         return studentLectures.stream()
                 .map(studentLecture -> StudentDetailDto.builder()
                         .id(studentLecture.getId())
                         .name(studentLecture.getStudent().getName() + studentLecture.getStudent().getPhoneNumber().substring(studentLecture.getStudent().getPhoneNumber().length() - 4))
+                        .blockDate(studentLecture.getUpdatedAt().toLocalDate())
                         .build())
                 .toList();
     }
