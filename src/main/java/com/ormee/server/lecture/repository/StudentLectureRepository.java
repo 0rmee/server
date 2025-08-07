@@ -23,4 +23,6 @@ public interface StudentLectureRepository extends JpaRepository<StudentLecture, 
 
     List<StudentLecture> findAllByLecture(Lecture lecture);
     List<StudentLecture> findAllByStudent(Member student);
+
+    boolean existsByStudentAndLecture(Member student, Lecture lecture);
 }

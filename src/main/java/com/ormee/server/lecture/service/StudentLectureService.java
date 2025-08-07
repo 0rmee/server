@@ -41,6 +41,10 @@ public class StudentLectureService {
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
 
+        if(studentLectureRepository.existsByStudentAndLecture(student, lecture)) {
+            throw new CustomException(ExceptionType.STUDENT_LECTURE_ALREADY_EXIST_EXCEPTION);
+        }
+
         StudentLecture studentLecture = StudentLecture.builder()
                 .student(student)
                 .lecture(lecture)
