@@ -195,6 +195,8 @@ public class HomeworkService {
     public HomeworkDto read(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
 
+        List<Attachment> attachments = Optional.ofNullable(homework.getAttachments()).orElse(List.of());
+
         return HomeworkDto.builder()
                 .id(homework.getId())
                 .author(Optional.ofNullable(homework.getAuthor())
@@ -202,9 +204,11 @@ public class HomeworkService {
                         .orElse(homework.getLecture().getTeacher().getNickname()))
                 .title(homework.getTitle())
                 .description(homework.getDescription())
-                .fileNames(homework.getAttachments().stream()
-                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
-                .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .fileIds(attachments.stream().map(Attachment::getId).toList())
+                .fileNames(attachments.stream()
+                        .map(att -> Objects.requireNonNullElse(att.getOriginalFileName(), att.getFileName()))
+                        .toList())
+                .filePaths(attachments.stream().map(Attachment::getFilePath).toList())
                 .openTime(homework.getOpenTime())
                 .dueTime(homework.getDueTime())
                 .build();

@@ -17,6 +17,7 @@ public class HomeworkDto {
     private String description;
     private boolean feedbackCompleted;
     private boolean isSubmitted;
+    private List<Long> fileIds;
     private List<String> fileNames;
     private List<String> filePaths;
     private LocalDateTime openTime;

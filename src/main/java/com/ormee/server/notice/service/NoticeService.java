@@ -256,12 +256,16 @@ public class NoticeService {
     }
 
     public NoticeDto entityToDto(Notice notice) {
+        List<Attachment> attachments = Optional.ofNullable(notice.getAttachments()).orElse(List.of());
+
         return NoticeDto.builder()
                 .title(notice.getTitle() != null ? notice.getTitle() : "제목 없음")
                 .description(notice.getDescription() != null ? notice.getDescription() : "설명 없음")
-                .fileNames(notice.getAttachments().stream()
-                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
-                .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .fileNames(attachments.stream()
+                        .map(att -> Objects.requireNonNullElse(att.getOriginalFileName(), att.getFileName()))
+                        .toList())
+                .fileIds(attachments.stream().map(Attachment::getId).toList())
+                .filePaths(attachments.stream().map(Attachment::getFilePath).toList())
                 .postDate(notice.getCreatedAt())
                 .isPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false)
                 .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
