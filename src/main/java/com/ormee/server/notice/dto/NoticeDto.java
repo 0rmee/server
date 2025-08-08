@@ -12,6 +12,7 @@ import java.util.List;
 public class NoticeDto {
     private String title;
     private String description;
+    private List<Long> fileIds;
     private List<String> fileNames;
     private List<String> filePaths;
     private LocalDateTime postDate;
