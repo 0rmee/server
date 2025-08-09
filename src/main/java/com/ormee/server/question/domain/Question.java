@@ -48,10 +48,6 @@ public class Question extends EntityTime {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Answer> answers = new ArrayList<>();
-
     public void addAttachment(Attachment attachment) {
         attachments.add(attachment);
     }
