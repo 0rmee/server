@@ -69,10 +69,10 @@ public class QuestionService {
 
         for (Attachment attachment : attachments) {
             attachment.setParentId(question.getId().toString());
-            attachmentRepository.save(attachment);
+            question.addAttachment(attachment);
         }
 
-        question.setAttachments(attachments);
+        attachmentRepository.saveAll(attachments);
         questionRepository.save(question);
         notificationService.create(NotificationType.QUESTION, question);
     }
