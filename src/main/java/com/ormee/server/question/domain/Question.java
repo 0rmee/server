@@ -44,11 +44,13 @@ public class Question extends EntityTime {
     @Column
     private Boolean isAnswered;
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Answer> answers = new ArrayList<>();
+    public void addAttachment(Attachment attachment) {
+        attachments.add(attachment);
+    }
 
     public void removeAttachment(Attachment attachment) {
         this.attachments.remove(attachment);
