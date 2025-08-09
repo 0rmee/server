@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -147,7 +148,7 @@ public class QuestionService {
                 .id(question.getId())
                 .title(question.getTitle())
                 .content(question.getContent())
-                .isMine(student.equals(question.getStudent()))
+                .isMine(Objects.equals(student.getId(), question.getStudent().getId()))
                 .isAnswered(question.getIsAnswered())
                 .author(question.getStudent().getName())
                 .filePaths(question.getAttachments().stream().map(Attachment::getFilePath).toList())
