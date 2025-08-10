@@ -26,6 +26,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             "/members/**",
             "/teachers/signup",
             "/teachers/signin",
+            "/teachers/username/**",
             "/students/signup",
             "/students/signin",
             "/students/email/**",
