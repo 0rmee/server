@@ -88,7 +88,7 @@ public class StudentHomeService {
                 .map(StudentLecture::getLecture)
                 .toList();
 
-        List<Homework> homeworkList = homeworkRepository.findAllByIsDraftFalseAndLectureInOrderByCreatedAtAsc(lectures);
+        List<Homework> homeworkList = homeworkRepository.findAllByIsDraftFalseAndDueTimeAfterAndLectureInOrderByCreatedAtAsc(LocalDateTime.now(),lectures);
 
         List<HomeworkDto> homeworkListDtos = new ArrayList<>();
         for (Homework homework : homeworkList) {
