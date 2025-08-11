@@ -16,6 +16,9 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     List<Quiz> findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(LocalDateTime now);
     List<Quiz> findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(Lecture lecture);
     List<Quiz> findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime localDateTime);
-    List<Quiz> findAllByIsDraftFalseAndIsOpenedTrueAndLectureInOrderByCreatedAtAsc(List<Lecture> lectures);
+    List<Quiz> findAllByIsDraftFalseAndIsOpenedTrueAndDueTimeAfterAndLectureInOrderByCreatedAtAsc(
+            LocalDateTime now,
+            List<Lecture> lectures
+    );
     List<Quiz> findAllByLecture(Lecture lecture);
 }
