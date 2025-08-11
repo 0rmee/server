@@ -3,6 +3,7 @@ package com.ormee.server.quiz.repository;
 import com.ormee.server.lecture.domain.Lecture;
 import com.ormee.server.member.domain.Member;
 import com.ormee.server.quiz.domain.Quiz;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,10 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
             List<Lecture> lectures
     );
     List<Quiz> findAllByLecture(Lecture lecture);
+    @EntityGraph(attributePaths = {"lecture.studentLectures.student"})
+    List<Quiz> findAllByIsDraftFalseAndIsOpenedTrueAndOpenTimeLessThanEqualAndDueTimeGreaterThanEqualAndDueTimeLessThan(
+            LocalDateTime now,
+            LocalDateTime startOfTomorrow,
+            LocalDateTime startOfDayAfterTomorrow
+    );
 }

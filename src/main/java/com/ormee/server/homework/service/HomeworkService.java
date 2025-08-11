@@ -23,12 +23,13 @@ import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.service.StudentNotificationService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -161,35 +162,6 @@ public class HomeworkService {
                 .title(homework.getTitle())
                 .openTime(homework.getCreatedAt())
                 .build()).toList();
-    }
-
-    public FeedbackHomeworkListDto getFeedbackCompletedList(Long lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
-        List<Homework> homeworks = homeworkRepository.findAllByLectureAndIsDraftFalseOrderByCreatedAtDesc(lecture);
-        List<HomeworkDto> feedbackCompletedHomeworks = new ArrayList<>();
-        List<HomeworkDto> feedbackNotCompletedHomeworks = new ArrayList<>();
-
-        for (Homework homework : homeworks) {
-            boolean hasFeedback = homeworkSubmitRepository.existsByHomeworkAndIsFeedback(homework, true);
-            HomeworkDto dto = HomeworkDto.builder()
-                    .author(Optional.ofNullable(homework.getAuthor())
-                            .map(Member::getNickname)
-                            .orElse(homework.getLecture().getTeacher().getNickname()))
-                    .title(homework.getTitle())
-                    .openTime(homework.getOpenTime())
-                    .dueTime(homework.getDueTime())
-                    .build();
-            if (hasFeedback) {
-                feedbackCompletedHomeworks.add(dto);
-            } else {
-                feedbackNotCompletedHomeworks.add(dto);
-            }
-        }
-
-        return FeedbackHomeworkListDto.builder()
-                .feedbackCompletedHomeworks(feedbackCompletedHomeworks)
-                .feedbackNotCompletedHomeworks(feedbackNotCompletedHomeworks)
-                .build();
     }
 
     public HomeworkDto read(Long homeworkId) {
@@ -327,14 +299,55 @@ public class HomeworkService {
                         .build());
     }
 
+    public void deleteByLecture(Lecture lecture) {
+        List<Homework> homeworks = homeworkRepository.findAllByLecture(lecture);
+        homeworks.forEach(homework -> delete(homework.getId()));
+    }
+
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAllExpiredDrafts() {
         List<Homework> homeworks = homeworkRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
         homeworks.forEach(homework -> delete(homework.getId()));
     }
 
-    public void deleteByLecture(Lecture lecture) {
-        List<Homework> homeworks = homeworkRepository.findAllByLecture(lecture);
-        homeworks.forEach(homework -> delete(homework.getId()));
+    @Scheduled(cron = "0 0 17 * * *", zone = "Asia/Seoul")
+    @Transactional
+    public void notifyNotSubmittedStudentsAtFive() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDayAfterTomorrow = startOfTomorrow.plusDays(1);
+
+        List<Homework> ongoing = homeworkRepository.findAllByIsDraftFalseAndOpenTimeLessThanEqualAndDueTimeGreaterThanEqualAndDueTimeLessThan(now, startOfTomorrow, startOfDayAfterTomorrow);
+
+        for (Homework homework : ongoing) {
+            List<Long> allStudentIds = homework.getLecture().getStudentLectures().stream()
+                    .map(studentLecture -> studentLecture.getStudent().getId())
+                    .toList();
+            if (allStudentIds.isEmpty()) continue;
+
+            Set<Long> submittedIds = homeworkSubmitRepository.findSubmittedStudentIdsByHomeworkId(homework.getId());
+
+            List<Long> targets = allStudentIds.stream()
+                    .filter(id -> submittedIds == null || !submittedIds.contains(id))
+                    .toList();
+            if (targets.isEmpty()) continue;
+
+            try {
+                studentNotificationService.create(
+                        targets,
+                        StudentNotificationRequestDto.builder()
+                                .parentId(homework.getId())
+                                .type(NotificationType.HOMEWORK)
+                                .detailType(NotificationDetailType.REMIND)
+                                .header(homework.getLecture().getTitle())
+                                .title(homework.getTitle())
+                                .body("아직 제출하지 않은 숙제가 있어요!")
+                                .content(null)
+                                .build()
+                );
+            } catch (Exception e) {
+                System.out.println("Notify failed for homeworkId " + homework.getId() + e);
+            }
+        }
     }
 }
