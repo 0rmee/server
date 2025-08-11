@@ -22,6 +22,7 @@ import com.ormee.server.quiz.repository.QuizRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class StudentHomeService {
                 .map(StudentLecture::getLecture)
                 .toList();
 
-        List<Quiz> quizList = quizRepository.findAllByIsDraftFalseAndIsOpenedTrueAndLectureInOrderByCreatedAtAsc(lectures);
+        List<Quiz> quizList = quizRepository.findAllByIsDraftFalseAndIsOpenedTrueAndDueTimeAfterAndLectureInOrderByCreatedAtAsc(LocalDateTime.now(),lectures);
 
         List<QuizDto> quizListDtos = new ArrayList<>();
         for (Quiz quiz : quizList) {
@@ -87,7 +88,7 @@ public class StudentHomeService {
                 .map(StudentLecture::getLecture)
                 .toList();
 
-        List<Homework> homeworkList = homeworkRepository.findAllByIsDraftFalseAndLectureInOrderByCreatedAtAsc(lectures);
+        List<Homework> homeworkList = homeworkRepository.findAllByIsDraftFalseAndDueTimeAfterAndLectureInOrderByCreatedAtAsc(LocalDateTime.now(),lectures);
 
         List<HomeworkDto> homeworkListDtos = new ArrayList<>();
         for (Homework homework : homeworkList) {
