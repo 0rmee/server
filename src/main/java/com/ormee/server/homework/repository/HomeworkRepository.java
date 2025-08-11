@@ -14,10 +14,10 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findAllByLectureAndIsDraftTrueOrderByCreatedAtDesc(Lecture lecture);
     List<Homework> findAllByIsDraftFalseAndNotifiedFalseAndDueTimeBefore(LocalDateTime now);
     List<Homework> findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime localDateTime);
-    List<Homework> findAllByIsDraftFalseAndDueTimeBetween(LocalDateTime start, LocalDateTime end);
     List<Homework> findAllByIsDraftFalseAndDueTimeAfterAndLectureInOrderByCreatedAtAsc(
             LocalDateTime now,
             List<Lecture> lectures
     );
+    List<Homework> findAllByIsDraftFalseAndOpenTimeBeforeAndDueTimeAfter(LocalDateTime before, LocalDateTime after);
     List<Homework> findAllByLecture(Lecture lecture);
 }
