@@ -313,9 +313,11 @@ public class HomeworkService {
     @Scheduled(cron = "0 0 17 * * *", zone = "Asia/Seoul")
     @Transactional
     public void notifyNotSubmittedStudentsAtFive() {
-        final LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDayAfterTomorrow = startOfTomorrow.plusDays(1);
 
-        List<Homework> ongoing = homeworkRepository.findAllByIsDraftFalseAndOpenTimeBeforeAndDueTimeAfter(now, now);
+        List<Homework> ongoing = homeworkRepository.findAllByIsDraftFalseAndOpenTimeLessThanEqualAndDueTimeGreaterThanEqualAndDueTimeLessThan(now, startOfTomorrow, startOfDayAfterTomorrow);
 
         for (Homework homework : ongoing) {
             List<Long> allStudentIds = homework.getLecture().getStudentLectures().stream()

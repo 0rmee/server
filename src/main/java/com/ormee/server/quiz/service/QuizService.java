@@ -518,9 +518,11 @@ public class QuizService {
     @Scheduled(cron = "0 0 17 * * *", zone = "Asia/Seoul")
     @Transactional
     public void notifyNotSubmittedStudentsAtFive() {
-        final LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDayAfterTomorrow = startOfTomorrow.plusDays(1);
 
-        List<Quiz> ongoing = quizRepository.findAllByIsDraftFalseAndIsOpenedTrueAndOpenTimeBeforeAndDueTimeAfter(now, now);
+        List<Quiz> ongoing = quizRepository.findAllByIsDraftFalseAndIsOpenedTrueAndOpenTimeLessThanEqualAndDueTimeGreaterThanEqualAndDueTimeLessThan(now, startOfTomorrow, startOfDayAfterTomorrow);
 
         for (Quiz quiz : ongoing) {
             List<Long> allStudentIds = quiz.getLecture().getStudentLectures().stream()
