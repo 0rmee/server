@@ -21,4 +21,5 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
             List<Lecture> lectures
     );
     List<Quiz> findAllByLecture(Lecture lecture);
+    List<Quiz> findAllByIsDraftFalseAndIsOpenedTrueAndOpenTimeBeforeAndDueTimeAfter(LocalDateTime before, LocalDateTime after);
 }

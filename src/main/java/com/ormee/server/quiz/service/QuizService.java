@@ -26,7 +26,6 @@ import com.ormee.server.quiz.repository.QuizRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -76,7 +75,7 @@ public class QuizService {
                 .build();
         quiz = quizRepository.save(quiz);
 
-        for(ProblemDto problemDto : quizSaveDto.getProblems()) {
+        for (ProblemDto problemDto : quizSaveDto.getProblems()) {
             Problem problem = Problem.builder()
                     .quiz(quiz)
                     .content(problemDto.getContent())
@@ -105,7 +104,7 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new CustomException(ExceptionType.QUIZ_NOT_FOUND_EXCEPTION));
 
-        if(!quiz.getIsDraft() && quiz.getOpenTime().isBefore(LocalDateTime.now()))
+        if (!quiz.getIsDraft() && quiz.getOpenTime().isBefore(LocalDateTime.now()))
             throw new CustomException(ExceptionType.QUIZ_MODIFY_FORBIDDEN_EXCEPTION);
 
         validateQuizFields(quizSaveDto);
@@ -186,8 +185,8 @@ public class QuizService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        for(Quiz quiz : quizList) {
-            if(quiz.getDueTime() != null && quiz.getDueTime().isBefore(now)) {
+        for (Quiz quiz : quizList) {
+            if (quiz.getDueTime() != null && quiz.getDueTime().isBefore(now)) {
                 closedQuizzes.add(quiz);
             } else {
                 openQuizzes.add(quiz);
@@ -211,7 +210,7 @@ public class QuizService {
         List<QuizListDto> quizListDtos = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-        for(Quiz quiz : quizList) {
+        for (Quiz quiz : quizList) {
             QuizListDto quizListDto = QuizListDto.builder()
                     .id(quiz.getId())
                     .author(Optional.ofNullable(quiz.getAuthor())
@@ -219,7 +218,7 @@ public class QuizService {
                             .orElse(quiz.getLecture().getTeacher().getNickname()))
                     .quizName(quiz.getTitle())
                     .timeLimit(quiz.getTimeLimit())
-                    .quizDate(quiz.getDueTime() == null? null : quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
+                    .quizDate(quiz.getDueTime() == null ? null : quiz.getDueTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
                     .quizAvailable(!quiz.getIsDraft() && quiz.getIsOpened() && quiz.getOpenTime().isBefore(now) && quiz.getDueTime().isAfter(now))
                     .submitCount(problemSubmitRepository.countAllByProblem(problemRepository.findFirstByQuiz(quiz)))
                     .totalCount(quiz.getLecture().getStudentLectures().size())
@@ -253,7 +252,7 @@ public class QuizService {
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         List<ProblemDto> problemDtos = new ArrayList<>();
 
-        for(Problem problem : problems) {
+        for (Problem problem : problems) {
             ProblemDto problemDto = ProblemDto.builder()
                     .id(problem.getId())
                     .type(problem.getType().toString())
@@ -291,7 +290,7 @@ public class QuizService {
         List<Problem> problems = problemRepository.findAllByQuiz(quiz);
         List<ProblemDto> problemDtos = new ArrayList<>();
 
-        for(Problem problem : problems) {
+        for (Problem problem : problems) {
             ProblemDto problemDto = ProblemDto.builder()
                     .id(problem.getId())
                     .type(problem.getType().toString())
@@ -342,7 +341,7 @@ public class QuizService {
                         .header(quiz.getLecture().getTitle())
                         .title(quiz.getTitle())
                         .body(body)
-                        .content((detailType.equals(NotificationDetailType.REGISTER))? quiz.getDescription() : null)
+                        .content((detailType.equals(NotificationDetailType.REGISTER)) ? quiz.getDescription() : null)
                         .build());
     }
 
@@ -362,7 +361,7 @@ public class QuizService {
                 .map(problem -> {
                     List<ProblemSubmit> problemSubmits = problemSubmitRepository.findAllByProblem(problem);
 
-                    if(problemSubmits.isEmpty()) {
+                    if (problemSubmits.isEmpty()) {
                         return QuizStatsDto.builder()
                                 .problemId(problem.getId())
                                 .problemNum(problem.getId() - firstNum)
@@ -505,14 +504,53 @@ public class QuizService {
                 .toList();
     }
 
+    public void deleteByLecture(Lecture lecture) {
+        List<Quiz> quizzes = quizRepository.findAllByLecture(lecture);
+        quizzes.forEach(quiz -> deleteQuiz(quiz.getId()));
+    }
+
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAllExpiredDrafts() {
         List<Quiz> quizzes = quizRepository.findAllByIsDraftTrueAndCreatedAtBefore(LocalDateTime.now().minusDays(30));
         quizzes.forEach(quiz -> deleteQuiz(quiz.getId()));
     }
 
-    public void deleteByLecture(Lecture lecture) {
-        List<Quiz> quizzes = quizRepository.findAllByLecture(lecture);
-        quizzes.forEach(quiz -> deleteQuiz(quiz.getId()));
+    @Scheduled(cron = "0 0 17 * * *", zone = "Asia/Seoul")
+    @Transactional
+    public void notifyNotSubmittedStudentsAtFive() {
+        final LocalDateTime now = LocalDateTime.now();
+
+        List<Quiz> ongoing = quizRepository.findAllByIsDraftFalseAndIsOpenedTrueAndOpenTimeBeforeAndDueTimeAfter(now, now);
+
+        for (Quiz quiz : ongoing) {
+            List<Long> allStudentIds = quiz.getLecture().getStudentLectures().stream()
+                    .map(studentLecture -> studentLecture.getStudent().getId())
+                    .toList();
+
+            if (allStudentIds.isEmpty()) continue;
+
+            Set<Long> submittedIds = problemSubmitRepository.findSubmittedStudentIdsByQuizId(quiz.getId());
+
+            List<Long> targets = allStudentIds.stream()
+                    .filter(id -> submittedIds == null || !submittedIds.contains(id))
+                    .toList();
+
+            if (targets.isEmpty()) continue;
+
+            try {
+                studentNotificationService.create(targets,
+                        StudentNotificationRequestDto.builder()
+                                .parentId(quiz.getId())
+                                .type(NotificationType.QUIZ)
+                                .detailType(NotificationDetailType.REMIND)
+                                .header(quiz.getLecture().getTitle())
+                                .title(quiz.getTitle())
+                                .body("아직 응시하지 않은 퀴즈가 있어요!")
+                                .content(null)
+                                .build());
+            } catch (Exception e) {
+                System.out.println("Notify failed for quizId " + quiz.getId() + e);
+            }
+        }
     }
 }
