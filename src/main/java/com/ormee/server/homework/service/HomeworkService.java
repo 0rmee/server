@@ -181,6 +181,7 @@ public class HomeworkService {
                         .map(att -> Objects.requireNonNullElse(att.getOriginalFileName(), att.getFileName()))
                         .toList())
                 .filePaths(attachments.stream().map(Attachment::getFilePath).toList())
+                .fileTypes(attachments.stream().map(Attachment::getType).toList())
                 .openTime(homework.getOpenTime())
                 .dueTime(homework.getDueTime())
                 .build();

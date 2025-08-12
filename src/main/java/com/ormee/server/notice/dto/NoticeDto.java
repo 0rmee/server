@@ -1,5 +1,6 @@
 package com.ormee.server.notice.dto;
 
+import com.ormee.server.attachment.domain.AttachmentType;
 import com.ormee.server.member.dto.AuthorDto;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class NoticeDto {
     private List<Long> fileIds;
     private List<String> fileNames;
     private List<String> filePaths;
+    private List<AttachmentType> fileTypes;
     private LocalDateTime postDate;
     private Boolean isPinned;
     private Boolean isLiked;
