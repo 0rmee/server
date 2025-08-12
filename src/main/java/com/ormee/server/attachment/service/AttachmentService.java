@@ -91,6 +91,7 @@ public class AttachmentService {
                 break;
 
             case NOTICE:
+            case NOTICE_IMAGE:
                 if (!attachment.getParentId().equals("-1")) {
                     Notice notice = noticeRepository.findById(Long.valueOf(attachment.getParentId()))
                             .orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
@@ -99,6 +100,7 @@ public class AttachmentService {
                 break;
 
             case HOMEWORK:
+            case HOMEWORK_IMAGE:
                 if (!attachment.getParentId().equals("-1")) {
                     Homework homework = homeworkRepository.findById(Long.valueOf(attachment.getParentId()))
                             .orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));

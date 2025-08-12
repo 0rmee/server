@@ -1,5 +1,6 @@
 package com.ormee.server.homework.dto;
 
+import com.ormee.server.attachment.domain.AttachmentType;
 import com.ormee.server.member.dto.AuthorDto;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class HomeworkDto {
     private List<Long> fileIds;
     private List<String> fileNames;
     private List<String> filePaths;
+    private List<AttachmentType> fileTypes;
     private LocalDateTime openTime;
     private LocalDateTime dueTime;
 }

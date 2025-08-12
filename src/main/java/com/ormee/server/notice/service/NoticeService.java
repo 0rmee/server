@@ -266,6 +266,7 @@ public class NoticeService {
                         .toList())
                 .fileIds(attachments.stream().map(Attachment::getId).toList())
                 .filePaths(attachments.stream().map(Attachment::getFilePath).toList())
+                .fileTypes(attachments.stream().map(Attachment::getType).toList())
                 .postDate(notice.getCreatedAt())
                 .isPinned(notice.getIsPinned() != null ? notice.getIsPinned() : false)
                 .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
@@ -276,12 +277,16 @@ public class NoticeService {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new CustomException(ExceptionType.NOTICE_NOT_FOUND_EXCEPTION));
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
+        List<Attachment> attachments = Optional.ofNullable(notice.getAttachments()).orElse(List.of());
+
         return NoticeDto.builder()
                 .title(notice.getTitle())
                 .description(notice.getDescription())
-                .fileNames(notice.getAttachments().stream()
-                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
-                .filePaths(notice.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .fileNames(attachments.stream()
+                        .map(att -> Objects.requireNonNullElse(att.getOriginalFileName(), att.getFileName()))
+                        .toList())
+                .filePaths(attachments.stream().map(Attachment::getFilePath).toList())
+                .fileTypes(attachments.stream().map(Attachment::getType).toList())
                 .postDate(notice.getCreatedAt())
                 .isPinned(notice.getIsPinned())
                 .likes(notice.getLikes() != null ? notice.getLikes().size() : 0)
