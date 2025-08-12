@@ -269,6 +269,8 @@ public class HomeworkService {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
         Member student = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
 
+        List<Attachment> attachments = Optional.ofNullable(homework.getAttachments()).orElse(List.of());
+
         return HomeworkDto.builder()
                 .id(homework.getId())
                 .author(homework.getAuthor().getNickname())
@@ -277,9 +279,11 @@ public class HomeworkService {
                         .orElse(null))
                 .title(homework.getTitle())
                 .description(homework.getDescription())
-                .fileNames(homework.getAttachments().stream()
-                        .map(attachment -> Objects.requireNonNullElse(attachment.getOriginalFileName(), attachment.getFileName())).toList())
-                .filePaths(homework.getAttachments().stream().map(Attachment::getFilePath).toList())
+                .fileNames(attachments.stream()
+                        .map(att -> Objects.requireNonNullElse(att.getOriginalFileName(), att.getFileName()))
+                        .toList())
+                .filePaths(attachments.stream().map(Attachment::getFilePath).toList())
+                .fileTypes(attachments.stream().map(Attachment::getType).toList())
                 .openTime(homework.getCreatedAt())
                 .dueTime(homework.getDueTime())
                 .isSubmitted(homeworkSubmitRepository.existsByHomeworkAndStudent(homework, student))
