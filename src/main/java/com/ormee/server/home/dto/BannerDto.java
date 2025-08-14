@@ -8,5 +8,6 @@ import lombok.Data;
 public class BannerDto {
     private Long id;
     private String image;
-    private String path;
+    private String iosPath;
+    private String aosPath;
 }
