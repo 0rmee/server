@@ -16,6 +16,7 @@ import com.ormee.server.global.exception.CustomException;
 import com.ormee.server.global.exception.ExceptionType;
 import com.ormee.server.attachment.domain.Attachment;
 import com.ormee.server.attachment.service.AttachmentService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -41,6 +42,7 @@ public class AnswerService {
         this.studentNotificationService = studentNotificationService;
     }
 
+    @Transactional
     public void writeAnswer(Long questionId, AnswerSaveDto answerSaveDto, String username) throws Exception {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new CustomException(ExceptionType.QUESTION_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));

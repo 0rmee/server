@@ -19,6 +19,7 @@ import com.ormee.server.notice.repository.NoticeRepository;
 import com.ormee.server.notification.domain.NotificationType;
 import com.ormee.server.notification.dto.StudentNotificationRequestDto;
 import com.ormee.server.notification.service.StudentNotificationService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +51,7 @@ public class NoticeService {
         this.studentNotificationService = studentNotificationService;
     }
 
+    @Transactional
     public void saveNotice(Long lectureId, NoticeSaveDto noticeSaveDto, String username) throws Exception {
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
         Member author = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION));
