@@ -116,7 +116,9 @@ public class StudentHomeService {
             bannerListDtos.add(BannerDto.builder()
                     .id(banner.getId())
                     .image(banner.getImage())
-                    .path(banner.getPath()).build());
+                    .iosPath(banner.getIosPath())
+                    .aosPath(banner.getAosPath())
+                    .build());
         }
         return bannerListDtos;
     }
@@ -127,7 +129,8 @@ public class StudentHomeService {
         List<Banner> newBanners = requests.stream()
                 .map(req -> Banner.builder()
                         .image(req.getImage())
-                        .path(req.getPath())
+                        .iosPath(req.getIosPath())
+                        .aosPath(req.getAosPath())
                         .build())
                 .toList();
 
