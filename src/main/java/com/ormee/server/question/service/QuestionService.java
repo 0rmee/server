@@ -195,7 +195,7 @@ public class QuestionService {
                         .id(question.getId())
                         .isLocked(question.getIsLocked())
                         .isAnswered(question.getIsAnswered())
-                        .isMine(question.getStudent().equals(student))
+                        .isMine(Objects.equals(question.getStudent().getId(), student.getId()))
                         .title(question.getTitle())
                         .author(question.getStudent().getName())
                         .createdAt(question.getCreatedAt().toString())
