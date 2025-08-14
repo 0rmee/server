@@ -8,5 +8,6 @@ import lombok.Getter;
 @Builder
 public class BannerRequestDto {
     private String image;
-    private String path;
+    private String iosPath;
+    private String aosPath;
 }

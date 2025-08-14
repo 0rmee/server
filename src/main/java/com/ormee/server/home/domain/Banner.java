@@ -17,6 +17,9 @@ public class Banner {
     @Column(nullable = false)
     private String image;
 
-    @Column()
-    private String path;
+    @Column
+    private String iosPath;
+
+    @Column
+    private String aosPath;
 }
