@@ -58,6 +58,7 @@ public class HomeworkService {
         this.studentNotificationService = studentNotificationService;
     }
 
+    @Transactional
     public void create(Long lectureId, HomeworkSaveDto homeworkSaveDto, String username) throws Exception {
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new CustomException(ExceptionType.LECTURE_NOT_FOUND_EXCEPTION));
@@ -187,6 +188,7 @@ public class HomeworkService {
                 .build();
     }
 
+    @Transactional
     public void update(Long homeworkId, HomeworkSaveDto homeworkSaveDto) throws Exception {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new CustomException(ExceptionType.HOMEWORK_NOT_FOUND_EXCEPTION));
