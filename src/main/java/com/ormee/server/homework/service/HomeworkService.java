@@ -201,6 +201,10 @@ public class HomeworkService {
             homework.setDescription(homeworkSaveDto.getDescription());
         }
 
+        if(homeworkSaveDto.getDueTime() != null) {
+            homework.setDueTime(homeworkSaveDto.getDueTime());
+        }
+
         List<Long> fileIds = homeworkSaveDto.getFileIds() != null ? homeworkSaveDto.getFileIds() : List.of();
 
         List<Attachment> existingAttachments = homework.getAttachments();
