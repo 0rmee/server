@@ -1,6 +1,7 @@
 package com.ormee.server.notification.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.ormee.server.notification.domain.StudentNotification;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,10 +28,14 @@ public class FcmService {
 
     private static final String MESSAGING_SCOPE =
             "https://www.googleapis.com/auth/firebase.messaging";
-
+    private AccessToken cachedAccessToken;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private String getAccessToken() throws Exception {
+    private synchronized String getAccessToken() throws Exception {
+        if (cachedAccessToken != null && cachedAccessToken.getExpirationTime().after(Date.from(Instant.now().plusSeconds(60)))) {
+            return cachedAccessToken.getTokenValue();
+        }
+
         InputStream serviceAccount =
                 getClass().getClassLoader().getResourceAsStream("serviceAccountKey.json");
 
@@ -38,9 +45,10 @@ public class FcmService {
 
         GoogleCredentials googleCredentials = GoogleCredentials.fromStream(serviceAccount)
                 .createScoped(Collections.singletonList(MESSAGING_SCOPE));
-        googleCredentials.refreshIfExpired();
 
-        return googleCredentials.getAccessToken().getTokenValue();
+        this.cachedAccessToken = googleCredentials.refreshAccessToken();
+
+        return this.cachedAccessToken.getTokenValue();
     }
 
     public void sendMessageTo(String targetToken, StudentNotification studentNotification) throws Exception {
